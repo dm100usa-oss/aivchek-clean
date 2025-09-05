@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
 
     const priceId =
       mode === "quick"
-        ? process.env.STRIPE_PRICE_ID_QUICK
-        : process.env.STRIPE_PRICE_ID_PRO;
+        ? process.env.STRIPE_PRICE_QUICK
+        : process.env.STRIPE_PRICE_FULL;
 
     if (!priceId) {
       return NextResponse.json({ error: "Price ID not configured" }, { status: 500 });
@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
 
     const base = getBaseUrl(req);
 
-    // После оплаты ведём на финальные страницы success/[mode]
-    const successUrl = `${base}/success/${mode}?url=${encodeURIComponent(
+    // После оплаты возвращаем сразу на страницу результатов:
+    const successUrl = `${base}/preview/${mode}?url=${encodeURIComponent(
       url
     )}&status=ok&paid=1`;
 
