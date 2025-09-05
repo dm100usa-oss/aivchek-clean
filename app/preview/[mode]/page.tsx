@@ -81,13 +81,15 @@ export default function PreviewPage({
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
-          <h1 className="mb-6 text-center text-2xl font-semibold">
+          <h1 className="mb-2 text-center text-2xl font-semibold">
             {status === "ok" ? "Your result is ready" : "Scan failed"}
           </h1>
 
-          <div className="mb-6 text-center text-sm text-neutral-600">
-            {url ? <div className="truncate">Checked website: {url}</div> : <div>URL is missing</div>}
-          </div>
+          {url && status === "ok" && (
+            <div className="mb-6 text-center text-sm text-neutral-600">
+              Website: {url}
+            </div>
+          )}
 
           {status === "ok" ? (
             <>
@@ -101,7 +103,7 @@ export default function PreviewPage({
                 {(mode === "quick" ? quickItems : proItems).map((t, i) => (
                   <li key={i} className="flex items-start">
                     <span
-                      className={`mr-3 mt-1 inline-block h-3 w-3 rounded-full ${
+                      className={`mr-3 inline-block size-3 flex-none rounded-full ${
                         mode === "quick" ? "bg-blue-600" : "bg-green-600"
                       }`}
                       aria-hidden="true"
