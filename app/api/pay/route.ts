@@ -15,17 +15,19 @@ function getBaseUrl(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { mode, url, email } = await req.json();
+
     if (mode !== "quick" && mode !== "pro") {
       return NextResponse.json({ error: "Bad mode" }, { status: 400 });
     }
+
     if (!url || typeof url !== "string") {
       return NextResponse.json({ error: "Missing url" }, { status: 400 });
     }
 
     const priceId =
       mode === "quick"
-        ? process.env.STRIPE_PRICE_QUICK
-        : process.env.STRIPE_PRICE_FULL;
+        ? process.env.STRIPE_PRICE_ID_QUICK
+        : process.env.STRIPE_PRICE_ID_PRO;
 
     if (!priceId) {
       return NextResponse.json({ error: "Price ID not configured" }, { status: 500 });
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     const base = getBaseUrl(req);
 
-    // После оплаты возвращаем сразу на страницу результатов:
+    // После оплаты возвращаем сразу на страницу результатов
     const successUrl = `${base}/preview/${mode}?url=${encodeURIComponent(
       url
     )}&status=ok&paid=1`;
