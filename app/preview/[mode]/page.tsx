@@ -25,16 +25,30 @@ export default function PreviewPage({
       : "bg-green-600 hover:bg-green-700 text-white";
   const dot = mode === "quick" ? "bg-blue-600" : "bg-green-600";
 
-  const items = useMemo(
-    () => [
-      "AI Visibility",
-      "AI Readability of Text",
-      "AI Access to Key Pages",
-      "Up-to-Date Information for AI",
-      "AI-Friendly Page Structure",
-    ],
-    []
-  );
+  // Approved parameters
+  const quickItems = [
+    "Robots.txt — This file controls whether search engines and AI can see your site. If set incorrectly, the site may completely disappear from search and AI results.",
+    "Sitemap.xml — A sitemap for search engines and AI. If missing or incomplete, some pages won’t appear in search or be visible to AI.",
+    "X-Robots-Tag — If headers are set incorrectly and block indexing, the site won’t appear in search or AI results.",
+    "Meta robots — If meta tags block a page from search, it won’t appear in results or be found.",
+    "Canonical — If the main version of a page isn’t specified, AI may show duplicates or secondary pages, leading to inaccurate results.",
+  ];
+
+  const proItems = [
+    ...quickItems,
+    "Title — If a page lacks a clear title, search shows random text, and users don’t know why to visit.",
+    "Meta description — Without a proper description, the site looks unattractive in search and ranks lower.",
+    "Open Graph — These tags make links appealing in social media and AI results. Without them, random text or cut images are shown.",
+    "H1 — If a page has no main heading, search engines and AI don’t understand its topic, lowering its rank.",
+    "Structured Data — Without structured data, AI doesn’t understand the site precisely, reducing visibility.",
+    "Mobile friendly — If the site isn’t mobile-friendly, AI considers it inconvenient and shows it less often.",
+    "HTTPS — If the site isn’t secure (https), search engines and AI consider it unsafe and show it less often.",
+    "Alt texts — Without image captions, AI can’t interpret them, and part of the site’s information is lost.",
+    "Favicon — Without a favicon, AI sees the site as incomplete and ranks it lower.",
+    "404 page — If the error page doesn’t work correctly, the site loses visibility in search and AI.",
+  ];
+
+  const items = useMemo(() => (mode === "quick" ? quickItems : proItems), [mode]);
 
   const [email, setEmail] = useState("");
   const emailValid =
@@ -70,9 +84,9 @@ export default function PreviewPage({
             <>
               <ul className="mb-6 space-y-3">
                 {items.map((t, i) => (
-                  <li key={i} className="flex items-center">
+                  <li key={i} className="flex items-start">
                     <span
-                      className={`mr-3 inline-block h-3 w-3 rounded-full ${dot}`}
+                      className={`mr-3 mt-1 inline-block h-3 w-3 rounded-full bg-neutral-400`}
                       aria-hidden="true"
                     />
                     <span className="text-[15px]">{t}</span>
@@ -101,7 +115,9 @@ export default function PreviewPage({
                     ].join(" ")}
                   />
                   {!emailValid && (
-                    <p className="mt-1 text-xs text-rose-600">Please enter a valid email.</p>
+                    <p className="mt-1 text-xs text-rose-600">
+                      Please enter your email to continue.
+                    </p>
                   )}
                 </div>
               )}
@@ -124,23 +140,17 @@ export default function PreviewPage({
                     : "Payment confirmed. Your results are now unlocked."}
                 </div>
               )}
-
-              <p className="mt-6 text-center text-xs text-neutral-500">
-                <span className="opacity-60">
-                  Visibility scores are estimated and based on publicly available data. Not legal advice.
-                </span>
-              </p>
             </>
           ) : (
             <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-              We couldn’t complete the scan for this URL. Please check the address and try again. Payment is disabled.
+              We couldn’t analyze this website. Please check the address and try again.
             </div>
           )}
 
           <div className="mt-6 flex justify-center">
             <button
               onClick={back}
-              className="rounded-md border border-neutral-300 px-4 py-2 text-sm hover:bg-neutral-50"
+              className="rounded-md bg-amber-500 px-4 py-2 text-sm text-white hover:bg-amber-600"
             >
               Back to Home
             </button>
@@ -148,8 +158,6 @@ export default function PreviewPage({
         </div>
 
         <footer className="mt-8 text-center text-xs text-neutral-500">
-          © 2025 AI Visibility Pro. All rights reserved.
-          <br />
           <span className="opacity-60">
             Visibility scores are estimated and based on publicly available data. Not legal advice.
           </span>
