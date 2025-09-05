@@ -40,11 +40,26 @@ export default function PreviewPage({
   // Quick (5 factors)
   const quickItems = useMemo(
     () => [
-      "Robots.txt — This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
-      "Sitemap.xml — This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
-      "X-Robots-Tag — If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
-      "Meta robots — If meta tags block a page from search, it will not appear in results and will not be found.",
-      "Canonical — If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
+      {
+        name: "Robots.txt",
+        text: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
+      },
+      {
+        name: "Sitemap.xml",
+        text: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
+      },
+      {
+        name: "X-Robots-Tag",
+        text: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
+      },
+      {
+        name: "Meta robots",
+        text: "If meta tags block a page from search, it will not appear in results and will not be found.",
+      },
+      {
+        name: "Canonical",
+        text: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
+      },
     ],
     []
   );
@@ -52,21 +67,21 @@ export default function PreviewPage({
   // Pro (15 factors)
   const proItems = useMemo(
     () => [
-      "Robots.txt — This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
-      "Sitemap.xml — This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
-      "X-Robots-Tag — If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
-      "Meta robots — If meta tags block a page from search, it will not appear in results and will not be found.",
-      "Canonical — If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
-      "Title — If a page does not have a clear title, search shows random text and it is unclear why to visit the site.",
-      "Meta description — If a page lacks a proper description, the site looks unattractive in search and drops lower in results.",
-      "Open Graph — These tags make site links attractive in social media and AI answers. Without them, random text or cropped images are shown.",
-      "H1 — If a page has no main heading, search engines and AI cannot understand its topic, and the site loses rankings.",
-      "Structured Data — Without structured data, AI cannot understand the site precisely, reducing visibility.",
-      "Mobile friendly — If a site is not mobile-friendly, AI considers it inconvenient and shows it less often.",
-      "HTTPS — If a site works without HTTPS, AI and search engines consider it unsafe and show it less often.",
-      "Alt texts — If images have no alt texts, AI does not understand them, and part of the site’s information is lost.",
-      "Favicon — If a site has no icon, AI perceives it as incomplete and shows it less often.",
-      "404 page — If the error page is misconfigured, the site loses trust and visibility.",
+      { name: "Robots.txt", text: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results." },
+      { name: "Sitemap.xml", text: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible." },
+      { name: "X-Robots-Tag", text: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen." },
+      { name: "Meta robots", text: "If meta tags block a page from search, it will not appear in results and will not be found." },
+      { name: "Canonical", text: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings." },
+      { name: "Title", text: "If a page does not have a clear title, search shows random text and it is unclear why to visit the site." },
+      { name: "Meta description", text: "If a page lacks a proper description, the site looks unattractive in search and drops lower in results." },
+      { name: "Open Graph", text: "These tags make site links attractive in social media and AI answers. Without them, random text or cropped images are shown." },
+      { name: "H1", text: "If a page has no main heading, search engines and AI cannot understand its topic, and the site loses rankings." },
+      { name: "Structured Data", text: "Without structured data, AI cannot understand the site precisely, reducing visibility." },
+      { name: "Mobile friendly", text: "If a site is not mobile-friendly, AI considers it inconvenient and shows it less often." },
+      { name: "HTTPS", text: "If a site works without HTTPS, AI and search engines consider it unsafe and show it less often." },
+      { name: "Alt texts", text: "If images have no alt texts, AI does not understand them, and part of the site’s information is lost." },
+      { name: "Favicon", text: "If a site has no icon, AI perceives it as incomplete and shows it less often." },
+      { name: "404 page", text: "If the error page is misconfigured, the site loses trust and visibility." },
     ],
     []
   );
@@ -100,15 +115,17 @@ export default function PreviewPage({
               </div>
 
               <ul className="mb-6 space-y-4">
-                {(mode === "quick" ? quickItems : proItems).map((t, i) => (
-                  <li key={i} className="flex items-start">
+                {(mode === "quick" ? quickItems : proItems).map((item, i) => (
+                  <li key={i} className="flex items-center">
                     <span
                       className={`mr-3 inline-block size-3 flex-none rounded-full ${
                         mode === "quick" ? "bg-blue-600" : "bg-green-600"
                       }`}
                       aria-hidden="true"
                     />
-                    <span className="text-[15px] text-neutral-800">{t}</span>
+                    <span className="text-[15px] text-neutral-800">
+                      <span className="font-semibold">{item.name}</span> — {item.text}
+                    </span>
                   </li>
                 ))}
               </ul>
