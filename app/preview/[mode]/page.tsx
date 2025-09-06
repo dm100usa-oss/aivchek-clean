@@ -1,7 +1,7 @@
 // app/preview/[mode]/page.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type Mode = "quick" | "pro";
@@ -35,7 +35,12 @@ export default function PreviewPage({
     if (json?.url) window.location.href = json.url as string;
   };
 
-  const back = () => router.push("/");
+  // Redirect to /scan-failed if error
+  useEffect(() => {
+    if (status === "error") {
+      router.push("/scan-failed");
+    }
+  }, [status, router]);
 
   // Quick (5 factors)
   const quickItems = useMemo(
@@ -97,7 +102,7 @@ export default function PreviewPage({
       <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
           <h1 className="mb-2 text-center text-2xl font-semibold">
-            {status === "ok" ? "Your result is ready" : "Scan failed"}
+            Your result is ready
           </h1>
 
           {url && status === "ok" && (
@@ -106,7 +111,7 @@ export default function PreviewPage({
             </div>
           )}
 
-          {status === "ok" ? (
+          {status === "ok" && (
             <>
               <div className="mb-6 text-center text-base font-medium text-neutral-800">
                 {mode === "quick"
@@ -171,7 +176,7 @@ export default function PreviewPage({
                 <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center text-sm text-emerald-800">
                   {mode === "pro"
                     ? "Payment confirmed. Your PDF report will be sent to your email."
-                    : "Payment confirmed. Your results are now unlocked."}
+                    : "Payment confirmed. Thank you for checking your website’s AI visibility with us."}
                 </div>
               )}
 
@@ -181,18 +186,6 @@ export default function PreviewPage({
                 </span>
               </p>
             </>
-          ) : (
-            <div className="rounded-xl border border-amber-200 bg-white p-8 text-center shadow-sm">
-              <p className="mb-4 text-lg font-medium text-amber-700">
-                We couldn’t complete the scan for this URL. Please check the address and try again.
-              </p>
-              <button
-                onClick={back}
-                className="rounded-2xl bg-amber-400 px-5 py-2 font-medium text-white shadow-sm transition-colors hover:bg-amber-500"
-              >
-                Back to Home
-              </button>
-            </div>
           )}
         </div>
 
