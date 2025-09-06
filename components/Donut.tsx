@@ -1,36 +1,56 @@
 "use client";
 
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import { useEffect, useState } from "react";
+import {
+  CircularProgressbar,
+  buildStyles,
+} from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
 type DonutProps = {
-  score: number;
-  mode: "quick" | "pro";
+  score: number; // итоговый процент
 };
 
-export default function Donut({ score, mode }: DonutProps) {
-  // Основной цвет по режиму
-  const mainColor = mode === "quick" ? "#2563eb" : "#16a34a"; // синий или зелёный
+export default function Donut({ score }: DonutProps) {
+  const [animatedValue, setAnimatedValue] = useState(0);
 
-  // Цвет в зависимости от процентов
-  let gradientColor = "#ef4444"; // красный
-  if (score >= 80) {
-    gradientColor = "#22c55e"; // зелёный
-  } else if (score >= 40) {
-    gradientColor = "#eab308"; // жёлтый
-  }
+  // Анимация числа
+  useEffect(() => {
+    let start = 0;
+    const duration = 1200; // 1.2 сек
+    const step = 20; // интервал в мс
+    const increment = score / (duration / step);
+
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= score) {
+        start = score;
+        clearInterval(timer);
+      }
+      setAnimatedValue(Math.floor(start));
+    }, step);
+
+    return () => clearInterval(timer);
+  }, [score]);
+
+  // Динамический цвет
+  const getColor = (value: number) => {
+    if (value < 40) return "#ef4444"; // красный
+    if (value < 80) return "#eab308"; // жёлтый
+    return "#22c55e"; // зелёный
+  };
 
   return (
     <div style={{ width: 180, height: 180, margin: "0 auto" }}>
       <CircularProgressbar
-        value={score}
-        text={`${score}%`}
+        value={animatedValue}
+        text={`${animatedValue}%`}
         strokeWidth={10}
         styles={buildStyles({
-          pathColor: gradientColor,
-          trailColor: "#e5e7eb", // серый фон
-          textColor: "#111827", // чёрный текст
-          textSize: "16px",
+          textColor: "#111827",
+          trailColor: "#e5e7eb",
+          pathColor: getColor(animatedValue),
+          pathTransitionDuration: 1.2, // плавное заполнение
         })}
       />
     </div>
