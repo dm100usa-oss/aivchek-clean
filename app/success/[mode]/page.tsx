@@ -1,52 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import React from "react";
+import Donut from "../../../components/Donut";
 
 type Mode = "quick" | "pro";
-
-function Donut({ score }: { score: number }) {
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  let color = "#ef4444"; // красный
-  if (score >= 80) color = "#22c55e"; // зелёный
-  else if (score >= 40) color = "#eab308"; // жёлтый
-
-  return (
-    <svg width="180" height="180">
-      <circle
-        cx="90"
-        cy="90"
-        r={radius}
-        stroke="#e5e7eb"
-        strokeWidth="15"
-        fill="none"
-      />
-      <circle
-        cx="90"
-        cy="90"
-        r={radius}
-        stroke={color}
-        strokeWidth="15"
-        fill="none"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-      />
-      <text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        dy=".3em"
-        className="text-3xl font-bold fill-gray-800"
-      >
-        {score}%
-      </text>
-    </svg>
-  );
-}
 
 function ResultItem({
   title,
@@ -77,6 +34,7 @@ export default function SuccessPage({
   const searchParams = useSearchParams();
   const score = Number(searchParams.get("score") || 56);
 
+  // Короткие выводы под кругом
   let summary = "";
   if (score >= 80) {
     summary =
@@ -89,70 +47,72 @@ export default function SuccessPage({
       "Your website is poorly visible for AI platforms. Most parameters are misconfigured, which severely limits the site's visibility.";
   }
 
+  // Quick → 5 параметров
   const quickParams = [
     {
       name: "Robots.txt",
-      desc: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
+      desc: "This file controls whether search engines and AI can see your site.",
     },
     {
       name: "Sitemap.xml",
-      desc: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
+      desc: "This is a sitemap for search engines and AI.",
     },
     {
       name: "X-Robots-Tag",
-      desc: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
+      desc: "If headers are set incorrectly and block indexing, the site will not appear.",
     },
     {
       name: "Meta robots",
-      desc: "If meta tags block a page from search, it will not appear in results and will not be found.",
+      desc: "If meta tags block a page from search, it will not appear in results.",
     },
     {
       name: "Canonical",
-      desc: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
+      desc: "If the main version is not specified, AI may show duplicates or secondary sections.",
     },
   ];
 
+  // Pro → все 15 параметров
   const proParams = [
     ...quickParams,
     {
       name: "Title",
-      desc: "If a page does not have a clear title, search shows random text and it is unclear why to visit the site.",
+      desc: "If a page does not have a clear title, search shows random text.",
     },
     {
       name: "Meta description",
-      desc: "If a page lacks a proper description, the site looks unattractive in search and drops lower in results.",
+      desc: "If missing, the site looks unattractive in search and drops lower.",
     },
     {
       name: "Open Graph",
-      desc: "These tags make site links attractive in social media and AI answers. Without them, random text or cropped images are shown.",
+      desc: "These tags make site links attractive in social media and AI answers.",
     },
     {
       name: "H1",
-      desc: "If a page has no main heading, search engines and AI cannot understand its topic, and the site loses rankings.",
+      desc: "If a page has no main heading, AI cannot understand its topic.",
     },
     {
       name: "Structured Data",
-      desc: "Without structured data, AI cannot understand the site precisely, reducing visibility.",
+      desc: "Without structured data, AI cannot understand the site precisely.",
     },
     {
       name: "Mobile friendly",
-      desc: "If a site is not mobile-friendly, AI considers it inconvenient and shows it less often.",
+      desc: "If not mobile-friendly, AI shows the site less often.",
     },
     {
       name: "HTTPS",
-      desc: "If a site works without HTTPS, AI and search engines consider it unsafe and show it less often.",
+      desc: "If a site works without HTTPS, it is considered unsafe.",
     },
     {
       name: "Alt texts",
-      desc: "If images have no alt texts, AI does not understand them, and part of the site's information is lost.",
+      desc: "If images have no alt texts, AI does not understand them.",
     },
     {
       name: "Favicon",
-      desc: "If a site has no icon, AI perceives it as incomplete and shows it less often.",
+      desc: "If no icon, AI perceives the site as incomplete.",
     },
     {
       name: "404 page",
-      desc: "If the error page is misconfigured, the site loses trust and visibility.",
+      desc: "If misconfigured, the site loses trust and visibility.",
     },
   ];
 
@@ -161,20 +121,13 @@ export default function SuccessPage({
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-semibold text-center mb-2">
+      <h1 className="text-2xl font-semibold text-center mb-6">
         {mode === "quick"
           ? "Website visibility results"
           : "Full website visibility audit"}
       </h1>
-      <p className="text-center text-gray-600 mb-6">
-        {mode === "quick"
-          ? "Your website has been analyzed. Here are the key results."
-          : "Your website has been analyzed. Here are the detailed results."}
-      </p>
 
-      <div className="flex justify-center">
-        <Donut score={score} />
-      </div>
+      <Donut score={score} />
 
       <p className="text-center text-gray-700 mt-4">{summary}</p>
 
@@ -196,7 +149,8 @@ export default function SuccessPage({
           </p>
         ) : (
           <p className="text-gray-600">
-            The full website visibility audit with developer recommendations has been sent to your email.
+            The full website visibility audit with developer recommendations
+            has been sent to your email.
           </p>
         )}
       </div>
@@ -215,7 +169,8 @@ export default function SuccessPage({
       </div>
 
       <p className="text-xs text-gray-400 text-center mt-6">
-        Visibility scores are estimated and based on publicly available data. Not legal advice.
+        Visibility scores are estimated and based on publicly available
+        data. Not legal advice.
       </p>
     </main>
   );
