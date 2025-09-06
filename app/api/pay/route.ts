@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
 
     const base = getBaseUrl(req);
 
-    // После оплаты возвращаем сразу на страницу результатов:
-    const successUrl = `${base}/preview/${mode}?url=${encodeURIComponent(
+    // После оплаты отправляем на финальные страницы:
+    const successUrl = `${base}/success/${mode}?url=${encodeURIComponent(
       url
     )}&status=ok&paid=1`;
 
