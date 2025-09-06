@@ -11,7 +11,6 @@ interface Factor {
   status: "Good" | "Moderate" | "Poor";
 }
 
-// Quick → 5 утвержденных пунктов
 const QUICK_FACTORS: Factor[] = [
   {
     name: "Robots.txt",
@@ -40,33 +39,8 @@ const QUICK_FACTORS: Factor[] = [
   },
 ];
 
-// Pro → все 15 утвержденных пунктов
 const PRO_FACTORS: Factor[] = [
-  {
-    name: "Robots.txt",
-    desc: "This file manages access for search engines and AI. If configured incorrectly, it may block the entire site from being indexed.",
-    status: "Good",
-  },
-  {
-    name: "Sitemap.xml",
-    desc: "A sitemap shows search engines which pages exist. Missing or broken sitemap leaves parts of the site invisible.",
-    status: "Good",
-  },
-  {
-    name: "X-Robots-Tag",
-    desc: "Server-side headers that tell search engines and AI if pages can be indexed. Incorrect headers may hide content.",
-    status: "Moderate",
-  },
-  {
-    name: "Meta robots",
-    desc: "An HTML tag controlling search indexing. Wrong settings can remove key pages from results.",
-    status: "Moderate",
-  },
-  {
-    name: "Canonical",
-    desc: "Defines the preferred version of a page. Without it, duplicates may compete in results.",
-    status: "Good",
-  },
+  ...QUICK_FACTORS,
   {
     name: "Title",
     desc: "The page title is the first thing users see. Weak or missing titles reduce click-through.",
@@ -176,20 +150,28 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
         <Donut score={score} />
       </div>
 
-      <p className="text-center text-gray-700 mb-10">{summary}</p>
+      {/* Summary card */}
+      <div className="max-w-xl mx-auto bg-gray-50 rounded-xl shadow-md p-6 text-center mb-10">
+        <p className="text-lg font-semibold text-gray-800">{summary}</p>
+      </div>
 
+      {/* Parameters */}
       <div className="space-y-4">
         {factors.map((f, i) => (
           <ResultItem key={i} factor={f} dotColor={dotColor} />
         ))}
       </div>
 
+      {/* Navigation */}
       <div className="mt-10 text-center">
         <button
           onClick={() => (window.location.href = "/")}
           className="px-6 py-2 rounded-2xl text-white"
           style={{
-            background: "linear-gradient(90deg, #b45309 0%, #f59e0b 100%)",
+            background:
+              mode === "quick"
+                ? "linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)"
+                : "linear-gradient(90deg, #059669 0%, #10b981 100%)",
           }}
         >
           Back to Home
