@@ -1,4 +1,4 @@
-// success/[mode]/page.tsx
+// app/success/[mode]/page.tsx
 "use client";
 
 import { useMemo } from "react";
@@ -10,9 +10,9 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
   const mode = (params.mode as Mode) || "quick";
   const searchParams = useSearchParams();
   const url = (searchParams.get("url") || "").trim();
-  const score = Number(searchParams.get("score") || 72); // временно тестовое значение
+  const score = Number(searchParams.get("score") || 72); // пока тестовое значение
 
-  // Короткий вывод по проценту
+  // Интерпретация процента
   const summary =
     score >= 80
       ? "Your website is well visible for AI platforms and appears in search results. Most key information is accessible."
@@ -20,7 +20,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
       ? "Your website is partially visible for AI platforms. Some information is missing from results, lowering overall visibility."
       : "Your website is poorly visible for AI platforms. Most key information is hidden, which seriously limits visibility.";
 
-  // Факторы
+  // Quick (5 факторов)
   const quickItems = useMemo(
     () => [
       {
@@ -47,6 +47,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
     []
   );
 
+  // Pro (15 факторов)
   const proItems = useMemo(
     () => [
       { name: "Robots.txt", text: quickItems[0].text },
@@ -98,23 +99,29 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
     [quickItems]
   );
 
+  // Цвет круга
+  const circleColor =
+    score >= 80 ? "border-green-500" : score >= 40 ? "border-yellow-400" : "border-red-500";
+
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-10">
       <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-xl border border-neutral-200 bg-white p-8 shadow-sm">
+          {/* Заголовок */}
           <h1 className="mb-2 text-center text-2xl font-semibold">
             Website visibility results
           </h1>
 
+          {/* URL */}
           {url && (
-            <div className="mb-6 text-center text-sm text-neutral-600">
-              Website: {url}
-            </div>
+            <div className="mb-6 text-center text-sm text-neutral-600">Website: {url}</div>
           )}
 
           {/* Процент */}
           <div className="mb-6 flex justify-center">
-            <div className="flex h-32 w-32 items-center justify-center rounded-full border-8 border-blue-500 text-xl font-bold text-neutral-800">
+            <div
+              className={`flex h-32 w-32 items-center justify-center rounded-full border-8 ${circleColor} text-xl font-bold text-neutral-800`}
+            >
               {score}%
             </div>
           </div>
@@ -122,13 +129,14 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
           {/* Короткий вывод */}
           <p className="mb-6 text-center text-base text-neutral-700">{summary}</p>
 
-          {/* Список факторов */}
+          {/* Подпись перед списком */}
           <div className="mb-6 text-center text-base font-medium text-neutral-800">
             {mode === "quick"
               ? "We checked 5 key factors for your website’s AI visibility:"
               : "We checked all 15 key factors for your website’s AI visibility:"}
           </div>
 
+          {/* Список факторов */}
           <ul className="mb-6 space-y-4">
             {(mode === "quick" ? quickItems : proItems).map((item, i) => (
               <li key={i} className="flex items-center">
@@ -145,7 +153,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
             ))}
           </ul>
 
-          {/* PDF подтверждение для Pro */}
+          {/* Доп. надпись для Pro */}
           {mode === "pro" && (
             <p className="mt-4 text-center text-sm text-neutral-600">
               The full website visibility audit with developer recommendations has been sent to your email.
