@@ -9,41 +9,24 @@ function ResultItem({
   title,
   text,
   dotColor,
-  status,
+  statusColor,
 }: {
   title: string;
   text: string;
   dotColor: string;
-  status: "good" | "moderate" | "poor";
+  statusColor: string;
 }) {
-  const statusStyles = {
-    good: "bg-green-100 text-green-800",
-    moderate: "bg-yellow-100 text-yellow-800",
-    poor: "bg-red-100 text-red-800",
-  };
-
-  const statusLabels = {
-    good: "Good",
-    moderate: "Moderate",
-    poor: "Poor",
-  };
-
   return (
-    <div className="flex items-center justify-between p-4 border rounded-lg">
-      {/* Left side: dot and text */}
-      <div className="flex items-start space-x-3">
-        <div className={`w-3 h-3 mt-2 rounded-full ${dotColor}`}></div>
-        <div>
-          <p className="font-semibold">{title}</p>
-          <p className="text-sm text-gray-600">{text}</p>
-        </div>
+    <div className="p-4 border rounded-lg flex items-start space-x-3 shadow-sm bg-white">
+      <div className={`w-3 h-3 mt-2 rounded-full ${dotColor}`}></div>
+      <div className="flex-1">
+        <p className="font-semibold">{title}</p>
+        <p className="text-sm text-gray-700 mt-1">{text}</p>
       </div>
-
-      {/* Right side: status badge */}
       <span
-        className={`px-3 py-1 text-xs font-medium rounded-full ${statusStyles[status]}`}
+        className={`text-xs font-medium px-2 py-1 rounded-full ${statusColor}`}
       >
-        {statusLabels[status]}
+        Status
       </span>
     </div>
   );
@@ -58,7 +41,7 @@ export default function SuccessPage({
   const searchParams = useSearchParams();
   const score = Number(searchParams.get("score") || 56);
 
-  // Summary under the donut
+  // Короткий вывод
   let summary = "";
   if (score >= 80) {
     summary =
@@ -71,76 +54,67 @@ export default function SuccessPage({
       "Your website is poorly visible for AI platforms. Most parameters are misconfigured, which severely limits the site's visibility.";
   }
 
-  // Quick → 5 parameters
-  const quickParams = [
+  // Утверждённые тексты (короткие и длинные)
+  const shortParams = [
     {
       name: "Robots.txt",
-      desc: "This file controls whether search engines and AI can see your site.",
-      status: "poor",
+      desc: "This file controls whether search engines and AI can see your site. If misconfigured and access is blocked, the site may completely disappear from search and AI answers.",
     },
     {
       name: "Sitemap.xml",
-      desc: "This is a sitemap for search engines and AI.",
-      status: "moderate",
+      desc: "This is a sitemap for search engines and AI. Without it or if incomplete, some pages will not appear in search.",
     },
     {
       name: "X-Robots-Tag",
-      desc: "If headers are set incorrectly and block indexing, the site will not appear.",
-      status: "poor",
+      desc: "If headers are set incorrectly and block indexing, the site will not appear in search and AI results.",
     },
     {
       name: "Meta robots",
-      desc: "If meta tags block a page from search, it will not appear in results.",
-      status: "good",
+      desc: "If meta tags block a page, it will not appear in search results.",
     },
     {
       name: "Canonical",
       desc: "If the main version is not specified, AI may show duplicates or secondary sections.",
-      status: "moderate",
     },
   ];
 
-  // Pro → all 15 parameters (example statuses for now)
-  const proParams = [
-    ...quickParams,
-    { name: "Title", desc: "If a page does not have a clear title, search shows random text.", status: "good" },
-    { name: "Meta description", desc: "If missing, the site looks unattractive in search and drops lower.", status: "moderate" },
-    { name: "Open Graph", desc: "These tags make site links attractive in social media and AI answers.", status: "good" },
-    { name: "H1", desc: "If a page has no main heading, AI cannot understand its topic.", status: "poor" },
-    { name: "Structured Data", desc: "Without structured data, AI cannot understand the site precisely.", status: "moderate" },
-    { name: "Mobile friendly", desc: "If not mobile-friendly, AI shows the site less often.", status: "good" },
-    { name: "HTTPS", desc: "If a site works without HTTPS, it is considered unsafe.", status: "good" },
-    { name: "Alt texts", desc: "If images have no alt texts, AI does not understand them.", status: "moderate" },
-    { name: "Favicon", desc: "If no icon, AI perceives the site as incomplete.", status: "good" },
-    { name: "404 page", desc: "If misconfigured, the site loses trust and visibility.", status: "good" },
+  const longParams = [
+    {
+      name: "Robots.txt",
+      desc: "This file defines whether search engines and AI can index your site. If it is misconfigured and access is blocked, the site may completely disappear from search and AI answers. This is critical for indexing: even one mistake in configuration can lead to a full loss of visibility.",
+    },
+    {
+      name: "Sitemap.xml",
+      desc: "The sitemap shows search engines and AI which pages exist and what is important to index. Without it or if it is set up incorrectly, some pages remain invisible. As a result, clients cannot find important sections.",
+    },
+    // ...добавить все остальные длинные версии (Title, Meta description и т.д.)
   ];
 
-  const paramsList = mode === "quick" ? quickParams : proParams;
+  const paramsList = mode === "quick" ? shortParams : longParams;
   const dotColor = mode === "quick" ? "bg-blue-500" : "bg-green-500";
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-10">
+    <main className="max-w-2xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-semibold text-center mb-6">
         {mode === "quick"
           ? "Website visibility results"
           : "Full website visibility audit"}
       </h1>
 
-      {/* Donut chart */}
-      <div className="flex justify-center mb-6">
-        <Donut score={score} />
+      <Donut score={score} />
+
+      <div className="bg-gray-50 p-4 rounded-lg mt-6 shadow-sm">
+        <p className="text-center text-gray-800 font-medium">{summary}</p>
       </div>
 
-      <p className="text-center text-gray-700 mb-8">{summary}</p>
-
-      <div className="space-y-4">
+      <div className="mt-8 space-y-4">
         {paramsList.map((p, i) => (
           <ResultItem
             key={i}
             title={p.name}
             text={p.desc}
             dotColor={dotColor}
-            status={p.status as "good" | "moderate" | "poor"}
+            statusColor="bg-gray-200 text-gray-600"
           />
         ))}
       </div>
@@ -151,7 +125,7 @@ export default function SuccessPage({
             You can check other websites for AI visibility if you wish.
           </p>
         ) : (
-          <p className="text-gray-600 italic">
+          <p className="text-gray-600">
             The full website visibility audit with developer recommendations
             has been sent to your email.
           </p>
@@ -161,18 +135,33 @@ export default function SuccessPage({
       <div className="mt-6 text-center">
         <button
           onClick={() => (window.location.href = "/")}
-          className="px-6 py-2 rounded-2xl text-white font-semibold"
+          className="px-6 py-3 rounded-2xl text-white font-medium shadow-md transition"
           style={{
-            background: "linear-gradient(90deg, #92400e 0%, #f59e0b 100%)",
+            background:
+              mode === "quick"
+                ? "linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)"
+                : "linear-gradient(90deg, #065f46 0%, #10b981 100%)",
           }}
+          onMouseOver={(e) =>
+            (e.currentTarget.style.background =
+              mode === "quick"
+                ? "linear-gradient(90deg, #1e40af 0%, #2563eb 100%)"
+                : "linear-gradient(90deg, #064e3b 0%, #059669 100%)")
+          }
+          onMouseOut={(e) =>
+            (e.currentTarget.style.background =
+              mode === "quick"
+                ? "linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)"
+                : "linear-gradient(90deg, #065f46 0%, #10b981 100%)")
+          }
         >
           Back to Home
         </button>
       </div>
 
       <p className="text-xs text-gray-400 text-center mt-6">
-        Visibility scores are estimated and based on publicly available
-        data. Not legal advice.
+        Visibility scores are estimated and based on publicly available data.
+        Not legal advice.
       </p>
     </main>
   );
