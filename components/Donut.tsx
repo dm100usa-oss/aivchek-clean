@@ -1,50 +1,52 @@
-import React from "react";
+"use client";
 
-interface DonutProps {
-  score: number;
-}
+import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
-function getColor(score: number) {
-  if (score < 31) return "text-red-500";
-  if (score < 61) return "text-yellow-500";
-  return "text-green-500";
-}
-
-const Donut: React.FC<DonutProps> = ({ score }) => {
-  const radius = 50;
-  const stroke = 10;
-  const normalizedRadius = radius - stroke * 2;
-  const circumference = normalizedRadius * 2 * Math.PI;
-  const strokeDashoffset =
-    circumference - (score / 100) * circumference;
-
-  return (
-    <div className="flex flex-col items-center">
-      <svg height={radius * 2} width={radius * 2}>
-        <circle
-          stroke="#e5e7eb" // серый фон (Tailwind gray-200)
-          fill="transparent"
-          strokeWidth={stroke}
-          r={normalizedRadius}
-          cx={radius}
-          cy={radius}
-        />
-        <circle
-          stroke="currentColor"
-          className={getColor(score)}
-          fill="transparent"
-          strokeWidth={stroke}
-          strokeDasharray={circumference + " " + circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          r={normalizedRadius}
-          cx={radius}
-          cy={radius}
-        />
-      </svg>
-      <div className="mt-2 text-xl font-semibold">{score}%</div>
-    </div>
-  );
+type DonutProps = {
+  value: number;
+  mode: "quick" | "pro";
 };
 
-export default Donut;
+export default function Donut({ value, mode }: DonutProps) {
+  // Цвета по процентам
+  let pathColor = "";
+  if (value >= 80) {
+    pathColor = "url(#gradientGreen)";
+  } else if (value >= 40) {
+    pathColor = "url(#gradientYellow)";
+  } else {
+    pathColor = "url(#gradientRed)";
+  }
+
+  return (
+    <div style={{ width: 180, height: 180, margin: "0 auto" }}>
+      <svg style={{ height: 0 }}>
+        <defs>
+          <linearGradient id="gradientGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#10b981" />
+            <stop offset="100%" stopColor="#34d399" />
+          </linearGradient>
+          <linearGradient id="gradientYellow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="100%" stopColor="#fbbf24" />
+          </linearGradient>
+          <linearGradient id="gradientRed" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ef4444" />
+            <stop offset="100%" stopColor="#f87171" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <CircularProgressbar
+        value={value}
+        text={`${value}%`}
+        strokeWidth={10}
+        styles={buildStyles({
+          textColor: "#111827",
+          trailColor: "#e5e7eb",
+          pathColor,
+        })}
+      />
+    </div>
+  );
+}
