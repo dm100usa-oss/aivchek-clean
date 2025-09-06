@@ -1,434 +1,193 @@
 // app/success/[mode]/page.tsx
 "use client";
 
-import { useMemo } from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import React from "react";
 
-/**
- * Helper: map query param to normalized status.
- * Accepts: "good" | "moderate" | "poor" (case-insensitive). Fallback: "unknown" -> displayed as "—".
- */
-function normalizeStatus(v: string | null): "Good" | "Moderate" | "Poor" | "—" {
-  if (!v) return "—";
-  const s = v.toLowerCase();
-  if (s === "good") return "Good";
-  if (s === "moderate") return "Moderate";
-  if (s === "poor") return "Poor";
-  return "—";
+type Mode = "quick" | "pro";
+
+const shortTexts: Record<string, string> = {
+  robots: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
+  sitemap: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
+  xrobots: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
+  metarobots: "If meta tags block a page from search, it will not appear in results and will not be found.",
+  canonical: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
+};
+
+const longTexts: Record<string, string> = {
+  robots: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
+  sitemap: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
+  xrobots: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
+  metarobots: "If meta tags block a page from search, it will not appear in results and will not be found.",
+  canonical: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
+  title: "If a page does not have a clear title, search shows random text and it is unclear why to visit the site.",
+  metadesc: "If a page lacks a proper description, the site looks unattractive in search and drops lower in results.",
+  opengraph: "These tags make site links attractive in social media and AI answers. Without them, random text or cropped images are shown.",
+  h1: "If a page has no main heading, search engines and AI cannot understand its topic, and the site loses rankings.",
+  structured: "Without structured data, AI cannot understand the site precisely, reducing visibility.",
+  mobile: "If a site is not mobile-friendly, AI considers it inconvenient and shows it less often.",
+  https: "If a site works without HTTPS, AI and search engines consider it unsafe and show it less often.",
+  alt: "If images have no alt texts, AI does not understand them, and part of the site's information is lost.",
+  favicon: "If a site has no icon, AI perceives it as incomplete and shows it less often.",
+  page404: "If the error page is misconfigured, the site loses trust and visibility.",
+};
+
+function getColor(score: number) {
+  if (score >= 80) return { start: "#22c55e", end: "#16a34a" }; // green
+  if (score >= 40) return { start: "#facc15", end: "#eab308" }; // yellow
+  return { start: "#ef4444", end: "#dc2626" }; // red
 }
 
-/**
- * Color thresholds by score.
- */
-function colorForScore(score: number) {
-  if (score >= 80) {
-    return {
-      key: "green",
-      start: "#22c55e", // green-500
-      end: "#16a34a",   // green-600
-      text: "text-green-600",
-      ringBg: "stroke-green-100",
-    };
-  }
-  if (score >= 40) {
-    return {
-      key: "yellow",
-      start: "#eab308", // yellow-500
-      end: "#facc15",   // yellow-400
-      text: "text-yellow-600",
-      ringBg: "stroke-yellow-100",
-    };
-  }
-  return {
-    key: "red",
-    start: "#ef4444", // red-500
-    end: "#dc2626",   // red-600
-    text: "text-red-600",
-    ringBg: "stroke-red-100",
-  };
+function getSummary(score: number) {
+  if (score >= 80)
+    return "Your website is highly visible to AI platforms and appears in search results. Most key parameters are configured correctly.";
+  if (score >= 40)
+    return "Your website is partially visible to AI platforms. Some parameters need improvement to increase overall visibility.";
+  return "Your website is poorly visible to AI platforms. Most parameters are misconfigured, which severely limits the site's visibility.";
 }
 
-/**
- * Donut with gradient arc. Center shows only the numeric percentage.
- */
-function Donut({ value }: { value: number }) {
-  const clamped = Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
-  const { key, start, end, text, ringBg } = colorForScore(clamped);
-
-  // Circle geometry
-  const size = 200;
-  const stroke = 14;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (clamped / 100) * circumference;
-
-  const gradId = `grad-${key}`;
-
-  return (
-    <div className="flex flex-col items-center">
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="block">
-        <defs>
-          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor={start} />
-            <stop offset="100%" stopColor={end} />
-          </linearGradient>
-        </defs>
-
-        {/* Track */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={stroke}
-          className={ringBg}
-          fill="none"
-        />
-
-        {/* Progress */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          stroke={`url(#${gradId})`}
-          fill="none"
-          style={{
-            strokeDasharray: `${circumference} ${circumference}`,
-            strokeDashoffset: offset,
-            transform: "rotate(-90deg)",
-            transformOrigin: "50% 50%",
-            transition: "stroke-dashoffset 600ms ease",
-          }}
-        />
-
-        {/* Center value */}
-        <text
-          x="50%"
-          y="50%"
-          dominantBaseline="middle"
-          textAnchor="middle"
-          className={`font-semibold ${text}`}
-          style={{ fontSize: 28 }}
-        >
-          {clamped}%
-        </text>
-      </svg>
-    </div>
-  );
-}
-
-/**
- * Range-based conclusions (3 variants) shown under the donut.
- * Text is strictly the approved copy, in English.
- */
-function RangeConclusion({ score, variant }: { score: number; variant: "quick" | "pro" }) {
-  if (score >= 80) {
-    return (
-      <p className="text-gray-700">
-        Your website is well visible to AI platforms and appears in search results. Most of the site’s information is accessible and correctly recognized.
-      </p>
-    );
-  }
-  if (score >= 40) {
-    return (
-      <p className="text-gray-700">
-        Your website is partially visible to AI platforms, and part of the information does not appear in search results. Some data is unavailable to AI, which reduces the site’s overall visibility.
-      </p>
-    );
-  }
-  return (
-    <p className="text-gray-700">
-      Your website is poorly visible to AI platforms, and most data does not appear in search results. Key information is hidden from AI, which severely limits the site’s visibility.
-    </p>
-  );
-}
-
-/**
- * Approved subheadings under the H1.
- */
-function Subheading({ mode }: { mode: "quick" | "pro" }) {
-  if (mode === "quick") {
-    return (
-      <p className="text-gray-600">
-        Your website has been analyzed. Here are the key results.
-      </p>
-    );
-  }
-  return (
-    <p className="text-gray-600">
-      Your website has been analyzed. Here are the detailed results.
-    </p>
-  );
-}
-
-/**
- * Approved factor texts
- * Quick uses short versions for 5 factors. Pro uses long versions for all 15.
- * Status values can be supplied via query params; sensible placeholders are used otherwise.
- */
-const QUICK_FACTORS: Array<{ key: string; title: string; short: string; qp: string }> = [
-  {
-    key: "robots",
-    title: "Robots.txt",
-    qp: "rbt",
-    short:
-      "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
-  },
-  {
-    key: "sitemap",
-    title: "Sitemap.xml",
-    qp: "smp",
-    short:
-      "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
-  },
-  {
-    key: "xrobots",
-    title: "X-Robots-Tag",
-    qp: "xrt",
-    short:
-      "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
-  },
-  {
-    key: "metarobots",
-    title: "Meta robots",
-    qp: "mrb",
-    short:
-      "If meta tags block a page from search, it will not appear in results and will not be found.",
-  },
-  {
-    key: "canonical",
-    title: "Canonical",
-    qp: "can",
-    short:
-      "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
-  },
-];
-
-const PRO_FACTORS: Array<{
-  key: string;
-  title: string;
-  long: string;
-  qp: string;
-}> = [
-  {
-    key: "robots",
-    title: "Robots.txt",
-    qp: "rbt",
-    long:
-      "This file controls whether search engines and AI can see your site. If it is configured incorrectly and blocks access, the site may completely disappear from search and AI answers.",
-  },
-  {
-    key: "sitemap",
-    title: "Sitemap.xml",
-    qp: "smp",
-    long:
-      "The sitemap shows search engines and AI which pages you have and what is important to index. If it is missing or set up incorrectly, part of the site remains invisible, and users cannot find needed pages.",
-  },
-  {
-    key: "xrobots",
-    title: "X-Robots-Tag",
-    qp: "xrt",
-    long:
-      "This server-side header tells search engines and AI whether your pages may be shown. If a disallow directive is present, pages will not get into search.",
-  },
-  {
-    key: "metarobots",
-    title: "Meta robots",
-    qp: "mrb",
-    long:
-      "A special tag inside the page that controls whether it may appear in search and AI. If set to disallow, the page disappears from search results.",
-  },
-  {
-    key: "canonical",
-    title: "Canonical",
-    qp: "can",
-    long:
-      "This link tells search engines and AI which page version is primary. Without it, duplicates compete, and the system may show the wrong variant, losing relevant traffic.",
-  },
-  {
-    key: "title",
-    title: "Title",
-    qp: "ttl",
-    long:
-      "The page title is the first thing users see in search. If it is missing, duplicated, or too generic, search may display random text and users will not understand why they should click.",
-  },
-  {
-    key: "description",
-    title: "Meta description",
-    qp: "mds",
-    long:
-      "A short description under the title in search. If missing, duplicated, or too generic, search will pull random text, and users choose other results.",
-  },
-  {
-    key: "opengraph",
-    title: "Open Graph",
-    qp: "og",
-    long:
-      "Special tags that make links to your site attractive in social media, messengers, and AI answers. If missing or wrong, users see random text or a cropped image, which reduces trust and clicks.",
-  },
-  {
-    key: "h1",
-    title: "H1",
-    qp: "h1",
-    long:
-      "The main heading that tells search engines, AI, and users what the page is about. If missing or duplicated across pages, the system cannot determine what is important.",
-  },
-  {
-    key: "structured",
-    title: "Structured Data",
-    qp: "sd",
-    long:
-      "JSON-LD markup that explains the page type (product, article, organization). It enables rich results. If missing or invalid, the system misunderstands the page and you lose visibility and clicks.",
-  },
-  {
-    key: "mobile",
-    title: "Mobile friendly",
-    qp: "mob",
-    long:
-      "Responsive layout and usable UI on phones. If the layout breaks, text is tiny, or controls are hard to use, AI and search consider the site inconvenient and rank it lower.",
-  },
-  {
-    key: "https",
-    title: "HTTPS",
-    qp: "ssl",
-    long:
-      "Secure protocol is a baseline trust signal. If the site lacks HTTPS or has certificate issues, it is flagged as unsafe and shown less often.",
-  },
-  {
-    key: "alt",
-    title: "Alt texts",
-    qp: "alt",
-    long:
-      "Image alt attributes help search and AI understand images. Without them, important visual information is not accounted for.",
-  },
-  {
-    key: "favicon",
-    title: "Favicon",
-    qp: "fav",
-    long:
-      "A small site icon used in browsers and sometimes in results. It signals completeness. If missing or broken, the site looks unfinished and visibility may decrease.",
-  },
-  {
-    key: "page404",
-    title: "404 page",
-    qp: "p404",
-    long:
-      "A correct 404 response tells search and AI a page does not exist. If misconfigured (e.g., returns 200), the system gets confused and trusts the site less.",
-  },
-];
-
-/**
- * Factor list renderer
- */
-function Factors({
-  items,
-  mode,
-  searchParams,
+export default function SuccessPage({
+  params,
 }: {
-  items: Array<{ key: string; title: string; short?: string; long?: string; qp: string }>;
-  mode: "quick" | "pro";
-  searchParams: URLSearchParams;
+  params: { mode: Mode };
 }) {
-  return (
-    <div className="space-y-6">
-      {items.map((f) => {
-        const statusRaw = searchParams.get(f.qp);
-        const status = normalizeStatus(statusRaw);
-        return (
-          <div key={f.key} className="border border-gray-200 rounded-xl p-5 bg-white">
-            <div className="flex items-baseline justify-between">
-              <h3 className="text-gray-900 font-semibold">{f.title}</h3>
-              <span className="text-sm font-medium text-gray-700">
-                {status === "—" ? "Status: —" : `Status: ${status}`}
-              </span>
-            </div>
-            <p className="mt-2 text-gray-700 leading-relaxed">
-              {mode === "quick" ? f.short : f.long}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-export default function SuccessPage() {
-  const params = useParams<{ mode: "quick" | "pro" }>();
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const mode = params.mode as Mode;
+  const score = Number(searchParams.get("score") || 0);
 
-  const mode: "quick" | "pro" = (params?.mode === "pro" ? "pro" : "quick");
-  const score = useMemo(() => {
-    const raw = Number(searchParams.get("score"));
-    if (!Number.isFinite(raw)) return 72; // sensible default
-    return Math.max(0, Math.min(100, Math.round(raw)));
-  }, [searchParams]);
+  const color = getColor(score);
 
-  const palette = colorForScore(score);
+  const factors =
+    mode === "quick"
+      ? [
+          { key: "robots", label: "Robots.txt" },
+          { key: "sitemap", label: "Sitemap.xml" },
+          { key: "xrobots", label: "X-Robots-Tag" },
+          { key: "metarobots", label: "Meta robots" },
+          { key: "canonical", label: "Canonical" },
+        ]
+      : [
+          { key: "robots", label: "Robots.txt" },
+          { key: "sitemap", label: "Sitemap.xml" },
+          { key: "xrobots", label: "X-Robots-Tag" },
+          { key: "metarobots", label: "Meta robots" },
+          { key: "canonical", label: "Canonical" },
+          { key: "title", label: "Title" },
+          { key: "metadesc", label: "Meta description" },
+          { key: "opengraph", label: "Open Graph" },
+          { key: "h1", label: "H1" },
+          { key: "structured", label: "Structured Data" },
+          { key: "mobile", label: "Mobile friendly" },
+          { key: "https", label: "HTTPS" },
+          { key: "alt", label: "Alt texts" },
+          { key: "favicon", label: "Favicon" },
+          { key: "page404", label: "404 page" },
+        ];
+
+  const bulletColor =
+    mode === "quick" ? "bg-blue-500" : "bg-green-500";
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="mx-auto max-w-3xl px-6 py-10">
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900">
-          {mode === "quick" ? "Website visibility results" : "Full website visibility audit"}
+    <div className="min-h-screen bg-white py-10 px-4 flex justify-center">
+      <div className="max-w-3xl w-full">
+        <h1 className="text-3xl font-bold mb-2">
+          {mode === "quick"
+            ? "Website visibility results"
+            : "Full website visibility audit"}
         </h1>
-
-        {/* Subheading */}
-        <div className="mt-1">
-          <Subheading mode={mode} />
-        </div>
+        <p className="text-gray-600 mb-8">
+          {mode === "quick"
+            ? "Your website has been analyzed. Here are the key results."
+            : "Your website has been analyzed. Here are the detailed results."}
+        </p>
 
         {/* Donut */}
-        <div className="mt-8">
-          <Donut value={score} />
-        </div>
-
-        {/* Range-based conclusion */}
-        <div className="mt-6">
-          <RangeConclusion score={score} variant={mode} />
+        <div className="flex flex-col items-center mb-6">
+          <svg className="w-40 h-40">
+            <defs>
+              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor={color.start} />
+                <stop offset="100%" stopColor={color.end} />
+              </linearGradient>
+            </defs>
+            <circle
+              cx="80"
+              cy="80"
+              r="70"
+              stroke="#e5e7eb"
+              strokeWidth="15"
+              fill="none"
+            />
+            <circle
+              cx="80"
+              cy="80"
+              r="70"
+              stroke="url(#grad)"
+              strokeWidth="15"
+              fill="none"
+              strokeDasharray={2 * Math.PI * 70}
+              strokeDashoffset={
+                2 * Math.PI * 70 * (1 - score / 100)
+              }
+              strokeLinecap="round"
+            />
+            <text
+              x="50%"
+              y="50%"
+              textAnchor="middle"
+              dy=".3em"
+              className="text-3xl font-bold fill-gray-800"
+            >
+              {score}%
+            </text>
+          </svg>
+          <p className="mt-4 text-center text-gray-700 max-w-xl">
+            {getSummary(score)}
+          </p>
         </div>
 
         {/* Factors */}
-        <div className="mt-10">
-          {mode === "quick" ? (
-            <Factors items={QUICK_FACTORS} mode="quick" searchParams={searchParams} />
-          ) : (
-            <Factors items={PRO_FACTORS} mode="pro" searchParams={searchParams} />
-          )}
+        <div className="space-y-4 mb-8">
+          {factors.map((f) => (
+            <div
+              key={f.key}
+              className="p-4 border rounded-lg shadow-sm flex"
+            >
+              <div
+                className={`w-3 h-3 rounded-full mt-2 mr-3 ${bulletColor}`}
+              ></div>
+              <div>
+                <p className="font-semibold">
+                  {f.label}
+                </p>
+                <p className="text-gray-700 text-sm">
+                  {mode === "quick"
+                    ? shortTexts[f.key]
+                    : longTexts[f.key]}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Pro-only info about email */}
-        {mode === "pro" && (
-          <p className="mt-8 text-gray-700">
-            The full website visibility audit with developer recommendations has been sent to your email.
-          </p>
-        )}
+        {/* Extra note */}
+        <p className="text-gray-700 mb-6">
+          {mode === "quick"
+            ? "You can check other websites for AI visibility if you wish."
+            : "The full website visibility audit with developer recommendations has been sent to your email."}
+        </p>
 
-        {/* Navigation + helper line (Quick only helper line under the button) */}
-        <div className="mt-10 flex flex-col items-start gap-2">
-          <button
-            onClick={() => router.push("/")}
-            className="inline-flex items-center rounded-2xl px-5 py-3 text-white shadow-sm transition
-                       bg-gradient-to-r from-amber-500 to-amber-300 hover:from-amber-600 hover:to-amber-400"
-            aria-label="Back to Home"
-          >
-            Back to Home
-          </button>
-
-          {mode === "quick" && (
-            <p className="text-sm text-gray-600 mt-1">
-              You can check other websites for AI visibility if you wish.
-            </p>
-          )}
-        </div>
+        {/* Back button */}
+        <button className="bg-gradient-to-r from-amber-500 to-amber-400 text-white font-semibold px-6 py-3 rounded-2xl shadow hover:from-amber-600 hover:to-amber-500">
+          Back to Home
+        </button>
 
         {/* Disclaimer */}
-        <p className="mt-8 text-xs text-gray-500">
-          Visibility scores are estimated and based on publicly available data. Not legal advice.
+        <p className="text-gray-500 text-xs mt-6">
+          Visibility scores are estimated and based on publicly
+          available data. Not legal advice.
         </p>
       </div>
-    </main>
+    </div>
   );
 }
