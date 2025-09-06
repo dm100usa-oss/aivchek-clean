@@ -4,79 +4,65 @@ import { useEffect, useState } from "react";
 
 export default function Donut({ score }: { score: number }) {
   const [progress, setProgress] = useState(0);
+  const radius = 70;
+  const stroke = 12;
+  const circumference = 2 * Math.PI * radius;
 
   useEffect(() => {
     let start = 0;
-    const step = () => {
-      start += 1;
-      if (start <= score) {
-        setProgress(start);
-        requestAnimationFrame(step);
+    const duration = 1500; // 1.5s
+    const stepTime = 10;
+    const totalSteps = duration / stepTime;
+
+    const interval = setInterval(() => {
+      start += 100 / totalSteps;
+      if (start >= score) {
+        start = score;
+        clearInterval(interval);
       }
-    };
-    requestAnimationFrame(step);
+      setProgress(start);
+    }, stepTime);
+
+    return () => clearInterval(interval);
   }, [score]);
 
-  // Определяем цвет по проценту
-  const getColor = (value: number) => {
-    if (value < 40) return "red";
-    if (value < 80) return "orange";
-    return "green";
-  };
-
-  const color = getColor(progress);
-
-  // Настройка окружности
-  const radius = 80;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
+  // Цвет круга по процентам
+  function getColor(value: number) {
+    if (value < 40) return "#ef4444"; // red
+    if (value < 80) return "#f59e0b"; // yellow
+    return "#10b981"; // green
+  }
 
   return (
-    <div className="relative w-48 h-48 mx-auto">
-      <svg
-        className="w-full h-full transform -rotate-90"
-        viewBox="0 0 200 200"
-      >
-        {/* Серый фон кольца */}
+    <div className="relative w-40 h-40">
+      <svg className="w-full h-full rotate-[-90deg]">
         <circle
-          cx="100"
-          cy="100"
+          cx="50%"
+          cy="50%"
           r={radius}
           stroke="#e5e7eb"
-          strokeWidth="16"
+          strokeWidth={stroke}
           fill="none"
         />
-        {/* Цветное кольцо */}
         <circle
-          cx="100"
-          cy="100"
+          cx="50%"
+          cy="50%"
           r={radius}
-          stroke={`url(#grad-${color})`}
-          strokeWidth="16"
+          stroke={getColor(progress)}
+          strokeWidth={stroke}
           fill="none"
           strokeDasharray={circumference}
-          strokeDashoffset={offset}
+          strokeDashoffset={circumference - (progress / 100) * circumference}
           strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.3s linear" }}
+          style={{
+            transition: "stroke-dashoffset 0.05s linear, stroke 0.3s ease-in-out",
+          }}
         />
-        <defs>
-          <linearGradient id="grad-red" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#dc2626" />
-            <stop offset="100%" stopColor="#f87171" />
-          </linearGradient>
-          <linearGradient id="grad-orange" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#d97706" />
-            <stop offset="100%" stopColor="#facc15" />
-          </linearGradient>
-          <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#065f46" />
-            <stop offset="100%" stopColor="#10b981" />
-          </linearGradient>
-        </defs>
       </svg>
-      {/* Цифра в центре */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-3xl font-bold text-gray-800">{progress}%</span>
+        <span className="text-2xl font-semibold text-gray-700">
+          {Math.round(progress)}%
+        </span>
       </div>
     </div>
   );
