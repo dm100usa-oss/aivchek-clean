@@ -5,155 +5,192 @@ import Donut from "../../../components/Donut";
 
 type Mode = "quick" | "pro";
 
-function ResultItem({
-  title,
-  text,
-  dotColor,
-  statusColor,
-}: {
-  title: string;
-  text: string;
-  dotColor: string;
-  statusColor: string;
-}) {
+interface Factor {
+  name: string;
+  desc: string;
+  status: "Good" | "Moderate" | "Poor";
+}
+
+// Quick → 5 утвержденных пунктов
+const QUICK_FACTORS: Factor[] = [
+  {
+    name: "Robots.txt",
+    desc: "Controls whether search engines and AI can see your site. Misconfiguration may hide the whole website.",
+    status: "Good",
+  },
+  {
+    name: "Sitemap.xml",
+    desc: "A sitemap for search engines and AI. Missing or incomplete sitemaps reduce visibility.",
+    status: "Moderate",
+  },
+  {
+    name: "X-Robots-Tag",
+    desc: "If headers are misconfigured, pages may be blocked from indexing.",
+    status: "Poor",
+  },
+  {
+    name: "Meta robots",
+    desc: "Meta tags can block a page from appearing in search results.",
+    status: "Good",
+  },
+  {
+    name: "Canonical",
+    desc: "Defines the main version of a page. Missing canonical may cause duplicates in results.",
+    status: "Moderate",
+  },
+];
+
+// Pro → все 15 утвержденных пунктов
+const PRO_FACTORS: Factor[] = [
+  {
+    name: "Robots.txt",
+    desc: "This file manages access for search engines and AI. If configured incorrectly, it may block the entire site from being indexed.",
+    status: "Good",
+  },
+  {
+    name: "Sitemap.xml",
+    desc: "A sitemap shows search engines which pages exist. Missing or broken sitemap leaves parts of the site invisible.",
+    status: "Good",
+  },
+  {
+    name: "X-Robots-Tag",
+    desc: "Server-side headers that tell search engines and AI if pages can be indexed. Incorrect headers may hide content.",
+    status: "Moderate",
+  },
+  {
+    name: "Meta robots",
+    desc: "An HTML tag controlling search indexing. Wrong settings can remove key pages from results.",
+    status: "Moderate",
+  },
+  {
+    name: "Canonical",
+    desc: "Defines the preferred version of a page. Without it, duplicates may compete in results.",
+    status: "Good",
+  },
+  {
+    name: "Title",
+    desc: "The page title is the first thing users see. Weak or missing titles reduce click-through.",
+    status: "Good",
+  },
+  {
+    name: "Meta description",
+    desc: "A short description under the title in search results. Missing descriptions look unattractive and harm visibility.",
+    status: "Moderate",
+  },
+  {
+    name: "Open Graph",
+    desc: "Tags that make links look attractive in social media and AI responses. Missing tags reduce trust.",
+    status: "Poor",
+  },
+  {
+    name: "H1",
+    desc: "The main heading of the page. Without it, search engines cannot clearly understand the topic.",
+    status: "Good",
+  },
+  {
+    name: "Structured Data",
+    desc: "Special markup (JSON-LD) that helps AI and search engines understand content precisely.",
+    status: "Moderate",
+  },
+  {
+    name: "Mobile friendly",
+    desc: "If the site is not optimized for mobile, AI considers it inconvenient and lowers ranking.",
+    status: "Moderate",
+  },
+  {
+    name: "HTTPS",
+    desc: "Secure protocol required for trust. Sites without HTTPS are marked unsafe and rank lower.",
+    status: "Good",
+  },
+  {
+    name: "Alt texts",
+    desc: "Alternative texts for images. Without them, AI cannot interpret visuals.",
+    status: "Poor",
+  },
+  {
+    name: "Favicon",
+    desc: "A small site icon shown in browsers and search results. Without it, the site looks unfinished.",
+    status: "Moderate",
+  },
+  {
+    name: "404 page",
+    desc: "Error page that signals a missing resource. If misconfigured, search engines may treat broken links as valid.",
+    status: "Good",
+  },
+];
+
+function StatusBadge({ status }: { status: "Good" | "Moderate" | "Poor" }) {
+  const colors = {
+    Good: "bg-green-100 text-green-700",
+    Moderate: "bg-yellow-100 text-yellow-700",
+    Poor: "bg-red-100 text-red-700",
+  };
   return (
-    <div className="p-4 border rounded-lg flex items-start space-x-3 shadow-sm bg-white">
-      <div className={`w-3 h-3 mt-2 rounded-full ${dotColor}`}></div>
-      <div className="flex-1">
-        <p className="font-semibold">{title}</p>
-        <p className="text-sm text-gray-700 mt-1">{text}</p>
+    <span
+      className={`px-3 py-1 text-xs font-medium rounded-full ${colors[status]}`}
+    >
+      {status}
+    </span>
+  );
+}
+
+function ResultItem({ factor, dotColor }: { factor: Factor; dotColor: string }) {
+  return (
+    <div className="p-4 bg-white rounded-xl shadow flex items-start justify-between">
+      <div className="flex items-start space-x-3">
+        <div className={`w-3 h-3 mt-2 rounded-full ${dotColor}`} />
+        <div>
+          <p className="font-semibold">{factor.name}</p>
+          <p className="text-sm text-gray-600">{factor.desc}</p>
+        </div>
       </div>
-      <span
-        className={`text-xs font-medium px-2 py-1 rounded-full ${statusColor}`}
-      >
-        Status
-      </span>
+      <StatusBadge status={factor.status} />
     </div>
   );
 }
 
-export default function SuccessPage({
-  params,
-}: {
-  params: { mode: Mode };
-}) {
+export default function SuccessPage({ params }: { params: { mode: Mode } }) {
   const mode = params.mode as Mode;
   const searchParams = useSearchParams();
-  const score = Number(searchParams.get("score") || 56);
+  const score = Number(searchParams.get("score") || 60);
 
-  // Короткий вывод
-  let summary = "";
-  if (score >= 80) {
-    summary =
-      "Your website is well visible for AI platforms and appears in search results. Most key parameters are configured correctly.";
-  } else if (score >= 40) {
-    summary =
-      "Your website is partially visible for AI platforms. Some parameters need improvement to increase overall visibility.";
-  } else {
-    summary =
-      "Your website is poorly visible for AI platforms. Most parameters are misconfigured, which severely limits the site's visibility.";
-  }
+  const summary =
+    score >= 80
+      ? "Your website is well visible for AI platforms. Most key parameters are configured correctly."
+      : score >= 40
+      ? "Your website is partially visible for AI platforms. Some parameters need improvement to increase overall visibility."
+      : "Your website is poorly visible for AI platforms. Most parameters are misconfigured, which severely limits the site's visibility.";
 
-  // Утверждённые тексты (короткие и длинные)
-  const shortParams = [
-    {
-      name: "Robots.txt",
-      desc: "This file controls whether search engines and AI can see your site. If misconfigured and access is blocked, the site may completely disappear from search and AI answers.",
-    },
-    {
-      name: "Sitemap.xml",
-      desc: "This is a sitemap for search engines and AI. Without it or if incomplete, some pages will not appear in search.",
-    },
-    {
-      name: "X-Robots-Tag",
-      desc: "If headers are set incorrectly and block indexing, the site will not appear in search and AI results.",
-    },
-    {
-      name: "Meta robots",
-      desc: "If meta tags block a page, it will not appear in search results.",
-    },
-    {
-      name: "Canonical",
-      desc: "If the main version is not specified, AI may show duplicates or secondary sections.",
-    },
-  ];
-
-  const longParams = [
-    {
-      name: "Robots.txt",
-      desc: "This file defines whether search engines and AI can index your site. If it is misconfigured and access is blocked, the site may completely disappear from search and AI answers. This is critical for indexing: even one mistake in configuration can lead to a full loss of visibility.",
-    },
-    {
-      name: "Sitemap.xml",
-      desc: "The sitemap shows search engines and AI which pages exist and what is important to index. Without it or if it is set up incorrectly, some pages remain invisible. As a result, clients cannot find important sections.",
-    },
-    // ...добавить все остальные длинные версии (Title, Meta description и т.д.)
-  ];
-
-  const paramsList = mode === "quick" ? shortParams : longParams;
+  const factors = mode === "quick" ? QUICK_FACTORS : PRO_FACTORS;
   const dotColor = mode === "quick" ? "bg-blue-500" : "bg-green-500";
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-10">
+    <main className="max-w-3xl mx-auto px-6 py-12">
       <h1 className="text-2xl font-semibold text-center mb-6">
         {mode === "quick"
           ? "Website visibility results"
           : "Full website visibility audit"}
       </h1>
 
-      <Donut score={score} />
-
-      <div className="bg-gray-50 p-4 rounded-lg mt-6 shadow-sm">
-        <p className="text-center text-gray-800 font-medium">{summary}</p>
+      <div className="flex justify-center mb-6">
+        <Donut score={score} />
       </div>
 
-      <div className="mt-8 space-y-4">
-        {paramsList.map((p, i) => (
-          <ResultItem
-            key={i}
-            title={p.name}
-            text={p.desc}
-            dotColor={dotColor}
-            statusColor="bg-gray-200 text-gray-600"
-          />
+      <p className="text-center text-gray-700 mb-10">{summary}</p>
+
+      <div className="space-y-4">
+        {factors.map((f, i) => (
+          <ResultItem key={i} factor={f} dotColor={dotColor} />
         ))}
       </div>
 
       <div className="mt-10 text-center">
-        {mode === "quick" ? (
-          <p className="text-gray-600">
-            You can check other websites for AI visibility if you wish.
-          </p>
-        ) : (
-          <p className="text-gray-600">
-            The full website visibility audit with developer recommendations
-            has been sent to your email.
-          </p>
-        )}
-      </div>
-
-      <div className="mt-6 text-center">
         <button
           onClick={() => (window.location.href = "/")}
-          className="px-6 py-3 rounded-2xl text-white font-medium shadow-md transition"
+          className="px-6 py-2 rounded-2xl text-white"
           style={{
-            background:
-              mode === "quick"
-                ? "linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)"
-                : "linear-gradient(90deg, #065f46 0%, #10b981 100%)",
+            background: "linear-gradient(90deg, #b45309 0%, #f59e0b 100%)",
           }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.background =
-              mode === "quick"
-                ? "linear-gradient(90deg, #1e40af 0%, #2563eb 100%)"
-                : "linear-gradient(90deg, #064e3b 0%, #059669 100%)")
-          }
-          onMouseOut={(e) =>
-            (e.currentTarget.style.background =
-              mode === "quick"
-                ? "linear-gradient(90deg, #1e3a8a 0%, #3b82f6 100%)"
-                : "linear-gradient(90deg, #065f46 0%, #10b981 100%)")
-          }
         >
           Back to Home
         </button>
