@@ -1,68 +1,82 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useRef } from "react";
 
 export default function Donut({ score }: { score: number }) {
-  const [progress, setProgress] = useState(0);
+  const circleRef = useRef<SVGCircleElement>(null);
 
-  // Анимация от 0 к score
   useEffect(() => {
-    let start = 0;
-    const step = () => {
-      start += 1;
-      if (start <= score) {
-        setProgress(start);
-        requestAnimationFrame(step);
-      }
-    };
-    requestAnimationFrame(step);
+    if (circleRef.current) {
+      const radius = circleRef.current.r.baseVal.value;
+      const circumference = radius * 2 * Math.PI;
+      circleRef.current.style.strokeDasharray = `${circumference} ${circumference}`;
+      circleRef.current.style.strokeDashoffset = `${circumference}`;
+
+      const offset = circumference - (score / 100) * circumference;
+      circleRef.current.style.strokeDashoffset = `${offset}`;
+    }
   }, [score]);
 
-  // Цвет от красного к зелёному
-  const getColor = (value: number) => {
-    if (value < 40) return "#ef4444"; // красный
-    if (value < 80) return "#f59e0b"; // жёлтый
-    return "#22c55e"; // зелёный
-  };
-
-  const radius = 60;
-  const stroke = 12;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
+  // Dynamic gradient color depending on score
+  const gradientId = "donut-gradient";
+  let gradientStops;
+  if (score < 40) {
+    gradientStops = (
+      <>
+        <stop offset="0%" stopColor="#dc2626" /> {/* red */}
+        <stop offset="100%" stopColor="#f87171" /> {/* light red */}
+      </>
+    );
+  } else if (score < 80) {
+    gradientStops = (
+      <>
+        <stop offset="0%" stopColor="#f59e0b" /> {/* amber */}
+        <stop offset="100%" stopColor="#fde68a" /> {/* light yellow */}
+      </>
+    );
+  } else {
+    gradientStops = (
+      <>
+        <stop offset="0%" stopColor="#16a34a" /> {/* green */}
+        <stop offset="100%" stopColor="#86efac" /> {/* light green */}
+      </>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center">
-      <svg
-        width="160"
-        height="160"
-        className="-rotate-90"
-      >
+    <div className="relative w-40 h-40">
+      <svg className="w-full h-full transform -rotate-90">
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
+            {gradientStops}
+          </linearGradient>
+        </defs>
         <circle
+          className="text-gray-200"
+          stroke="currentColor"
+          strokeWidth="10"
+          fill="transparent"
+          r="70"
           cx="80"
           cy="80"
-          r={radius}
-          stroke="#e5e7eb" // серый фон
-          strokeWidth={stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={0}
         />
         <circle
+          ref={circleRef}
+          stroke={`url(#${gradientId})`}
+          strokeWidth="10"
+          strokeLinecap="round"
+          fill="transparent"
+          r="70"
           cx="80"
           cy="80"
-          r={radius}
-          stroke={getColor(progress)}
-          strokeWidth={stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          style={{ transition: "stroke 0.3s" }}
+          style={{
+            transition: "stroke-dashoffset 1s ease-out",
+          }}
         />
       </svg>
-      <p className="text-3xl font-bold text-gray-800 -mt-24">
-        {progress}%
-      </p>
+      <div className="absolute inset-0 flex items-center justify-center text-xl font-bold text-gray-800">
+        {score}%
+      </div>
     </div>
   );
 }
