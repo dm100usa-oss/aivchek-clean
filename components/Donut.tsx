@@ -28,14 +28,28 @@ export default function Donut({ score }: DonutProps) {
   const strokeDashoffset =
     circumference - (progress / 100) * circumference;
 
-  const getColor = () => {
-    if (progress >= 80) return "#10b981"; // green
-    if (progress >= 40) return "#f59e0b"; // yellow
-    return "#ef4444"; // red
+  const getGradientId = () => {
+    if (score >= 80) return "greenGradient";
+    if (score >= 40) return "yellowGradient";
+    return "redGradient";
   };
 
   return (
     <svg height={radius * 2} width={radius * 2}>
+      <defs>
+        <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#059669" />
+          <stop offset="100%" stopColor="#10b981" />
+        </linearGradient>
+        <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#d97706" />
+          <stop offset="100%" stopColor="#f59e0b" />
+        </linearGradient>
+        <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#dc2626" />
+          <stop offset="100%" stopColor="#ef4444" />
+        </linearGradient>
+      </defs>
       <circle
         stroke="#e5e7eb"
         fill="transparent"
@@ -45,7 +59,7 @@ export default function Donut({ score }: DonutProps) {
         cy={radius}
       />
       <circle
-        stroke={getColor()}
+        stroke={`url(#${getGradientId()})`}
         fill="transparent"
         strokeWidth={stroke}
         strokeDasharray={circumference + " " + circumference}
@@ -57,7 +71,7 @@ export default function Donut({ score }: DonutProps) {
         style={{
           transform: "rotate(-90deg)",
           transformOrigin: "50% 50%",
-          transition: "stroke-dashoffset 0.3s ease, stroke 0.3s ease",
+          transition: "stroke-dashoffset 1s ease",
         }}
       />
       <text
@@ -67,7 +81,7 @@ export default function Donut({ score }: DonutProps) {
         textAnchor="middle"
         fontSize="20"
         fontWeight="bold"
-        fill={getColor()}
+        fill="#374151"
       >
         {progress}%
       </text>
