@@ -1,7 +1,7 @@
 // app/api/pay/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { analyzeWeighted } from "../../../lib/analyzeWeighted";
+import { analyze } from "../../../lib/analyze"; // ✅ используем правильный модуль
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2024-06-20",
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const base = getBaseUrl(req);
 
     // 🔹 Запускаем анализ сайта → получаем процент видимости
-    const { score } = await analyzeWeighted(url);
+    const { score } = await analyze(url, mode);
 
     // После оплаты отправляем на финальные страницы:
     const successUrl = `${base}/success/${mode}?url=${encodeURIComponent(
