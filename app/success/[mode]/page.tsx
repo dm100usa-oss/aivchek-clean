@@ -18,9 +18,9 @@ function ResultItem({ factor, dotColor }: { factor: Factor; dotColor: string }) 
     Poor: "text-red-600",
   };
   return (
-    <div className="p-4 bg-white rounded-xl shadow flex items-start justify-between">
+    <div className="p-4 bg-white rounded-xl shadow flex items-center justify-between">
       <div className="flex items-start space-x-3">
-        <div className={`w-3 h-3 rounded-full ${dotColor} mt-2`} />
+        <div className={`w-3 h-3 rounded-full ${dotColor} flex-none`} />
         <div>
           <p className="font-semibold">{factor.name}</p>
           <p className="text-sm text-gray-600">{factor.desc}</p>
@@ -40,10 +40,10 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
 
   const summary =
     score >= 80
-      ? "Good — Your site is well configured for AI platforms. Most key parameters are set correctly."
+      ? "Your site is well configured for AI platforms. Most key parameters are set correctly."
       : score >= 40
-      ? "Moderate — Your site is partially optimized for AI platforms. Some parameters need improvement."
-      : "Poor — Your site is poorly optimized for AI platforms. Most parameters are misconfigured, which limits your presence.";
+      ? "Your site is partially optimized for AI platforms. Some parameters need improvement."
+      : "Your site is poorly optimized for AI platforms. Most parameters are misconfigured, which limits your presence.";
 
   const QUICK_FACTORS: Factor[] = [
     {
@@ -132,7 +132,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
-      <h1 className="text-2xl font-semibold text-center mb-6">
+      <h1 className="text-2xl font-semibold text-center mb-6 tracking-tight">
         {mode === "quick" ? "Website check results" : "Full website audit"}
       </h1>
 
@@ -141,8 +141,8 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
       </div>
 
       {/* Summary card */}
-      <div className="max-w-xl mx-auto bg-gray-50 rounded-xl shadow-md p-6 text-center mb-10">
-        <p className="text-lg font-semibold text-gray-800 leading-relaxed">
+      <div className="max-w-xl mx-auto border border-gray-200 bg-gray-50 rounded-xl shadow-sm p-6 text-center mb-10">
+        <p className="text-lg font-semibold text-gray-800 leading-relaxed tracking-tight">
           {summary}
         </p>
       </div>
