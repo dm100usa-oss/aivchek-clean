@@ -80,8 +80,8 @@ export default function Donut({ score }: DonutProps) {
         dominantBaseline="middle"
         textAnchor="middle"
         fontSize="20"
-        fontWeight="bold"
-        fill="#374151"
+        fontWeight="600"
+        fill="#111827"
       >
         {progress}%
       </text>
