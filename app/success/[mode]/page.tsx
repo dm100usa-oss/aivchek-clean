@@ -11,7 +11,6 @@ interface Factor {
   status: "Good" | "Moderate" | "Poor";
 }
 
-// Factor item with colored status text
 function ResultItem({ factor, dotColor }: { factor: Factor; dotColor: string }) {
   const statusColors = {
     Good: "text-green-600",
@@ -41,12 +40,11 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
 
   const summary =
     score >= 80
-      ? "Your site is well visible to AI platforms. Most parameters are set correctly, and users can easily find your content in AI answers."
+      ? "Good — Your site is well configured for AI platforms. Most key parameters are set correctly."
       : score >= 40
-      ? "Your site is partially visible to AI platforms. Some parameters need improvement to increase overall visibility and attract more clients."
-      : "Your site is poorly visible to AI platforms. Most parameters are not configured correctly, which seriously limits your presence in AI answers.";
+      ? "Moderate — Your site is partially optimized for AI platforms. Some parameters need improvement."
+      : "Poor — Your site is poorly optimized for AI platforms. Most parameters are misconfigured, which limits your presence.";
 
-  // Quick (5 key factors)
   const QUICK_FACTORS: Factor[] = [
     {
       name: "Robots.txt",
@@ -75,7 +73,6 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
     },
   ];
 
-  // Pro (15 factors, first 5 are the same as Quick)
   const PRO_FACTORS: Factor[] = [
     ...QUICK_FACTORS,
     {
@@ -90,7 +87,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
     },
     {
       name: "Canonical",
-      desc: "A canonical link tells AI which page is the main one. If missing or incorrect, duplicates or secondary pages may be shown instead. Customers see the wrong content, and the site loses positions.",
+      desc: "A canonical link tells AI which page is the main one. If missing or incorrect, duplicates or secondary pages may be shown instead.",
       status: "Moderate",
     },
     {
@@ -136,9 +133,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
       <h1 className="text-2xl font-semibold text-center mb-6">
-        {mode === "quick"
-          ? "Website visibility results"
-          : "Full website visibility audit"}
+        {mode === "quick" ? "Website check results" : "Full website audit"}
       </h1>
 
       <div className="flex justify-center mb-6">
@@ -159,16 +154,29 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
         ))}
       </div>
 
-      {/* Bottom note */}
-      <div className="mt-10 text-center text-sm text-gray-600">
-        {mode === "quick"
-          ? "You can check another website."
-          : "We have sent the full report and developer checklist to your email."}
+      {/* Navigation */}
+      <div className="mt-10 text-center">
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="px-6 py-2 rounded-2xl text-white"
+          style={{
+            background:
+              mode === "quick"
+                ? "linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)"
+                : "linear-gradient(90deg, #059669 0%, #10b981 100%)",
+          }}
+        >
+          Back to Home
+        </button>
+        <p className="mt-4 text-sm text-gray-600">
+          {mode === "quick"
+            ? "You can check another website."
+            : "We have sent the full report and developer checklist to your email."}
+        </p>
       </div>
 
       <p className="text-xs text-gray-400 text-center mt-6">
-        Visibility scores are estimated and based on publicly available data.
-        Not legal advice.
+        Scores are estimated and based on publicly available data. Not legal advice.
       </p>
     </main>
   );
