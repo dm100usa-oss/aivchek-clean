@@ -47,46 +47,46 @@ export default function PreviewPage({
     () => [
       {
         name: "Robots.txt",
-        text: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results.",
+        text: "This file controls whether search engines and AI can see your site. If it’s misconfigured and blocks access, the site may completely disappear from search and AI results.",
       },
       {
         name: "Sitemap.xml",
-        text: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible.",
+        text: "This is the map of your site for search engines and AI. If it’s missing or incomplete, some pages won’t show up in search and customers won’t see them.",
       },
       {
-        name: "X-Robots-Tag",
-        text: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen.",
+        name: "Title",
+        text: "If a page has no clear title, search shows random text and customers won’t understand why they should click.",
       },
       {
-        name: "Meta robots",
-        text: "If meta tags block a page from search, it will not appear in results and will not be found.",
+        name: "Meta description",
+        text: "Without a proper description, your site looks unattractive in search. Customers skip it, and the site drops lower over time.",
       },
       {
-        name: "Canonical",
-        text: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings.",
+        name: "Mobile friendly",
+        text: "If your site isn’t mobile-friendly, AI considers it inconvenient and shows it less often.",
       },
     ],
     []
   );
 
-  // Pro (15 factors)
+  // Pro (15 factors, первые 5 совпадают с Quick)
   const proItems = useMemo(
     () => [
-      { name: "Robots.txt", text: "This file controls whether search engines and AI can see your site. If set incorrectly and access is blocked, the site may disappear from search and AI results." },
-      { name: "Sitemap.xml", text: "This is a sitemap for search engines and AI. If missing or incomplete, some pages will not appear in search and will not be visible." },
-      { name: "X-Robots-Tag", text: "If headers are set incorrectly and block indexing, the site will not appear in search and will not be seen." },
-      { name: "Meta robots", text: "If meta tags block a page from search, it will not appear in results and will not be found." },
-      { name: "Canonical", text: "If the main version of a page is not specified, AI may show duplicates or secondary sections. This leads to inaccurate results and lowers rankings." },
-      { name: "Title", text: "If a page does not have a clear title, search shows random text and it is unclear why to visit the site." },
-      { name: "Meta description", text: "If a page lacks a proper description, the site looks unattractive in search and drops lower in results." },
-      { name: "Open Graph", text: "These tags make site links attractive in social media and AI answers. Without them, random text or cropped images are shown." },
-      { name: "H1", text: "If a page has no main heading, search engines and AI cannot understand its topic, and the site loses rankings." },
-      { name: "Structured Data", text: "Without structured data, AI cannot understand the site precisely, reducing visibility." },
-      { name: "Mobile friendly", text: "If a site is not mobile-friendly, AI considers it inconvenient and shows it less often." },
-      { name: "HTTPS", text: "If a site works without HTTPS, AI and search engines consider it unsafe and show it less often." },
-      { name: "Alt texts", text: "If images have no alt texts, AI does not understand them, and part of the site’s information is lost." },
-      { name: "Favicon", text: "If a site has no icon, AI perceives it as incomplete and shows it less often." },
-      { name: "404 page", text: "If the error page is misconfigured, the site loses trust and visibility." },
+      { name: "Robots.txt", text: "This file controls whether search engines and AI can see your site. If it’s misconfigured and blocks access, the site may completely disappear from search and AI results." },
+      { name: "Sitemap.xml", text: "This is the map of your site for search engines and AI. If it’s missing or incomplete, some pages won’t show up in search and customers won’t see them." },
+      { name: "Title", text: "If a page has no clear title, search shows random text and customers won’t understand why they should click." },
+      { name: "Meta description", text: "Without a proper description, your site looks unattractive in search. Customers skip it, and the site drops lower over time." },
+      { name: "Mobile friendly", text: "If your site isn’t mobile-friendly, AI considers it inconvenient and shows it less often." },
+      { name: "X-Robots-Tag", text: "If headers are misconfigured and block indexing, the site won’t appear in search and customers can’t find it." },
+      { name: "Meta robots", text: "If meta tags block a page from indexing, it won’t appear in results and customers won’t discover it." },
+      { name: "Canonical", text: "Without a canonical tag pointing to the main page, AI may show duplicates or less relevant sections. Customers get inaccurate results and your site ranks lower." },
+      { name: "Open Graph", text: "These tags make links attractive in social media and AI answers. Without them, random text or cut-off images appear instead." },
+      { name: "H1", text: "If a page has no main heading, search engines and AI can’t understand its topic, and the site loses visibility." },
+      { name: "Structured Data", text: "Without structured data, AI can’t properly interpret the site, and it loses rankings and visibility." },
+      { name: "HTTPS", text: "If the site runs without HTTPS, search engines and AI mark it unsafe and reduce its visibility." },
+      { name: "Alt texts", text: "If images have no captions, AI can’t interpret them and part of the site’s information is lost." },
+      { name: "Favicon", text: "Without an icon, AI treats your site as unfinished and shows it less often." },
+      { name: "404 page", text: "If the error page doesn’t work correctly, the site loses trust and visibility in AI results." },
     ],
     []
   );
@@ -190,7 +190,7 @@ export default function PreviewPage({
         </div>
 
         <footer className="mt-8 text-center text-xs text-neutral-500">
-          © 2025 AI Visibility Pro. All rights reserved.
+          © 2025 AI Signal Pro. All rights reserved.
           <br />
           <span className="opacity-60">
             Visibility scores are estimated and based on publicly available data. Not legal advice.
