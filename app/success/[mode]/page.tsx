@@ -20,7 +20,7 @@ function ResultItem({ factor, dotColor }: { factor: Factor; dotColor: string }) 
   return (
     <div className="p-4 bg-white rounded-xl shadow flex items-start justify-between">
       <div className="flex items-start space-x-3">
-        <div className={`w-3 h-3 mt-2 rounded-full ${dotColor}`} />
+        <div className={`w-3 h-3 rounded-full ${dotColor} mt-2`} />
         <div>
           <p className="font-semibold">{factor.name}</p>
           <p className="text-sm text-gray-600">{factor.desc}</p>
