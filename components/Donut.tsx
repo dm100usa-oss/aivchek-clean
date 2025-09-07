@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 
 interface DonutProps {
   score: number;
@@ -9,12 +10,27 @@ export default function Donut({ score }: DonutProps) {
   const stroke = 12;
   const normalizedRadius = radius - stroke * 0.5;
   const circumference = normalizedRadius * 2 * Math.PI;
+
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const step = () => {
+      start += 1;
+      if (start <= score) {
+        setProgress(start);
+        requestAnimationFrame(step);
+      }
+    };
+    requestAnimationFrame(step);
+  }, [score]);
+
   const strokeDashoffset =
-    circumference - (score / 100) * circumference;
+    circumference - (progress / 100) * circumference;
 
   const getColor = () => {
-    if (score >= 80) return "#10b981"; // green
-    if (score >= 40) return "#f59e0b"; // yellow
+    if (progress >= 80) return "#10b981"; // green
+    if (progress >= 40) return "#f59e0b"; // yellow
     return "#ef4444"; // red
   };
 
@@ -33,14 +49,16 @@ export default function Donut({ score }: DonutProps) {
         fill="transparent"
         strokeWidth={stroke}
         strokeDasharray={circumference + " " + circumference}
-        style={{
-          strokeDashoffset,
-          transition: "stroke-dashoffset 1s ease, stroke 0.5s ease",
-        }}
+        strokeDashoffset={strokeDashoffset}
         strokeLinecap="round"
         r={normalizedRadius}
         cx={radius}
         cy={radius}
+        style={{
+          transform: "rotate(-90deg)",
+          transformOrigin: "50% 50%",
+          transition: "stroke-dashoffset 0.3s ease, stroke 0.3s ease",
+        }}
       />
       <text
         x="50%"
@@ -51,7 +69,7 @@ export default function Donut({ score }: DonutProps) {
         fontWeight="bold"
         fill={getColor()}
       >
-        {score}%
+        {progress}%
       </text>
     </svg>
   );
