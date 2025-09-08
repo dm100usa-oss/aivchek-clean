@@ -1,16 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
 interface DonutProps {
-  score: number;
+  score: number; // 0–100
 }
 
 export default function Donut({ score }: DonutProps) {
-  const radius = 60;
-  const stroke = 12;
-  const normalizedRadius = radius - stroke * 0.5;
-  const circumference = normalizedRadius * 2 * Math.PI;
-
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -25,66 +21,51 @@ export default function Donut({ score }: DonutProps) {
     requestAnimationFrame(step);
   }, [score]);
 
-  const strokeDashoffset =
-    circumference - (progress / 100) * circumference;
+  // Цвет в зависимости от процента
+  const color =
+    score >= 80 ? "#16a34a" : score >= 40 ? "#eab308" : "#dc2626"; 
+  // зелёный / жёлтый / красный (чистые цвета tailwind palette)
 
-  const getGradientId = () => {
-    if (score >= 80) return "greenGradient";
-    if (score >= 40) return "yellowGradient";
-    return "redGradient";
-  };
+  const size = 240; // размер круга (увеличенный)
+  const stroke = 20; // толщина кольца
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
 
   return (
-    <svg height={radius * 2} width={radius * 2}>
-      <defs>
-        <linearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#059669" />
-          <stop offset="100%" stopColor="#10b981" />
-        </linearGradient>
-        <linearGradient id="yellowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#d97706" />
-          <stop offset="100%" stopColor="#f59e0b" />
-        </linearGradient>
-        <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#dc2626" />
-          <stop offset="100%" stopColor="#ef4444" />
-        </linearGradient>
-      </defs>
-      <circle
-        stroke="#e5e7eb"
-        fill="transparent"
-        strokeWidth={stroke}
-        r={normalizedRadius}
-        cx={radius}
-        cy={radius}
-      />
-      <circle
-        stroke={`url(#${getGradientId()})`}
-        fill="transparent"
-        strokeWidth={stroke}
-        strokeDasharray={circumference + " " + circumference}
-        strokeDashoffset={strokeDashoffset}
-        strokeLinecap="round"
-        r={normalizedRadius}
-        cx={radius}
-        cy={radius}
-        style={{
-          transform: "rotate(-90deg)",
-          transformOrigin: "50% 50%",
-          transition: "stroke-dashoffset 1s ease",
-        }}
-      />
-      <text
-        x="50%"
-        y="50%"
-        dominantBaseline="middle"
-        textAnchor="middle"
-        fontSize="20"
-        fontWeight="600"
-        fill="#111827"
+    <div className="relative flex items-center justify-center">
+      <svg
+        width={size}
+        height={size}
+        className="transform -rotate-90 drop-shadow-sm"
       >
+        {/* Серый фон кольца */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#e5e7eb" // neutral-300
+          strokeWidth={stroke}
+          fill="transparent"
+        />
+        {/* Цветное кольцо */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={color}
+          strokeWidth={stroke}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-all duration-500"
+        />
+      </svg>
+      {/* Цифра процентов */}
+      <div className="absolute text-5xl font-bold text-gray-800">
         {progress}%
-      </text>
-    </svg>
+      </div>
+    </div>
   );
 }
