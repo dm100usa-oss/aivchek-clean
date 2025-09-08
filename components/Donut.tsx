@@ -7,7 +7,7 @@ export default function Donut({ score }: { score: number }) {
 
   useEffect(() => {
     let start = 0;
-    const duration = 2000; // 2 seconds
+    const duration = 2000;
     const stepTime = 16;
     const increment = score / (duration / stepTime);
 
@@ -35,14 +35,14 @@ export default function Donut({ score }: { score: number }) {
   };
 
   return (
-    <svg width="220" height="220" className="drop-shadow-md">
+    <svg width="240" height="240" className="drop-shadow-md">
       <circle
         stroke="#e5e7eb"
         fill="transparent"
         strokeWidth={stroke}
         r={radius}
-        cx="110"
-        cy="110"
+        cx="120"
+        cy="120"
       />
       <circle
         stroke={getColor()}
@@ -52,8 +52,9 @@ export default function Donut({ score }: { score: number }) {
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         r={radius}
-        cx="110"
-        cy="110"
+        cx="120"
+        cy="120"
+        transform="rotate(-90 120 120)"
         style={{
           transition: "stroke-dashoffset 0.3s ease-in-out",
         }}
@@ -63,8 +64,8 @@ export default function Donut({ score }: { score: number }) {
         y="50%"
         textAnchor="middle"
         dy=".3em"
-        fontSize="36"
-        fontWeight="600"
+        fontSize="40"
+        fontWeight="700"
         fill="#111827"
         style={{
           filter:
