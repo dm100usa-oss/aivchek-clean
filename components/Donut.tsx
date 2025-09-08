@@ -2,70 +2,77 @@
 
 import { useEffect, useState } from "react";
 
-interface DonutProps {
-  score: number; // 0–100
-}
-
-export default function Donut({ score }: DonutProps) {
+export default function Donut({ score }: { score: number }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     let start = 0;
-    const step = () => {
-      start += 1;
-      if (start <= score) {
-        setProgress(start);
-        requestAnimationFrame(step);
+    const duration = 2000; // 2 seconds
+    const stepTime = 16;
+    const increment = score / (duration / stepTime);
+
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= score) {
+        start = score;
+        clearInterval(timer);
       }
-    };
-    requestAnimationFrame(step);
+      setProgress(Math.floor(start));
+    }, stepTime);
+
+    return () => clearInterval(timer);
   }, [score]);
 
-  // Цвет в зависимости от процента
-  const color =
-    score >= 80 ? "#16a34a" : score >= 40 ? "#eab308" : "#dc2626"; 
-  // зелёный / жёлтый / красный (чистые цвета tailwind palette)
-
-  const size = 240; // размер круга (увеличенный)
-  const stroke = 20; // толщина кольца
-  const radius = (size - stroke) / 2;
+  const radius = 90;
+  const stroke = 14;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (progress / 100) * circumference;
 
+  const getColor = () => {
+    if (progress >= 80) return "#10b981"; // green
+    if (progress >= 40) return "#f59e0b"; // yellow
+    return "#ef4444"; // red
+  };
+
   return (
-    <div className="relative flex items-center justify-center">
-      <svg
-        width={size}
-        height={size}
-        className="transform -rotate-90 drop-shadow-sm"
+    <svg width="220" height="220" className="drop-shadow-md">
+      <circle
+        stroke="#e5e7eb"
+        fill="transparent"
+        strokeWidth={stroke}
+        r={radius}
+        cx="110"
+        cy="110"
+      />
+      <circle
+        stroke={getColor()}
+        fill="transparent"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        r={radius}
+        cx="110"
+        cy="110"
+        style={{
+          transition: "stroke-dashoffset 0.3s ease-in-out",
+        }}
+      />
+      <text
+        x="50%"
+        y="50%"
+        textAnchor="middle"
+        dy=".3em"
+        fontSize="36"
+        fontWeight="600"
+        fill="#111827"
+        style={{
+          filter:
+            "drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
+        }}
       >
-        {/* Серый фон кольца */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="#e5e7eb" // neutral-300
-          strokeWidth={stroke}
-          fill="transparent"
-        />
-        {/* Цветное кольцо */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={stroke}
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-500"
-        />
-      </svg>
-      {/* Цифра процентов */}
-      <div className="absolute text-5xl font-bold text-gray-800">
         {progress}%
-      </div>
-    </div>
+      </text>
+    </svg>
   );
 }
