@@ -7,7 +7,7 @@ export default function Donut({ score }: { score: number }) {
 
   useEffect(() => {
     let start = 0;
-    const duration = 2000;
+    const duration = 2000; // 2 seconds
     const stepTime = 16;
     const increment = score / (duration / stepTime);
 
@@ -58,7 +58,6 @@ export default function Donut({ score }: { score: number }) {
         cy="130"
         transform="rotate(-90 130 130)"
         style={{
-          transition: "stroke-dashoffset 2s ease-in-out",
           filter:
             "drop-shadow(0 2px 4px rgba(0,0,0,0.25)) drop-shadow(0 0 6px rgba(0,0,0,0.15))",
         }}
