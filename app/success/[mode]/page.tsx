@@ -17,22 +17,25 @@ function StatusText({ status }: { status: Factor["status"] }) {
     Moderate: "text-yellow-600",
     Poor: "text-red-600",
   };
-  return <span className={`font-medium ${colors[status]}`}>{status}</span>;
+  return (
+    <span className={`text-base font-semibold ${colors[status]}`}>
+      {status}
+    </span>
+  );
 }
 
 function FactorItem({ factor }: { factor: Factor }) {
-  const colors = {
-    Good: "#10b981",
-    Moderate: "#f59e0b",
-    Poor: "#ef4444",
+  const borderColors = {
+    Good: "border-green-500",
+    Moderate: "border-yellow-500",
+    Poor: "border-red-500",
   };
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-sm flex items-center justify-between">
       <div className="flex items-center space-x-4 flex-1">
         <div
-          className="w-6 h-6 rounded-full drop-shadow"
-          style={{ backgroundColor: colors[factor.status] }}
+          className={`w-5 h-5 rounded-full border-2 ${borderColors[factor.status]}`}
         />
         <div>
           <p className="font-semibold">{factor.name}</p>
@@ -198,8 +201,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
               onClick={() => (window.location.href = "/")}
               className="px-6 py-2 rounded-2xl text-white"
               style={{
-                background:
-                  "linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)",
+                background: "linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)",
               }}
             >
               Back to Home
@@ -211,15 +213,13 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
               onClick={() => (window.location.href = "/")}
               className="px-6 py-2 rounded-2xl text-white"
               style={{
-                background:
-                  "linear-gradient(90deg, #059669 0%, #10b981 100%)",
+                background: "linear-gradient(90deg, #059669 0%, #10b981 100%)",
               }}
             >
               Back to Home
             </button>
             <p className="text-sm text-gray-600 mt-3">
-              We have sent the full report and developer checklist to your
-              email.
+              We have sent the full report and developer checklist to your email.
             </p>
           </>
         )}
