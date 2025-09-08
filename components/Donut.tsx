@@ -35,15 +35,17 @@ export default function Donut({ score }: { score: number }) {
   };
 
   return (
-    <svg width="240" height="240" className="drop-shadow-md">
+    <svg width="260" height="260" className="drop-shadow-lg">
+      {/* Background circle */}
       <circle
         stroke="#e5e7eb"
         fill="transparent"
         strokeWidth={stroke}
         r={radius}
-        cx="120"
-        cy="120"
+        cx="130"
+        cy="130"
       />
+      {/* Progress circle */}
       <circle
         stroke={getColor()}
         fill="transparent"
@@ -52,24 +54,27 @@ export default function Donut({ score }: { score: number }) {
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         r={radius}
-        cx="120"
-        cy="120"
-        transform="rotate(-90 120 120)"
+        cx="130"
+        cy="130"
+        transform="rotate(-90 130 130)"
         style={{
-          transition: "stroke-dashoffset 0.3s ease-in-out",
+          transition: "stroke-dashoffset 2s ease-in-out",
+          filter:
+            "drop-shadow(0 2px 4px rgba(0,0,0,0.25)) drop-shadow(0 0 6px rgba(0,0,0,0.15))",
         }}
       />
+      {/* Percentage text */}
       <text
         x="50%"
         y="50%"
         textAnchor="middle"
         dy=".3em"
-        fontSize="40"
+        fontSize="48"
         fontWeight="700"
         fill="#111827"
         style={{
           filter:
-            "drop-shadow(0 0 2px white) drop-shadow(0 0 2px white) drop-shadow(0 1px 2px rgba(0,0,0,0.25))",
+            "drop-shadow(0 0 3px white) drop-shadow(0 0 4px rgba(0,0,0,0.25))",
         }}
       >
         {progress}%
