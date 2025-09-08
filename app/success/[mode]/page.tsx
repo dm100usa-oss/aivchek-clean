@@ -22,16 +22,16 @@ function StatusText({ status }: { status: Factor["status"] }) {
 
 function FactorItem({ factor }: { factor: Factor }) {
   const colors = {
-    Good: "bg-green-500",
-    Moderate: "bg-yellow-500",
-    Poor: "bg-red-500",
+    Good: "#10b981",
+    Moderate: "#f59e0b",
+    Poor: "#ef4444",
   };
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-sm flex items-center justify-between">
       <div className="flex items-center space-x-4 flex-1">
         <div
-          className={`w-6 h-6 rounded-full flex-shrink-0 drop-shadow`}
+          className="w-6 h-6 rounded-full drop-shadow"
           style={{ backgroundColor: colors[factor.status] }}
         />
         <div>
@@ -191,7 +191,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
       <div className="mt-10 text-center">
         {mode === "quick" ? (
           <>
-            <p className="text-lg font-semibold text-gray-700 mb-3">
+            <p className="text-xl font-semibold text-gray-700 mb-3">
               You can check another website.
             </p>
             <button
