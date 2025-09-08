@@ -40,10 +40,10 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
 
   const summary =
     score >= 80
-      ? "Your site is well configured for AI platforms. Most key parameters are set correctly."
+      ? "Your site is well visible for AI platforms. Most key parameters are set correctly."
       : score >= 40
-      ? "Your site is partially optimized for AI platforms. Some parameters need improvement."
-      : "Your site is poorly optimized for AI platforms. Most parameters are misconfigured, which limits your presence.";
+      ? "Your site is partially visible for AI platforms. Some parameters need improvement."
+      : "Your site is poorly visible for AI platforms. Most parameters are misconfigured, which severely limits your presence.";
 
   const QUICK_FACTORS: Factor[] = [
     {
@@ -58,7 +58,7 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
     },
     {
       name: "Title",
-      desc: "The page title is the first thing users and AI see. If it is missing, duplicated, or too generic, AI shows random text and users may not understand why to visit your site.",
+      desc: "The page title is the first thing AI and users see. If it is missing, duplicated, or too generic, AI shows random text and users may not understand why to visit your site.",
       status: "Poor",
     },
     {
@@ -156,6 +156,11 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
 
       {/* Navigation */}
       <div className="mt-10 text-center">
+        {mode === "quick" && (
+          <p className="mb-4 text-base font-medium text-gray-700">
+            You can check another website.
+          </p>
+        )}
         <button
           onClick={() => (window.location.href = "/")}
           className="px-6 py-2 rounded-2xl text-white"
@@ -168,11 +173,11 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
         >
           Back to Home
         </button>
-        <p className="mt-4 text-sm text-gray-600">
-          {mode === "quick"
-            ? "You can check another website."
-            : "We have sent the full report and developer checklist to your email."}
-        </p>
+        {mode === "pro" && (
+          <p className="mt-4 text-base font-medium text-gray-700">
+            We have sent the full report and developer checklist to your email.
+          </p>
+        )}
       </div>
 
       <p className="text-xs text-gray-400 text-center mt-6">
