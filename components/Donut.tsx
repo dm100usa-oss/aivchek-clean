@@ -6,21 +6,26 @@ export default function Donut({ score }: { score: number }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    let start = 0;
+    let start: number | null = null;
     const duration = 2000; // 2 seconds
-    const stepTime = 16;
-    const increment = score / (duration / stepTime);
+    const target = Math.min(Math.max(score, 0), 100);
 
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= score) {
-        start = score;
-        clearInterval(timer);
+    function animate(timestamp: number) {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const fraction = Math.min(elapsed / duration, 1);
+
+      // easing для плавности
+      const eased = 1 - Math.pow(1 - fraction, 3);
+
+      setProgress(Math.floor(eased * target));
+
+      if (fraction < 1) {
+        requestAnimationFrame(animate);
       }
-      setProgress(Math.floor(start));
-    }, stepTime);
+    }
 
-    return () => clearInterval(timer);
+    requestAnimationFrame(animate);
   }, [score]);
 
   const radius = 90;
