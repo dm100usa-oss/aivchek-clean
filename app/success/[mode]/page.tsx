@@ -35,7 +35,7 @@ function FactorItem({ factor }: { factor: Factor }) {
     <div className="p-4 bg-white rounded-xl shadow-sm flex items-center justify-between">
       <div className="flex items-center space-x-4 flex-1">
         <div
-          className={`w-5 h-5 rounded-full border-2 ${borderColors[factor.status]}`}
+          className={`w-5 h-5 flex-shrink-0 rounded-full border-2 ${borderColors[factor.status]}`}
         />
         <div>
           <p className="font-semibold">{factor.name}</p>
