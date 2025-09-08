@@ -59,112 +59,85 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
       ? "Your site is partially visible for AI platforms. Some parameters require improvement."
       : "Your site is poorly visible for AI platforms. Most parameters are misconfigured, which limits visibility.";
 
-  const factors: Factor[] =
-    mode === "quick"
-      ? [
-          {
-            name: "Robots.txt",
-            desc: "This file controls if AI can see your site. If access is blocked, the site may disappear from answers.",
-            status: "Good",
-          },
-          {
-            name: "Sitemap.xml",
-            desc: "A sitemap for AI. Missing or incomplete sitemaps make parts of the site invisible.",
-            status: "Moderate",
-          },
-          {
-            name: "X-Robots-Tag",
-            desc: "If headers are misconfigured and block indexing, the site does not appear in AI answers.",
-            status: "Poor",
-          },
-          {
-            name: "Meta robots",
-            desc: "If meta tags block a page, it will not show up in AI answers.",
-            status: "Good",
-          },
-          {
-            name: "Canonical",
-            desc: "Without a proper canonical link, AI may show duplicates or secondary pages.",
-            status: "Moderate",
-          },
-        ]
-      : [
-          {
-            name: "Robots.txt",
-            desc: "This file controls if AI can see your site. If access is blocked, the site may disappear from answers.",
-            status: "Good",
-          },
-          {
-            name: "Sitemap.xml",
-            desc: "A sitemap for AI. Missing or incomplete sitemaps make parts of the site invisible.",
-            status: "Moderate",
-          },
-          {
-            name: "X-Robots-Tag",
-            desc: "If headers are misconfigured and block indexing, the site does not appear in AI answers.",
-            status: "Poor",
-          },
-          {
-            name: "Meta robots",
-            desc: "If meta tags block a page, it will not show up in AI answers.",
-            status: "Good",
-          },
-          {
-            name: "Canonical",
-            desc: "Without a proper canonical link, AI may show duplicates or secondary pages.",
-            status: "Moderate",
-          },
-          {
-            name: "Title",
-            desc: "If a page has no clear title, AI shows random text and users may ignore it.",
-            status: "Good",
-          },
-          {
-            name: "Meta description",
-            desc: "If a page lacks a strong description, AI shows random or unattractive text, reducing clicks.",
-            status: "Moderate",
-          },
-          {
-            name: "Open Graph",
-            desc: "These tags make links attractive in AI answers and social media. Without them, random text or cropped images appear.",
-            status: "Poor",
-          },
-          {
-            name: "H1",
-            desc: "If there is no main heading, AI cannot understand the topic of the page.",
-            status: "Good",
-          },
-          {
-            name: "Structured Data",
-            desc: "Without structured data, AI cannot interpret the site precisely, reducing visibility.",
-            status: "Moderate",
-          },
-          {
-            name: "Mobile friendly",
-            desc: "If the site is not mobile-friendly, AI considers it inconvenient and shows it less often.",
-            status: "Moderate",
-          },
-          {
-            name: "HTTPS",
-            desc: "Sites without HTTPS are considered unsafe by AI and shown less often.",
-            status: "Good",
-          },
-          {
-            name: "Alt texts",
-            desc: "Without alt texts, AI does not understand images, and part of the information is lost.",
-            status: "Poor",
-          },
-          {
-            name: "Favicon",
-            desc: "Without a favicon, AI sees the site as unfinished and reduces visibility.",
-            status: "Moderate",
-          },
-          {
-            name: "404 page",
-            desc: "If the error page is misconfigured, AI may treat broken links as valid, reducing trust.",
-            status: "Good",
-          },
-        ];
+  const allFactors: Factor[] = [
+    {
+      name: "Robots.txt",
+      desc: "This file controls whether AI platforms can see your site. If misconfigured and blocking access, your entire website may disappear from AI answers.",
+      status: "Good",
+    },
+    {
+      name: "Sitemap.xml",
+      desc: "The sitemap tells AI which pages exist and should be indexed. If it’s missing or set up incorrectly, important parts of your site remain invisible, and customers can’t find what they need.",
+      status: "Moderate",
+    },
+    {
+      name: "X-Robots-Tag",
+      desc: "A server-side setting that tells AI whether your pages can appear in results. If set to disallow, those pages will not show up in AI answers.",
+      status: "Poor",
+    },
+    {
+      name: "Meta robots",
+      desc: "A special tag inside the page that controls whether AI can display it. If the tag is misconfigured with a block, the page disappears from AI results.",
+      status: "Good",
+    },
+    {
+      name: "Canonical",
+      desc: "A link that tells AI which page is the main version. Without it, duplicate pages compete, and AI may show the wrong one. Customers may land on secondary or outdated pages instead of the main one.",
+      status: "Moderate",
+    },
+    {
+      name: "Title",
+      desc: "The title is the first thing users see in results. If it’s missing, duplicated, or too generic, AI may show random text. Customers then don’t understand what’s on the page and leave.",
+      status: "Good",
+    },
+    {
+      name: "Meta description",
+      desc: "A short description under the title that explains why users should click. If missing, duplicated, or too vague, AI inserts random text, making your site look less appealing and reducing clicks.",
+      status: "Moderate",
+    },
+    {
+      name: "Open Graph",
+      desc: "Special tags that make your site links look good in AI answers and social media. Without them, users see random text or cropped images, lowering trust and clicks.",
+      status: "Poor",
+    },
+    {
+      name: "H1",
+      desc: "The main heading of a page tells AI and visitors what it’s about. If it’s missing or duplicated, AI cannot clearly understand the content, reducing visibility.",
+      status: "Good",
+    },
+    {
+      name: "Structured Data",
+      desc: "Special markup (JSON-LD) that explains what’s on your site: product, service, article, or company. Without it, AI doesn’t fully understand your content and visibility drops.",
+      status: "Moderate",
+    },
+    {
+      name: "Mobile friendly",
+      desc: "Most users visit sites on phones. If the design breaks, text is too small, or buttons don’t work, AI considers it inconvenient and shows it less often.",
+      status: "Moderate",
+    },
+    {
+      name: "HTTPS",
+      desc: "A secure protocol that ensures safe connections. Sites without HTTPS are flagged as unsafe and shown less often by AI.",
+      status: "Good",
+    },
+    {
+      name: "Alt texts",
+      desc: "Captions for images that help AI interpret visuals. Without alt texts, images remain invisible and part of your content is lost.",
+      status: "Poor",
+    },
+    {
+      name: "Favicon",
+      desc: "A small site icon shown in browsers and sometimes in AI previews. Without it, your site looks unfinished and loses visibility.",
+      status: "Moderate",
+    },
+    {
+      name: "404 page",
+      desc: "An error page that tells AI a resource doesn’t exist. If misconfigured, AI may treat broken links as valid, reducing trust and visibility.",
+      status: "Good",
+    },
+  ];
+
+  const factors = mode === "quick" ? allFactors.slice(0, 5) : allFactors;
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
