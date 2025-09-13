@@ -1,24 +1,25 @@
-// app/not-found/page.tsx
-import React from "react";
+// app/not-found.tsx
+"use client";
 
-export default function NotFoundPage() {
+import Link from "next/link";
+
+export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Scan Failed</h1>
-        <p className="text-gray-600 mb-2">
-          We couldn’t complete the scan for this URL.
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-8 text-center shadow-sm">
+        <h1 className="mb-3 text-2xl font-semibold text-neutral-900">
+          Website not found
+        </h1>
+        <p className="mb-6 text-sm text-neutral-600">
+          We couldn’t complete the scan for this URL. Please check the address and try again.
         </p>
-        <p className="text-gray-600 mb-6">
-          Please check the address and try again. Payment is disabled.
-        </p>
-        <a
+        <Link
           href="/"
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+          className="inline-block w-full rounded-md bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-3 text-base font-medium text-white transition hover:from-amber-600 hover:to-amber-700"
         >
           Back to Home
-        </a>
+        </Link>
       </div>
-    </div>
+    </main>
   );
 }
