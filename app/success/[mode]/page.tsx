@@ -32,8 +32,8 @@ function FactorItem({ factor }: { factor: Factor }) {
   };
 
   return (
-    <div className="p-4 bg-white rounded-xl shadow-sm flex items-center justify-between">
-      <div className="flex items-center space-x-4 flex-1">
+    <div className="p-4 bg-white rounded-xl shadow-sm flex items-center">
+      <div className="flex items-start space-x-4 flex-1">
         <div
           className={`w-5 h-5 flex-shrink-0 rounded-full border-2 ${borderColors[factor.status]}`}
         />
@@ -42,7 +42,9 @@ function FactorItem({ factor }: { factor: Factor }) {
           <p className="text-sm text-gray-600">{factor.desc}</p>
         </div>
       </div>
-      <StatusText status={factor.status} />
+      <div className="w-24 text-right">
+        <StatusText status={factor.status} />
+      </div>
     </div>
   );
 }
