@@ -13,11 +13,11 @@ export default function ScanFailedPage() {
       <div className="mx-auto w-full max-w-2xl">
         <div className="rounded-xl border border-amber-200 bg-white p-8 text-center shadow-sm">
           <p className="mb-4 text-lg font-medium text-amber-700">
-            We couldn’t complete the scan for this URL. Please check the address and try again.
+            We couldn’t complete the scan for this website. Please check the address and try again.
           </p>
           <button
             onClick={back}
-            className="rounded-2xl bg-amber-400 px-5 py-2 font-medium text-white shadow-sm transition-colors hover:bg-amber-500"
+            className="rounded-2xl bg-amber-600 px-5 py-2 font-medium text-white shadow-md transition-colors hover:bg-amber-700"
           >
             Back to Home
           </button>
