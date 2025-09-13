@@ -51,7 +51,7 @@ export default function PreviewPage({
       },
       {
         name: "Sitemap.xml",
-        text: "The site map for AI. If it’s missing or incomplete, some pages remain invisible to customers.",
+        text: "The site map for AI. If it’s missing or incomplete, some pages remain invisible to users.", // ✅ changed
       },
       {
         name: "Title",
@@ -78,7 +78,7 @@ export default function PreviewPage({
       },
       {
         name: "Sitemap.xml",
-        text: "The site map for AI. If it’s missing or incomplete, some pages remain invisible to customers.",
+        text: "The site map for AI. If it’s missing or incomplete, some pages remain invisible to users.", // ✅ changed
       },
       {
         name: "Title",
@@ -168,80 +168,3 @@ export default function PreviewPage({
                 {(mode === "quick" ? quickItems : proItems).map((item, i) => (
                   <li key={i} className="flex items-center">
                     <span
-                      className={`mr-3 inline-block size-3 flex-none rounded-full ${
-                        mode === "quick" ? "bg-blue-600" : "bg-green-600"
-                      }`}
-                      aria-hidden="true"
-                    />
-                    <span className="text-[15px] text-neutral-800">
-                      <span className="font-semibold">{item.name}</span> — {item.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              {mode === "pro" && !paid && (
-                <div className="mb-4">
-                  <label htmlFor="email" className="mb-1 block text-sm text-neutral-700">
-                    Your email to receive the PDF after payment
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={[
-                      "w-full rounded-md border px-3 py-2 text-sm outline-none",
-                      email || !emailValid
-                        ? emailValid
-                          ? "border-neutral-300 focus:ring-2 focus:ring-green-500"
-                          : "border-rose-400 focus:ring-2 focus:ring-rose-300"
-                        : "border-neutral-300 focus:ring-2 focus:ring-green-500",
-                    ].join(" ")}
-                  />
-                  {!emailValid && (
-                    <p className="mt-1 text-xs text-rose-600">Please enter a valid email.</p>
-                  )}
-                </div>
-              )}
-
-              {!paid ? (
-                <button
-                  onClick={pay}
-                  disabled={!url || (mode === "pro" && !emailValid)}
-                  className={[
-                    "w-full rounded-md px-4 py-3 text-base font-medium transition-colors disabled:opacity-60",
-                    payButton,
-                  ].join(" ")}
-                >
-                  Pay & Get {mode === "pro" ? "Full Report" : "Results"}
-                </button>
-              ) : (
-                <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center text-sm text-emerald-800">
-                  {mode === "pro"
-                    ? "Payment confirmed. Your PDF report will be sent to your email."
-                    : "Payment confirmed. Thank you for checking your website’s AI visibility with us."}
-                </div>
-              )}
-
-              <p className="mt-6 text-center text-xs text-neutral-500">
-                <span className="opacity-60">
-                  Visibility scores are estimated and based on publicly available data. Not legal advice.
-                </span>
-              </p>
-            </>
-          )}
-        </div>
-
-        <footer className="mt-8 text-center text-xs text-neutral-500">
-          © 2025 AI Signal Pro. All rights reserved.
-          <br />
-          <span className="opacity-60">
-            Visibility scores are estimated and based on publicly available data. Not legal advice.
-          </span>
-        </footer>
-      </div>
-    </main>
-  );
-}
