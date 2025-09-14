@@ -1,53 +1,97 @@
 import { NextResponse } from "next/server";
-import PDFDocument from "pdfkit";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 export async function GET() {
   try {
-    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    // Create new PDF
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([595.28, 841.89]); // A4 size
+    const { height } = page.getSize();
 
-    // Будем собирать PDF в буфер
-    const chunks: Buffer[] = [];
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const titleFontSize = 20;
+    const textFontSize = 12;
 
-    // Собираем данные по мере генерации
-    doc.on("data", (chunk) => chunks.push(chunk));
-    const pdfBuffer = await new Promise<Buffer>((resolve, reject) => {
-      doc.on("end", () => resolve(Buffer.concat(chunks)));
-      doc.on("error", reject);
+    let y = height - 60;
 
-      // === Логотип ===
-      doc.fontSize(20).text("AI Signal Pro", { align: "center" }).moveDown();
+    // === Logo / Brand ===
+    page.drawText("AI Signal Pro", {
+      x: 200,
+      y,
+      size: titleFontSize,
+      font,
+      color: rgb(0, 0, 0),
+    });
+    y -= 40;
 
-      // === Титульная страница ===
-      doc
-        .fontSize(28)
-        .text("AI Website Visibility Report", { align: "center" })
-        .moveDown(2);
+    // === Title ===
+    page.drawText("AI Website Visibility Report", {
+      x: 150,
+      y,
+      size: 16,
+      font,
+      color: rgb(0, 0, 0),
+    });
+    y -= 40;
 
-      doc
-        .fontSize(14)
-        .text("This report shows how visible your website is for AI platforms.", {
-          align: "center",
-        });
+    // === Intro ===
+    const intro = `This report shows how visible your website is for AI platforms.
+It highlights 15 key factors that directly influence AI visibility.`;
+    page.drawText(intro, {
+      x: 50,
+      y,
+      size: textFontSize,
+      font,
+      color: rgb(0, 0, 0),
+      lineHeight: 14,
+    });
+    y -= 80;
 
-      doc.addPage();
+    // === Example factors ===
+    const factors = [
+      "1. robots.txt — Controls whether AI systems can access your site.",
+      "2. sitemap.xml — Provides AI with a map of your site’s structure.",
+      "3. X-Robots-Tag — Server headers controlling indexing.",
+      "4. Meta robots — Page-level tags for AI visibility.",
+      "5. Canonical — Prevents duplicate content issues.",
+    ];
 
-      // === Пример раздела (Factor 1) ===
-      doc.fontSize(18).text("1. robots.txt", { underline: true }).moveDown(0.5);
-      doc.fontSize(12).text(
-        "This file controls whether AI systems can access your site. If misconfigured, your site may disappear from AI responses."
-      );
-
-      // === Заключение ===
-      doc.addPage();
-      doc.fontSize(16).text("Conclusion", { underline: true }).moveDown(1);
-      doc.fontSize(12).text(
-        "All recommendations are provided to improve AI visibility. The attached technical guidelines are advisory and should be applied with consideration of your website specifics."
-      );
-
-      doc.end();
+    factors.forEach((factor) => {
+      page.drawText(factor, {
+        x: 50,
+        y,
+        size: textFontSize,
+        font,
+        color: rgb(0, 0, 0),
+      });
+      y -= 20;
     });
 
-    return new NextResponse(pdfBuffer, {
+    // === Conclusion ===
+    const conclusion = `All listed factors directly affect your site’s visibility in AI platforms.
+The attached technical guidelines are advisory and can be used to implement improvements.`;
+    page.drawText(conclusion, {
+      x: 50,
+      y: y - 40,
+      size: textFontSize,
+      font,
+      color: rgb(0, 0, 0),
+      lineHeight: 14,
+    });
+
+    // === Footer ===
+    page.drawText("AI Signal Pro is a product of Magic of Discoveries LLC", {
+      x: 50,
+      y: 30,
+      size: 8,
+      font,
+      color: rgb(0.4, 0.4, 0.4),
+    });
+
+    // Finalize PDF
+    const pdfBytes = await pdfDoc.save();
+
+    return new NextResponse(pdfBytes, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
