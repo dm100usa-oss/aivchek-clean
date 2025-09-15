@@ -4,8 +4,8 @@ import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
   try {
-    // Генерация PDF в память
-    const pdfBuffer = await renderToBuffer(<ReportPDF />);
+    // Вместо JSX напрямую — передаём функцию
+    const pdfBuffer = await renderToBuffer(ReportPDF());
 
     return new NextResponse(pdfBuffer, {
       status: 200,
