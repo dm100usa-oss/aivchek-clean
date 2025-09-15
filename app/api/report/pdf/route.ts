@@ -4,7 +4,7 @@ import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
   try {
-    // Генерация PDF в буфер
+    // Генерация PDF в память
     const pdfBuffer = await renderToBuffer(<ReportPDF />);
 
     return new NextResponse(pdfBuffer, {
@@ -14,8 +14,11 @@ export async function GET() {
         "Content-Disposition": "inline; filename=report.pdf",
       },
     });
-  } catch (err) {
-    console.error("PDF generation error:", err);
-    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
+  } catch (error) {
+    console.error("PDF generation error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate PDF" },
+      { status: 500 }
+    );
   }
 }
