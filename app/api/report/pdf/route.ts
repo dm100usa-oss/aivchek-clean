@@ -1,26 +1,20 @@
 import { NextResponse } from "next/server";
-import { generateReportPDF } from "@/components/pdf/ReportPDF";
+import { renderToStream } from "@react-pdf/renderer";
+import ReportPDF from "@/components/pdf/ReportPDF";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const url = searchParams.get("url") || "example.com";
-    const score = Number(searchParams.get("score") || 72);
+    // Генерация PDF из компонента ReportPDF
+    const stream = await renderToStream(<ReportPDF />);
 
-    const pdfBytes = await generateReportPDF(score, url);
-
-    return new NextResponse(pdfBytes, {
-      status: 200,
+    return new NextResponse(stream as any, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": "inline; filename=ai-signal-pro-report.pdf",
+        "Content-Disposition": 'inline; filename="report.pdf"',
       },
     });
   } catch (error) {
     console.error("PDF generation failed:", error);
-    return NextResponse.json(
-      { error: "Failed to generate PDF" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }
 }
