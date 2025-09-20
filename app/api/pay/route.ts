@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { analyze } from "../../../lib/analyze";
+import { sendReportEmail } from "../../../lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -50,6 +51,14 @@ export async function POST(req: NextRequest) {
       customer_email: mode === "pro" && email ? email : undefined,
       metadata: { url, mode, email: email || "" },
     });
+
+    if (mode === "pro" && email) {
+      await sendReportEmail(
+        email,
+        "AI Signal Pro – Your Report is Ready",
+        `Your website analysis for ${url} is complete. Score: ${score}%.`
+      );
+    }
 
     return NextResponse.json({ url: session.url });
   } catch (e: any) {
