@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "AI Visibility Pro",
+  title: "AI Signal Max",
   description: "Check if your website is visible to AI assistants and search engines.",
 };
 
