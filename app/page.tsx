@@ -78,7 +78,7 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-2xl px-6 pt-20 pb-16">
       <h1 className="text-center text-4xl font-semibold tracking-tight mb-4">
-        AI Signal Pro
+        AI Signal Max
       </h1>
       <p className="text-center text-neutral-600 mb-8 leading-relaxed">
         Check if your website is visible to AI assistants like ChatGPT, Copilot, Gemini, Perplexity, Grok, and others
@@ -154,7 +154,7 @@ export default function Home() {
       </p>
 
       <footer className="mt-12 text-center text-xs text-neutral-500">
-        © 2025 AI Signal Pro. All rights reserved.
+        © 2025 AI Signal Max. All rights reserved.
         <br />
         <span className="opacity-60">
           Visibility scores are estimated and based on publicly available data. Not legal advice.
