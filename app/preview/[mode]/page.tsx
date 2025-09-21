@@ -242,7 +242,7 @@ export default function PreviewPage({
         </div>
 
         <footer className="mt-8 text-center text-xs text-neutral-500">
-          © 2025 AI Signal Pro. All rights reserved.
+          © 2025 AI Signal Max. All rights reserved.
           <br />
           <span className="opacity-60">
             Visibility scores are estimated and based on publicly available data. Not legal advice.
