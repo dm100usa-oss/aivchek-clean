@@ -1,6 +1,7 @@
 // app/api/pay/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { analyze } from "../../../lib/analyze";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -14,7 +15,7 @@ function getBaseUrl(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { mode, url } = await req.json();
+    const { mode, url, email } = await req.json();
 
     if (mode !== "quick" && mode !== "pro") {
       return NextResponse.json({ error: "Bad mode" }, { status: 400 });
@@ -27,20 +28,26 @@ export async function POST(req: NextRequest) {
     const priceId =
       mode === "quick"
         ? process.env.STRIPE_PRICE_QUICK
-        : process.env.STRIPE_PRICE_PRO;
+        : process.env.STRIPE_PRICE_FULL;
 
     if (!priceId) {
       return NextResponse.json({ error: "Price ID not configured" }, { status: 500 });
     }
 
     const base = getBaseUrl(req);
+    const { score } = await analyze(url, mode);
+
+    const successUrl = `${base}/success/${mode}?url=${encodeURIComponent(
+      url
+    )}&status=ok&paid=1&score=${score}`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${base}/success/${mode}?url=${encodeURIComponent(url)}`,
+      success_url: successUrl,
       cancel_url: `${base}/`,
-      metadata: { url, mode },
+      customer_email: mode === "pro" && email ? email : undefined,
+      metadata: { url, mode, email: email || "" },
     });
 
     return NextResponse.json({ url: session.url });
