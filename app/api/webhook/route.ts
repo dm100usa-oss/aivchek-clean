@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
 Attached is your full AI Website Visibility Report in PDF format.
 It includes a short summary for the site owner and a detailed checklist for the developer.
 If for any reason you are not currently in contact with a developer, our team can help quickly improve your website’s visibility in AI tools.
-Contact: support@aisignalpro.com
+Contact: support@aisignalmax.com
 Best regards,
-AI Signal Pro Team`;
+AI Signal Max Team`;
 
         await sendReportEmail(email, subject, text);
       }
