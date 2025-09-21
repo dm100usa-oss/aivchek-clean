@@ -6,7 +6,9 @@ import { sendReportEmail } from "../../../lib/email";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+    apiVersion: "2023-10-16",
+  });
 
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -28,19 +30,25 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const email = session.customer_email || session.metadata?.email;
+      const email = session.customer_email || session.metadata?.email || "";
       const url = session.metadata?.url || "";
       const mode = session.metadata?.mode || "";
 
       if (email) {
-        await sendReportEmail(
-          email,
-          "AI Website Visibility Report",
-          `Hello,\n\nThank you for using AI Signal Pro.\n\nYour report will be prepared for: ${url}\nMode: ${mode}\n\nBest regards,\nAI Signal Pro Team`
-        );
-      }
-    }
+        const subject = "AI Website Visibility Report";
+        const text = `Hello,
+Attached is your full AI Website Visibility Report in PDF format.
+It includes a short summary for the site owner and a detailed checklist for the developer.
+If for any reason you are not currently in contact with a developer, our team can help quickly improve your website’s visibility in AI tools.
+Contact: support@aisignalpro.com
+Best regards,
+AI Signal Pro Team`;
 
+        await sendReportEmail(email, subject, text);
+      }
+
+      console.log("✅ Email sent after payment:", { email, url, mode });
+    }
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (err) {
     console.error("Webhook handler failed:", err);
