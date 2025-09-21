@@ -200,10 +200,14 @@ export default function SuccessPage({ params }: { params: { mode: Mode } }) {
         )}
       </div>
 
-      <p className="text-xs text-gray-400 text-center mt-6">
-        Visibility scores are estimated and based on publicly available data.
-        Not legal advice.
-      </p>
+      <footer className="mt-12 text-center text-xs text-neutral-500">
+        © 2025 AI Signal Max. All rights reserved.
+        <br />
+        <span className="opacity-60">
+          Visibility scores are estimated and based on publicly available data.
+          Not legal advice.
+        </span>
+      </footer>
     </main>
   );
 }
