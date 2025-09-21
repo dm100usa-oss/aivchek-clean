@@ -51,9 +51,13 @@ export async function POST(req: NextRequest) {
       metadata: { url, mode, email: email || "" },
     });
 
-    // Step: send email only for Pro mode
+    // Send email only in Pro mode
     if (mode === "pro" && email) {
-      await sendReportEmail(email, url, score, mode);
+      await sendReportEmail(
+        email,
+        "Your AI Visibility Pro Report",
+        `Report for ${url}: score ${score}%`
+      );
     }
 
     return NextResponse.json({ url: session.url });
