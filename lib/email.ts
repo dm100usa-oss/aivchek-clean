@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY as string);
 export async function sendReportEmail(to: string, subject: string, text: string) {
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "support@aisignalmax.com", // отправитель от имени твоего домена
       to,
       subject,
       text,
