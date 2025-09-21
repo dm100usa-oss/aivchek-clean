@@ -1,15 +1,17 @@
+// app/api/test-email/route.ts
 import { NextResponse } from "next/server";
 import { sendReportEmail } from "../../../lib/email";
 
 export async function GET() {
-  try {
-    await sendReportEmail(
-      "your-email@example.com", // заменишь на свой email
-      "Test Email from AI Signal Pro",
-      "This is a test email to confirm Resend works."
-    );
-    return NextResponse.json({ ok: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message ?? "Send failed" }, { status: 500 });
+  const success = await sendReportEmail(
+    "dm100usa@gmail.com",
+    "Test Email",
+    "This is a test email from AI Signal Pro."
+  );
+
+  if (success) {
+    return NextResponse.json({ status: "ok", message: "Email sent successfully" });
+  } else {
+    return NextResponse.json({ status: "error", message: "Email send failed" }, { status: 500 });
   }
 }
