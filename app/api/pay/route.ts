@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
     }
 
     const base = getBaseUrl(req);
-
     const { score } = await analyze(url, mode);
 
     const successUrl = `${base}/success/${mode}?url=${encodeURIComponent(
@@ -52,12 +51,9 @@ export async function POST(req: NextRequest) {
       metadata: { url, mode, email: email || "" },
     });
 
+    // Step: send email only for Pro mode
     if (mode === "pro" && email) {
-      await sendReportEmail(
-        email,
-        "AI Signal Pro – Your Report is Ready",
-        `Your website analysis for ${url} is complete. Score: ${score}%.`
-      );
+      await sendReportEmail(email, url, score, mode);
     }
 
     return NextResponse.json({ url: session.url });
