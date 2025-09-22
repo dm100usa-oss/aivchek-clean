@@ -5,6 +5,12 @@ import { sendReportEmail } from "../../../lib/email";
 
 export const runtime = "nodejs";
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: "2023-10-16",
@@ -12,17 +18,24 @@ export async function POST(req: NextRequest) {
 
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
   if (!sig || !webhookSecret) {
     return NextResponse.json({ received: true }, { status: 200 });
   }
 
-  const raw = await req.text();
-  let event: Stripe.Event;
-
+  let rawBody: string;
   try {
-    event = stripe.webhooks.constructEvent(raw, sig, webhookSecret);
+    rawBody = await req.text();
+  } catch (err) {
+    console.error("Failed to read raw body:", err);
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err: any) {
-    console.error("Webhook signature verification failed.", err.message);
+    console.error("Webhook signature verification failed:", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -47,8 +60,9 @@ AI Signal Max Team`;
         await sendReportEmail(email, subject, text);
       }
 
-      console.log("✅ Email sent after payment:", { email, url, mode });
+      console.log("Email sent after payment:", { email, url, mode });
     }
+
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (err) {
     console.error("Webhook handler failed:", err);
