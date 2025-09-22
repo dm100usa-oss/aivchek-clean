@@ -5,12 +5,6 @@ import { sendReportEmail } from "../../../lib/email";
 
 export const runtime = "nodejs";
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextRequest) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: "2023-10-16",
@@ -18,16 +12,15 @@ export async function POST(req: NextRequest) {
 
   const sig = req.headers.get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
   if (!sig || !webhookSecret) {
-    return NextResponse.json({ received: true }, { status: 200 });
+    return NextResponse.json({ received: true }, { status: 400 });
   }
 
   let rawBody: string;
   try {
     rawBody = await req.text();
   } catch (err) {
-    console.error("Failed to read raw body:", err);
+    console.error("Failed to read raw body", err);
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
@@ -35,12 +28,12 @@ export async function POST(req: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err: any) {
-    console.error("Webhook signature verification failed:", err.message);
+    console.error("Stripe signature verification failed", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  try {
-    if (event.type === "checkout.session.completed") {
+  if (event.type === "checkout.session.completed") {
+    try {
       const session = event.data.object as Stripe.Checkout.Session;
 
       const email = session.customer_email || session.metadata?.email || "";
@@ -50,22 +43,23 @@ export async function POST(req: NextRequest) {
       if (email) {
         const subject = "AI Website Visibility Report";
         const text = `Hello,
-Attached is your full AI Website Visibility Report in PDF format.
-It includes a short summary for the site owner and a detailed checklist for the developer.
-If for any reason you are not currently in contact with a developer, our team can help quickly improve your website’s visibility in AI tools.
-Contact: support@aisignalmax.com
-Best regards,
-AI Signal Max Team`;
+Here is your report.
+URL: ${url}
+Mode: ${mode}`;
 
         await sendReportEmail(email, subject, text);
       }
 
-      console.log("Email sent after payment:", { email, url, mode });
+      console.log("Email sent after payment", { email, url, mode });
+    } catch (err) {
+      console.error("Error in processing event", err);
+      return NextResponse.json({ error: "Webhook handler processing error" }, { status: 500 });
     }
-
-    return NextResponse.json({ received: true }, { status: 200 });
-  } catch (err) {
-    console.error("Webhook handler failed:", err);
-    return NextResponse.json({ error: "Webhook error" }, { status: 500 });
   }
+
+  return NextResponse.json({ received: true }, { status: 200 });
+}
+
+export async function GET() {
+  return NextResponse.json({ status: "Webhook endpoint ready" }, { status: 200 });
 }
