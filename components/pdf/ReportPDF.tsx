@@ -1,5 +1,3 @@
-"use client";
-
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
 type ReportProps = {
@@ -79,7 +77,8 @@ export default function ReportPDF({ url, score, results }: ReportProps) {
       <Page size="A4" style={styles.page}>
         {/* Cover */}
         <View style={styles.header}>
-          <Image src="/aisignalmax-logo.png" style={styles.logo} />
+          {/* Абсолютный URL, иначе картинка не подтянется */}
+          <Image src="https://aivchek-clean.vercel.app/aisignalmax-logo.png" style={styles.logo} />
           <Text style={styles.title}>AI Website Visibility Report</Text>
           <Text style={styles.url}>{url}</Text>
         </View>
