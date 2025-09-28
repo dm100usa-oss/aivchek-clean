@@ -13,10 +13,8 @@ export async function GET() {
     ],
   };
 
-  // ✅ Оборачиваем ReportPDF в <React.Fragment>, чтобы renderToBuffer видел <Document>
-  const pdfBuffer = await renderToBuffer(
-    <ReportPDF {...testData} />
-  );
+  const element = React.createElement(ReportPDF, testData);
+  const pdfBuffer = await renderToBuffer(element);
 
   return new NextResponse(pdfBuffer, {
     headers: {
