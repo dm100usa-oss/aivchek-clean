@@ -6,6 +6,42 @@ import { useRouter } from "next/navigation";
 
 type Mode = "quick" | "pro";
 
+function Dots() {
+  return (
+    <span className="inline-flex w-[1.7ch] justify-start tabular-nums align-middle">
+      <span className="dot">.</span>
+      <span className="dot dot2">.</span>
+      <span className="dot dot3">.</span>
+      <style jsx>{`
+        .dot {
+          opacity: 0.2;
+          animation: aiv-dots 1200ms infinite;
+        }
+        .dot2 {
+          animation-delay: 200ms;
+        }
+        .dot3 {
+          animation-delay: 400ms;
+        }
+        @keyframes aiv-dots {
+          0% {
+            opacity: 0.2;
+          }
+          30% {
+            opacity: 1;
+          }
+          60% {
+            opacity: 0.2;
+          }
+          100% {
+            opacity: 0.2;
+          }
+        }
+      `}</style>
+    </span>
+  );
+}
+
 export default function PreviewPage({
   params,
   searchParams,
@@ -20,19 +56,27 @@ export default function PreviewPage({
   const router = useRouter();
 
   const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const emailValid =
     mode === "pro"
       ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
       : true;
 
   const pay = async () => {
-    const resp = await fetch("/api/pay", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode, url, email }),
-    });
-    const json = await resp.json();
-    if (json?.url) window.location.href = json.url as string;
+    if (loading) return;
+    setLoading(true);
+    try {
+      const resp = await fetch("/api/pay", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode, url, email }),
+      });
+      const json = await resp.json();
+      if (json?.url) window.location.href = json.url as string;
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Redirect to /scan-failed if error
@@ -47,50 +91,11 @@ export default function PreviewPage({
     () => [
       {
         name: "Robots.txt",
-        text: "This file controls whether your site is visible to AI. If access is blocked, the site may completely disappear from AI results.",
+        text: "Controls whether your site is visible to AI. If blocked, the site may disappear from AI results.",
       },
       {
         name: "Sitemap.xml",
-        text: "The site map for AI. If it’s missing or incomplete, some pages remain invisible to users.",
-      },
-      {
-        name: "Title",
-        text: "If a page has no clear title, AI shows random text and users don’t understand why they should click.",
-      },
-      {
-        name: "Meta description",
-        text: "Without a proper description, the site looks unattractive and loses clicks.",
-      },
-      {
-        name: "Mobile friendly",
-        text: "If the site isn’t adapted for phones, AI sees it as inconvenient and shows it less often.",
-      },
-    ],
-    []
-  );
-
-  // Pro (15 factors, first 5 are the same as Quick)
-  const proItems = useMemo(
-    () => [
-      {
-        name: "Robots.txt",
-        text: "This file controls whether your site is visible to AI. If access is blocked, the site may completely disappear from AI results.",
-      },
-      {
-        name: "Sitemap.xml",
-        text: "The site map for AI. If it’s missing or incomplete, some pages remain invisible to users.",
-      },
-      {
-        name: "Title",
-        text: "If a page has no clear title, AI shows random text and users don’t understand why they should click.",
-      },
-      {
-        name: "Meta description",
-        text: "Without a proper description, the site looks unattractive and loses clicks.",
-      },
-      {
-        name: "Mobile friendly",
-        text: "If the site isn’t adapted for phones, AI sees it as inconvenient and shows it less often.",
+        text: "The sitemap shows AI which pages exist. If missing or incomplete, some pages remain invisible.",
       },
       {
         name: "X-Robots-Tag",
@@ -98,11 +103,46 @@ export default function PreviewPage({
       },
       {
         name: "Meta robots",
-        text: "If meta tags block a page from AI, it won’t be shown to users.",
+        text: "If meta tags block a page, it won’t be shown to users.",
       },
       {
         name: "Canonical",
-        text: "A canonical link tells AI which page is the main one. If it’s missing or set incorrectly, duplicates or secondary pages may be shown instead. Users see the wrong content, and the site loses positions.",
+        text: "Indicates which page is the main one. Without it, duplicates may be shown instead.",
+      },
+    ],
+    []
+  );
+
+  // Pro (15 factors, includes all in correct order)
+  const proItems = useMemo(
+    () => [
+      {
+        name: "Robots.txt",
+        text: "Controls whether your site is visible to AI. If blocked, the site may disappear from AI results.",
+      },
+      {
+        name: "Sitemap.xml",
+        text: "The sitemap shows AI which pages exist. If missing or incomplete, some pages remain invisible.",
+      },
+      {
+        name: "X-Robots-Tag",
+        text: "If headers are misconfigured and block indexing, the site won’t appear in AI answers.",
+      },
+      {
+        name: "Meta robots",
+        text: "If meta tags block a page, it won’t be shown to users.",
+      },
+      {
+        name: "Canonical",
+        text: "Indicates which page is the main one. Without it, duplicates may be shown instead.",
+      },
+      {
+        name: "Title",
+        text: "If a page has no clear title, AI shows random text and users don’t understand why they should click.",
+      },
+      {
+        name: "Meta description",
+        text: "Without a proper description, the site looks unattractive and loses clicks.",
       },
       {
         name: "Open Graph",
@@ -114,7 +154,11 @@ export default function PreviewPage({
       },
       {
         name: "Structured Data",
-        text: "Without structured data, AI struggles to understand your site and it loses visibility.",
+        text: "Special markup that explains what’s on your site. Without it, AI struggles to understand your content.",
+      },
+      {
+        name: "Mobile friendly",
+        text: "If the site isn’t adapted for phones, AI sees it as inconvenient and shows it less often.",
       },
       {
         name: "HTTPS",
@@ -215,13 +259,21 @@ export default function PreviewPage({
               {!paid ? (
                 <button
                   onClick={pay}
-                  disabled={!url || (mode === "pro" && !emailValid)}
+                  disabled={!url || (mode === "pro" && !emailValid) || loading}
                   className={[
-                    "w-full rounded-md px-4 py-3 text-base font-medium transition-colors disabled:opacity-60",
+                    "w-full rounded-md px-4 py-3 text-base font-medium transition-colors disabled:opacity-60 flex items-center justify-center",
                     payButton,
                   ].join(" ")}
                 >
-                  {mode === "pro" ? "Get Full Report" : "Get Full Results"}
+                  {loading ? (
+                    <span className="inline-flex items-center">
+                      Processing<Dots />
+                    </span>
+                  ) : mode === "pro" ? (
+                    "Get Full Report"
+                  ) : (
+                    "Get Full Results"
+                  )}
                 </button>
               ) : (
                 <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center text-sm text-emerald-800">
