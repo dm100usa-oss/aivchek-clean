@@ -38,12 +38,12 @@ AI Signal Max`;
 
   try {
     await resend.emails.send({
-      from: "AI Signal Max <support@aisignalmax.com>",
+      from: "AI Signal Max <onboarding@resend.dev>", // старый подтвержденный адрес
       to,
       subject,
       text: plainText,
       html,
-      // attachments: [] // later we add PDF here
+      // attachments: [] // позже добавим PDF
     });
     return true;
   } catch (error: any) {
