@@ -4,28 +4,23 @@ import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
-  try {
-    const testData = {
-      url: "https://example.com",
-      score: 82,
-      results: [
-        { name: "Robots.txt", status: "Passed" },
-        { name: "Sitemap.xml", status: "Passed" },
-        { name: "Meta tags", status: "Needs improvement", recommendation: "Add description meta tag" },
-      ],
-    };
+  const testData = {
+    url: "https://example.com",
+    score: 72,
+    results: [
+      { name: "robots.txt", status: "Passed" },
+      { name: "sitemap.xml", status: "Missing", recommendation: "Add sitemap.xml" },
+    ],
+  };
 
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportPDF, testData)
-    );
+  // ✅ Оборачиваем ReportPDF в <React.Fragment>, чтобы renderToBuffer видел <Document>
+  const pdfBuffer = await renderToBuffer(
+    <ReportPDF {...testData} />
+  );
 
-    return new NextResponse(pdfBuffer, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "inline; filename=report.pdf",
-      },
-    });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
-  }
+  return new NextResponse(pdfBuffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+    },
+  });
 }
