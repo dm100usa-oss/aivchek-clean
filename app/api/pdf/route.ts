@@ -13,10 +13,7 @@ export async function GET() {
     ],
   };
 
-  // создаём PDF как React-элемент
   const element = React.createElement(ReportPDF, testData);
-
-  // рендерим его в буфер
   const pdfBuffer = await renderToBuffer(element);
 
   return new NextResponse(pdfBuffer, {
