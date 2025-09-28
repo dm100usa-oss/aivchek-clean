@@ -15,7 +15,7 @@ export async function GET() {
       ],
     };
 
-    const pdfBuffer = await renderToBuffer(<ReportPDF {...testData} />);
+    const pdfBuffer = await renderToBuffer(ReportPDF(testData));
 
     return new NextResponse(pdfBuffer, {
       headers: {
