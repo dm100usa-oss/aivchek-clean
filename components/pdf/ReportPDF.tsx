@@ -1,50 +1,69 @@
 "use client";
 
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
-// Стили для PDF
+type ReportProps = {
+  url: string;
+  score: number;
+  results: { name: string; status: string; recommendation?: string }[];
+};
+
+// PDF styles
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
-    fontSize: 12,
     padding: 40,
-    lineHeight: 1.6,
+    fontSize: 12,
+    fontFamily: "Helvetica",
     flexDirection: "column",
   },
   header: {
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 20,
   },
   logo: {
     width: 120,
-    height: 120,
     marginBottom: 10,
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 6,
+    marginBottom: 4,
+    textAlign: "center",
   },
   url: {
     fontSize: 12,
     color: "gray",
+    textAlign: "center",
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
     marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 8,
   },
   paragraph: {
     fontSize: 12,
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  table: {
+    marginTop: 10,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  factorName: {
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  factorStatus: {
+    fontSize: 12,
+  },
+  recommendation: {
+    fontSize: 11,
+    color: "gray",
+    marginLeft: 10,
   },
   footer: {
     fontSize: 10,
@@ -54,52 +73,49 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function ReportPDF({
-  url,
-  score,
-  summary,
-  factors,
-}: {
-  url: string;
-  score: number;
-  summary: string;
-  factors: { name: string; status: string; recommendation: string }[];
-}) {
+export default function ReportPDF({ url, score, results }: ReportProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Обложка */}
+        {/* Cover */}
         <View style={styles.header}>
           <Image src="/aisignalmax-logo.png" style={styles.logo} />
           <Text style={styles.title}>AI Website Visibility Report</Text>
           <Text style={styles.url}>{url}</Text>
         </View>
 
-        {/* Итог */}
+        {/* Summary */}
         <Text style={styles.sectionTitle}>Summary</Text>
+        <Text style={styles.paragraph}>Visibility Score: {score}%</Text>
         <Text style={styles.paragraph}>
-          Visibility Score: {score}%
+          This report summarizes the current visibility of your website in AI
+          platforms. Below are the parameters we checked and their results.
         </Text>
-        <Text style={styles.paragraph}>{summary}</Text>
 
-        {/* Проверенные параметры */}
+        {/* Checked parameters */}
         <Text style={styles.sectionTitle}>Parameters Checked</Text>
-        {factors.map((f, i) => (
-          <View key={i} style={{ marginBottom: 8 }}>
-            <Text>
-              • {f.name} — {f.status}
-            </Text>
-            <Text style={{ fontSize: 11, color: "gray" }}>
-              {f.recommendation}
-            </Text>
-          </View>
-        ))}
+        <View style={styles.table}>
+          {results.map((r, i) => (
+            <View key={i} style={styles.row}>
+              <Text style={styles.factorName}>{r.name}</Text>
+              <Text style={styles.factorStatus}>{r.status}</Text>
+            </View>
+          ))}
+          {results.map(
+            (r, i) =>
+              r.recommendation && (
+                <Text key={`rec-${i}`} style={styles.recommendation}>
+                  {r.recommendation}
+                </Text>
+              )
+          )}
+        </View>
 
-        {/* Футер */}
+        {/* Footer */}
         <Text style={styles.footer}>
           © 2025 AI Signal Max. All rights reserved.{"\n"}
           AI Signal Max is a product of Magic of Discoveries LLC.{"\n"}
-          Visibility scores are approximate, based on public data.
+          Visibility scores are approximate and based on public data.
         </Text>
       </Page>
     </Document>
