@@ -1,14 +1,14 @@
 // app/preview/[mode]/page.tsx
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 type Mode = "quick" | "pro";
 
 function Dots() {
   return (
-    <span className="inline-flex w-[1.7ch] justify-start tabular-nums align-middle">
+    <span className="ml-2 inline-flex w-[1.7ch] justify-start tabular-nums align-middle">
       <span className="dot">.</span>
       <span className="dot dot2">.</span>
       <span className="dot dot3">.</span>
@@ -63,21 +63,33 @@ export default function PreviewPage({
       ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
       : true;
 
-  const pay = async () => {
+  const pay = useCallback(async () => {
     if (loading) return;
     setLoading(true);
+    const minDuration = 2200;
+    const started = Date.now();
+
+    let json: any = null;
     try {
       const resp = await fetch("/api/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode, url, email }),
       });
-      const json = await resp.json();
-      if (json?.url) window.location.href = json.url as string;
-    } finally {
+      json = await resp.json();
+    } catch (e) {
+      console.error("Payment error", e);
+    }
+
+    const left = Math.max(0, minDuration - (Date.now() - started));
+    await new Promise((r) => setTimeout(r, left));
+
+    if (json?.url) {
+      window.location.href = json.url as string;
+    } else {
       setLoading(false);
     }
-  };
+  }, [mode, url, email, loading]);
 
   // Redirect to /scan-failed if error
   useEffect(() => {
@@ -113,7 +125,7 @@ export default function PreviewPage({
     []
   );
 
-  // Pro (15 factors, includes all in correct order)
+  // Pro (15 factors, full order)
   const proItems = useMemo(
     () => [
       {
@@ -265,15 +277,8 @@ export default function PreviewPage({
                     payButton,
                   ].join(" ")}
                 >
-                  {loading ? (
-                    <span className="inline-flex items-center">
-                      Processing<Dots />
-                    </span>
-                  ) : mode === "pro" ? (
-                    "Get Full Report"
-                  ) : (
-                    "Get Full Results"
-                  )}
+                  {mode === "pro" ? "Get Full Report" : "Get Full Results"}
+                  {loading && <Dots />}
                 </button>
               ) : (
                 <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center text-sm text-emerald-800">
