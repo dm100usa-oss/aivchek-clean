@@ -38,18 +38,20 @@ export async function POST(req: Request) {
     const mode = session.metadata?.mode || "";
 
     if (email) {
-      const subject = "AI Website Visibility Report";
+      const subject = `AI Website Visibility Report – ${url}`;
       const text = `Hello,
+
+You requested an AI Visibility Report for: ${url}
 
 Attached is your full AI Website Visibility Report in PDF format.
 It includes a short summary for the site owner and a detailed checklist for the developer.
 
-If for any reason you are not currently in contact with a developer, our team can help quickly improve your website’s visibility in AI tools.
+If you are not currently working with a developer, we can help quickly improve your website’s visibility in AI tools.
 
 Contact: support@aisignalmax.com
 
 Best regards,
-AI Signal Max Team`;
+AI Signal Max`;
 
       await sendReportEmail(email, subject, text);
       console.log("Email sent:", { email, url, mode });
