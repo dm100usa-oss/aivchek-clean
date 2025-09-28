@@ -10,6 +10,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export const runtime = "nodejs";
 
+// helper: get domain only
+function extractDomain(url: string): string {
+  try {
+    const u = new URL(url);
+    return u.hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
+
 export async function POST(req: Request) {
   const sig = headers().get("stripe-signature");
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -38,15 +48,17 @@ export async function POST(req: Request) {
     const mode = session.metadata?.mode || "";
 
     if (email) {
-      const subject = `AI Website Visibility Report – ${url}`;
+      const domain = extractDomain(url);
+      const subject = `AI Website Visibility Report – ${domain}`;
       const text = `Hello,
 
-You requested an AI Visibility Report for: ${url}
+Here is your AI Website Visibility Report for: ${url}
 
-Attached is your full AI Website Visibility Report in PDF format.
-It includes a short summary for the site owner and a detailed checklist for the developer.
+It includes:
+- A summary for the site owner
+- A detailed checklist for the developer
 
-If you are not currently working with a developer, we can help quickly improve your website’s visibility in AI tools.
+If you are not currently in contact with a developer, AI Signal Max can help improve your website’s visibility in AI tools.
 
 Contact: support@aisignalmax.com
 
