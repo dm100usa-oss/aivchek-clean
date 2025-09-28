@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF from "@/components/pdf/ReportPDF";
+import React from "react";
 
 export async function GET() {
   try {
-    // Test data for now
+    // Test data
     const testData = {
       url: "https://example.com",
       score: 82,
@@ -15,10 +16,11 @@ export async function GET() {
       ],
     };
 
-    // Generate PDF buffer
-    const pdfBuffer = await renderToBuffer(<ReportPDF {...testData} />);
+    // ✅ Use createElement instead of JSX
+    const pdfBuffer = await renderToBuffer(
+      React.createElement(ReportPDF, testData)
+    );
 
-    // Return as response
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
