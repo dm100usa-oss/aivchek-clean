@@ -1,24 +1,27 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import ReportPDF from "../../../components/pdf/ReportPDF";
 import React from "react";
-import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
   const testData = {
     url: "https://example.com",
     score: 72,
     results: [
-      { name: "robots.txt", status: "Passed" },
-      { name: "sitemap.xml", status: "Missing", recommendation: "Add sitemap.xml" },
+      { name: "Robots.txt", status: "Good" },
+      { name: "Sitemap.xml", status: "Moderate" },
+      { name: "X-Robots-Tag", status: "Poor", recommendation: "Add correct headers" },
     ],
   };
 
-  const element = React.createElement(ReportPDF, testData);
-  const pdfBuffer = await renderToBuffer(element);
+  // оборачиваем в <ReportPDF /> и рендерим в PDF
+  const element = <ReportPDF {...testData} />;
+  const pdfBuffer = await renderToBuffer(element as React.ReactElement);
 
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=report.pdf",
     },
   });
 }
