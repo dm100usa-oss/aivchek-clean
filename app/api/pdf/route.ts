@@ -1,11 +1,10 @@
 // app/api/pdf/route.ts
 import { NextResponse } from "next/server";
-import { renderToStream } from "@react-pdf/renderer";
+import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
   try {
-    // Тестовые данные, позже заменим на реальные
     const testData = {
       url: "https://example.com",
       score: 72,
@@ -17,8 +16,9 @@ export async function GET() {
       ],
     };
 
-    const pdfStream = await renderToStream(<ReportPDF {...testData} />);
-    return new NextResponse(pdfStream as any, {
+    const pdfBuffer = await renderToBuffer(ReportPDF(testData));
+
+    return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": "inline; filename=report.pdf",
