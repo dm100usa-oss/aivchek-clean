@@ -8,15 +8,14 @@ export async function GET() {
     const testData = {
       url: "https://example.com",
       score: 72,
-      summary: "Your site is partially visible for AI platforms. Some parameters require improvement.",
-      factors: [
-        { name: "Robots.txt", desc: "Controls access for AI.", status: "Good" },
-        { name: "Sitemap.xml", desc: "Helps AI discover pages.", status: "Moderate" },
-        { name: "X-Robots-Tag", desc: "Server-side rule for visibility.", status: "Poor" },
+      results: [
+        { name: "Robots.txt", status: "Good", recommendation: "Keep it updated." },
+        { name: "Sitemap.xml", status: "Moderate", recommendation: "Fix missing entries." },
+        { name: "X-Robots-Tag", status: "Poor", recommendation: "Remove disallow rules." },
       ],
     };
 
-    const pdfBuffer = await renderToBuffer(ReportPDF(testData));
+    const pdfBuffer = await renderToBuffer(<ReportPDF {...testData} />);
 
     return new NextResponse(pdfBuffer, {
       headers: {
