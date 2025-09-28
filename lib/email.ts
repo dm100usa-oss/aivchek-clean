@@ -7,17 +7,18 @@ interface SendReportEmailProps {
   to: string;
   url: string;
   mode: string;
+  pdfBuffer?: Buffer; // PDF будет передаваться сюда позже
 }
 
-export async function sendReportEmail({ to, url, mode }: SendReportEmailProps) {
+export async function sendReportEmail({ to, url, mode, pdfBuffer }: SendReportEmailProps) {
   const subject = `AI Website Visibility Report – ${url}`;
 
   const plainText = `Hello,
 
-Attached is your AI Website Visibility Report for ${url} in PDF format.
-It includes a clear summary for the site owner and a detailed checklist for the developer.
+Attached is your AI Website Visibility Report for ${url}.
+It includes an overview for the site owner and a detailed checklist for the developer.
 
-If you are not currently in contact with a developer, AI Signal Max can help quickly improve your website’s visibility in AI platforms.
+If for any reason you are not currently in contact with a developer, AI Signal Max can help quickly improve your website’s visibility in AI platforms.
 
 Contact: support@aisignalmax.com
 
@@ -28,8 +29,8 @@ AI Signal Max`;
     <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.5;">
       <h2 style="margin-bottom: 16px;">AI Website Visibility Report</h2>
       <p>Hello,</p>
-      <p>Attached is your AI Website Visibility Report for <strong>${url}</strong> in PDF format.</p>
-      <p>It includes a clear summary for the site owner and a detailed checklist for the developer.</p>
+      <p>Attached is your AI Website Visibility Report for <strong>${url}</strong>.</p>
+      <p>It includes an <strong>overview for the site owner</strong> and a <strong>detailed checklist for the developer</strong>.</p>
       <p>If you are not currently in contact with a developer, <strong>AI Signal Max</strong> can help quickly improve your website’s visibility in AI platforms.</p>
       <p>Contact: <a href="mailto:support@aisignalmax.com">support@aisignalmax.com</a></p>
       <p style="margin-top: 24px;">Best regards,<br/>AI Signal Max</p>
@@ -38,12 +39,14 @@ AI Signal Max`;
 
   try {
     await resend.emails.send({
-      from: "AI Signal Max <onboarding@resend.dev>", // старый подтвержденный адрес
+      from: "AI Signal Max <support@aisignalmax.com>",
       to,
       subject,
       text: plainText,
       html,
-      // attachments: [] // позже добавим PDF
+      // attachments: pdfBuffer
+      //   ? [{ filename: "AI-Signal-Report.pdf", content: pdfBuffer.toString("base64") }]
+      //   : [],
     });
     return true;
   } catch (error: any) {
