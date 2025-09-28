@@ -1,22 +1,24 @@
-// app/api/pdf/route.ts
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
   try {
+    // Test data for now
     const testData = {
       url: "https://example.com",
-      score: 72,
+      score: 82,
       results: [
-        { name: "Robots.txt", status: "Good", recommendation: "Keep it updated." },
-        { name: "Sitemap.xml", status: "Moderate", recommendation: "Fix missing entries." },
-        { name: "X-Robots-Tag", status: "Poor", recommendation: "Remove disallow rules." },
+        { name: "Robots.txt", status: "Passed" },
+        { name: "Sitemap.xml", status: "Passed" },
+        { name: "Meta tags", status: "Needs improvement", recommendation: "Add description meta tag" },
       ],
     };
 
-    const pdfBuffer = await renderToBuffer(ReportPDF(testData));
+    // Generate PDF buffer
+    const pdfBuffer = await renderToBuffer(<ReportPDF {...testData} />);
 
+    // Return as response
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
@@ -24,7 +26,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("PDF generation error:", error);
+    console.error("PDF generation failed:", error);
     return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }
 }
