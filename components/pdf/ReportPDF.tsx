@@ -8,9 +8,8 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
-import logo from "../../public/logo-pdf.png"; // твой логотип
 
-// Стили для PDF
+// Styles
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
@@ -74,7 +73,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Главный компонент PDF
+// Main PDF component
 export default function ReportPDF({
   score,
   url,
@@ -88,37 +87,40 @@ export default function ReportPDF({
     status: "Good" | "Moderate" | "Poor";
   }[];
 }) {
-  // Определяем текст заключения
+  // Conclusion text
   let conclusionText = "";
   if (score >= 80) {
-    conclusionText = "Ваш сайт уже хорошо подготовлен... (текст высокого уровня)";
+    conclusionText =
+      "Your website is well prepared for AI platforms. Most key parameters are configured correctly, which ensures high chances of being visible in ChatGPT, Copilot, Gemini and other systems.\n\nStill, even at this level, small issues or outdated settings can reduce performance over time. Regular checks every few months help keep your visibility strong.";
   } else if (score >= 40) {
-    conclusionText = "Ваш сайт в целом доступен... (текст среднего уровня)";
+    conclusionText =
+      "Your website is partially visible to AI platforms. Some parameters are missing or misconfigured, which limits how often your site appears in results.\n\nThis is a manageable stage: by fixing the highlighted issues, visibility can improve significantly and bring measurable growth in traffic.";
   } else {
-    conclusionText = "Сейчас ваш сайт имеет серьёзные ограничения... (текст низкого уровня)";
+    conclusionText =
+      "Your website currently has serious visibility issues. Several critical parameters are missing or misconfigured, which makes your site almost invisible to AI platforms.\n\nThese issues require a systematic fix, but resolving them opens access to new users and ensures your business can be found where people search.";
   }
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Обложка */}
+        {/* Header */}
         <View style={styles.header}>
-          <Image src={logo} style={styles.logo} />
+          <Image src="/logo-pdf.png" style={styles.logo} />
           <Text style={styles.title}>AI Website Visibility Report</Text>
           <Text style={styles.url}>{url}</Text>
         </View>
 
-        {/* Donut */}
+        {/* Donut (static number) */}
         <View style={styles.donutWrapper}>
           <Text style={styles.donut}>{score}%</Text>
         </View>
 
-        {/* Заключение */}
+        {/* Conclusion */}
         <View style={styles.conclusion}>
           <Text>{conclusionText}</Text>
         </View>
 
-        {/* Параметры */}
+        {/* Parameters */}
         <Text style={styles.sectionTitle}>Parameters Checked</Text>
         {factors.map((f, i) => (
           <View key={i} style={styles.factorItem}>
@@ -138,7 +140,7 @@ export default function ReportPDF({
           </View>
         ))}
 
-        {/* Футер */}
+        {/* Footer */}
         <Text style={styles.footer}>
           © 2025 AI Signal Max. All rights reserved. {"\n"}
           AI Signal Max is a product of Magic of Discoveries LLC {"\n"}
