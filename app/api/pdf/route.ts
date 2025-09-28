@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF from "@/components/pdf/ReportPDF";
 import React from "react";
+import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
   try {
-    // Test data
     const testData = {
       url: "https://example.com",
       score: 82,
@@ -16,7 +15,6 @@ export async function GET() {
       ],
     };
 
-    // ✅ Use createElement instead of JSX
     const pdfBuffer = await renderToBuffer(
       React.createElement(ReportPDF, testData)
     );
@@ -28,7 +26,6 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("PDF generation failed:", error);
     return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }
 }
