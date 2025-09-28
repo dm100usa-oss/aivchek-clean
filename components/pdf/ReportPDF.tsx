@@ -1,4 +1,7 @@
-import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
+"use client";
+
+import { Page, Text, View, Document, StyleSheet, Image, DocumentProps } from "@react-pdf/renderer";
+import { ReactElement } from "react";
 
 type ReportProps = {
   url: string;
@@ -6,7 +9,6 @@ type ReportProps = {
   results: { name: string; status: string; recommendation?: string }[];
 };
 
-// PDF styles
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -71,27 +73,22 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function ReportPDF({ url, score, results }: ReportProps) {
+export default function ReportPDF({ url, score, results }: ReportProps): ReactElement<DocumentProps> {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Cover */}
         <View style={styles.header}>
-          {/* Абсолютный URL, иначе картинка не подтянется */}
-          <Image src="https://aivchek-clean.vercel.app/aisignalmax-logo.png" style={styles.logo} />
+          <Image src="/aisignalmax-logo.png" style={styles.logo} />
           <Text style={styles.title}>AI Website Visibility Report</Text>
           <Text style={styles.url}>{url}</Text>
         </View>
 
-        {/* Summary */}
         <Text style={styles.sectionTitle}>Summary</Text>
         <Text style={styles.paragraph}>Visibility Score: {score}%</Text>
         <Text style={styles.paragraph}>
-          This report summarizes the current visibility of your website in AI
-          platforms. Below are the parameters we checked and their results.
+          This report summarizes the current visibility of your website in AI platforms. Below are the parameters we checked and their results.
         </Text>
 
-        {/* Checked parameters */}
         <Text style={styles.sectionTitle}>Parameters Checked</Text>
         <View style={styles.table}>
           {results.map((r, i) => (
@@ -110,7 +107,6 @@ export default function ReportPDF({ url, score, results }: ReportProps) {
           )}
         </View>
 
-        {/* Footer */}
         <Text style={styles.footer}>
           © 2025 AI Signal Max. All rights reserved.{"\n"}
           AI Signal Max is a product of Magic of Discoveries LLC.{"\n"}
