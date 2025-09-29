@@ -3,6 +3,9 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
+// mark as dynamic (no prerendering)
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const testData = {
     url: "https://example.com",
@@ -22,10 +25,10 @@ export async function GET() {
     ],
   };
 
-  // Create React element safely (no JSX in route.ts)
+  // create element with props
   const element = React.createElement(ReportPDF, testData);
 
-  // Render to PDF buffer
+  // render to buffer
   const pdfBuffer = await renderToBuffer(element as any);
 
   return new NextResponse(pdfBuffer, {
