@@ -1,24 +1,61 @@
-import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "./ReportPDF";
 
-export async function GET() {
-  const testData = {
-    url: "https://example.com",
-    score: 85,
-    results: [
-      { name: "robots.txt", status: "Passed" },
-      { name: "sitemap.xml", status: "Failed", recommendation: "Add sitemap" },
-    ],
-  };
+type ReportProps = {
+  url: string;
+  score: number;
+  results: { name: string; status: string; recommendation?: string }[];
+};
 
-  const element = React.createElement(ReportPDF, testData);
-  const pdfBuffer = await renderToBuffer(element);
+const styles = StyleSheet.create({
+  page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
+  header: { marginBottom: 20, textAlign: "center" },
+  title: { fontSize: 20, marginBottom: 10 },
+  url: { fontSize: 12, color: "gray", marginBottom: 20 },
+  sectionTitle: { fontSize: 16, marginTop: 20, marginBottom: 8 },
+  paragraph: { fontSize: 12, marginBottom: 8 },
+  row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  recommendation: { fontSize: 11, color: "gray", marginLeft: 10 },
+  footer: { fontSize: 10, textAlign: "center", marginTop: 30, color: "gray" },
+});
 
-  return new NextResponse(pdfBuffer, {
-    headers: {
-      "Content-Type": "application/pdf",
-    },
-  });
+export default function ReportPDF({ url, score, results }: ReportProps) {
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.title}>AI Website Visibility Report</Text>
+          <Text style={styles.url}>{url}</Text>
+        </View>
+
+        <Text style={styles.sectionTitle}>Summary</Text>
+        <Text style={styles.paragraph}>Visibility Score: {score}%</Text>
+        <Text style={styles.paragraph}>
+          This report summarizes the current visibility of your website in AI platforms.
+        </Text>
+
+        <Text style={styles.sectionTitle}>Parameters Checked</Text>
+        {results.map((r, i) => (
+          <View key={i} style={styles.row}>
+            <Text>{r.name}</Text>
+            <Text>{r.status}</Text>
+          </View>
+        ))}
+        {results.map(
+          (r, i) =>
+            r.recommendation && (
+              <Text key={`rec-${i}`} style={styles.recommendation}>
+                {r.recommendation}
+              </Text>
+            )
+        )}
+
+        <Text style={styles.footer}>
+          © 2025 AI Signal Max. All rights reserved.{"\n"}
+          AI Signal Max is a product of Magic of Discoveries LLC.{"\n"}
+          Visibility scores are approximate and based on public data.
+        </Text>
+      </Page>
+    </Document>
+  );
 }
