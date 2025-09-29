@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF from "../../components/ReportPDF";
 import React from "react";
+import ReportPDF from "./ReportPDF";
 
 export async function GET() {
   const testData = {
@@ -13,7 +13,6 @@ export async function GET() {
     ],
   };
 
-  // Render PDF
   const element = React.createElement(ReportPDF, testData);
   const pdfBuffer = await renderToBuffer(element);
 
