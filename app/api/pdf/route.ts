@@ -27,11 +27,8 @@ export async function GET() {
     ],
   };
 
-  // create PDF element
-  const element = React.createElement(ReportPDF, testData);
-
-  // render to buffer
-  const pdfBuffer = await renderToBuffer(element);
+  // Render directly to buffer
+  const pdfBuffer = await renderToBuffer(<ReportPDF {...testData} />);
 
   return new NextResponse(pdfBuffer, {
     headers: {
