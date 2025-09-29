@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
@@ -13,16 +13,18 @@ export async function GET() {
     ],
   };
 
-  // создаём React-элемент без JSX
+  // create React element without JSX (server-safe)
   const element = React.createElement(ReportPDF, testData);
 
-  // рендерим PDF
-  const pdfBuffer = await renderToBuffer(element);
+  // call pdf(...) with a cast to any to avoid TS DocumentProps mismatch,
+  // then get buffer
+  const instance: any = pdf(element as any);
+  const pdfBuffer = await instance.toBuffer();
 
-  // отдаём файл
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=report.pdf",
     },
   });
 }
