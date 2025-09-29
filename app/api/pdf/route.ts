@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { pdf } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "../../../components/ReportPDF.tsx";
+import ReportPDF from "../../../components/ReportPDF";
 
 export async function GET() {
   const testData = {
@@ -13,10 +13,12 @@ export async function GET() {
     ],
   };
 
+  // Create element without JSX
   const element = React.createElement(ReportPDF, testData);
-  const pdfBuffer = await pdf(element).toBuffer();
 
-  return new NextResponse(pdfBuffer, {
+  const buffer = await pdf(element).toBuffer();
+
+  return new NextResponse(buffer, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": "inline; filename=report.pdf",
