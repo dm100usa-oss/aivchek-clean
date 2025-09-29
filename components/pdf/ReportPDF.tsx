@@ -1,7 +1,4 @@
-"use client";
-
-import { Page, Text, View, Document, StyleSheet, Image, DocumentProps } from "@react-pdf/renderer";
-import { ReactElement } from "react";
+import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
 
 type ReportProps = {
   url: string;
@@ -10,70 +7,24 @@ type ReportProps = {
 };
 
 const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontSize: 12,
-    fontFamily: "Helvetica",
-    flexDirection: "column",
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  logo: {
-    width: 120,
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  url: {
-    fontSize: 12,
-    color: "gray",
-    textAlign: "center",
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 20,
-    marginBottom: 8,
-  },
-  paragraph: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  table: {
-    marginTop: 10,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 6,
-  },
-  factorName: {
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  factorStatus: {
-    fontSize: 12,
-  },
-  recommendation: {
-    fontSize: 11,
-    color: "gray",
-    marginLeft: 10,
-  },
-  footer: {
-    fontSize: 10,
-    textAlign: "center",
-    marginTop: 30,
-    color: "gray",
-  },
+  page: { padding: 40, fontSize: 12, fontFamily: "Helvetica" },
+  header: { alignItems: "center", marginBottom: 20 },
+  logo: { width: 120, marginBottom: 10 },
+  title: { fontSize: 20, fontWeight: "bold", marginBottom: 4, textAlign: "center" },
+  url: { fontSize: 12, color: "gray", textAlign: "center" },
+  sectionTitle: { fontSize: 16, fontWeight: "bold", marginTop: 20, marginBottom: 8 },
+  paragraph: { fontSize: 12, marginBottom: 8 },
+  row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  factorName: { fontSize: 12, fontWeight: "bold" },
+  factorStatus: { fontSize: 12 },
+  recommendation: { fontSize: 11, color: "gray", marginLeft: 10 },
+  footer: { fontSize: 10, textAlign: "center", marginTop: 30, color: "gray" },
 });
 
-export default function ReportPDF({ url, score, results }: ReportProps): ReactElement<DocumentProps> {
+// теперь возвращаем Document напрямую
+export default function ReportPDF(props: ReportProps) {
+  const { url, score, results } = props;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -90,22 +41,20 @@ export default function ReportPDF({ url, score, results }: ReportProps): ReactEl
         </Text>
 
         <Text style={styles.sectionTitle}>Parameters Checked</Text>
-        <View style={styles.table}>
-          {results.map((r, i) => (
-            <View key={i} style={styles.row}>
-              <Text style={styles.factorName}>{r.name}</Text>
-              <Text style={styles.factorStatus}>{r.status}</Text>
-            </View>
-          ))}
-          {results.map(
-            (r, i) =>
-              r.recommendation && (
-                <Text key={`rec-${i}`} style={styles.recommendation}>
-                  {r.recommendation}
-                </Text>
-              )
-          )}
-        </View>
+        {results.map((r, i) => (
+          <View key={i} style={styles.row}>
+            <Text style={styles.factorName}>{r.name}</Text>
+            <Text style={styles.factorStatus}>{r.status}</Text>
+          </View>
+        ))}
+        {results.map(
+          (r, i) =>
+            r.recommendation && (
+              <Text key={`rec-${i}`} style={styles.recommendation}>
+                {r.recommendation}
+              </Text>
+            )
+        )}
 
         <Text style={styles.footer}>
           © 2025 AI Signal Max. All rights reserved.{"\n"}
