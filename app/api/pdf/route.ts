@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { pdf, Document, Page, Text } from "@react-pdf/renderer";
+import React from "react";
 
 export async function GET() {
-  const element = (
-    <Document>
-      <Page>
-        <Text>PDF is working!</Text>
-      </Page>
-    </Document>
+  const element = React.createElement(
+    Document,
+    null,
+    React.createElement(
+      Page,
+      null,
+      React.createElement(Text, null, "PDF is working!")
+    )
   );
 
   const instance: any = pdf(element as any);
