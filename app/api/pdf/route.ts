@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import { pdf } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "@/pdf/ReportPDF";
+import ReportPDF from "@/components/pdf/ReportPDF";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  // тестовые данные; на продакшн ты будешь получать из запроса
   const testData = {
     url: "https://example.com",
     score: 85,
