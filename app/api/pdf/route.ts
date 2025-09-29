@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import React from "react";
-import { renderToBuffer } from "@react-pdf/renderer";
+import { pdf } from "@react-pdf/renderer";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET() {
@@ -87,8 +87,12 @@ export async function GET() {
     ],
   };
 
+  // create element
   const element = React.createElement(ReportPDF, testData);
-  const pdfBuffer = await renderToBuffer(element);
+
+  // generate PDF buffer
+  const instance: any = pdf(element as any);
+  const pdfBuffer = await instance.toBuffer();
 
   return new NextResponse(pdfBuffer, {
     status: 200,
