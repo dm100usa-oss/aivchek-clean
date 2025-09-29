@@ -10,21 +10,81 @@ export async function GET() {
     score: 85,
     date: new Date().toISOString(),
     factors: [
-      { name: "Robots.txt", status: "Good", recommendation: "Configured correctly." },
-      { name: "Sitemap.xml", status: "Moderate", recommendation: "Add missing pages to sitemap." },
-      { name: "X-Robots-Tag", status: "Poor", recommendation: "Fix server header to allow crawling." },
-      { name: "Meta robots", status: "Good", recommendation: "Tag present and configured correctly." },
-      { name: "Canonical", status: "Moderate", recommendation: "Check duplicate pages and add canonical link." },
-      { name: "Title", status: "Good", recommendation: "Well optimized." },
-      { name: "Meta description", status: "Moderate", recommendation: "Improve clarity and uniqueness." },
-      { name: "Open Graph", status: "Poor", recommendation: "Add OG tags for better previews." },
-      { name: "H1", status: "Good", recommendation: "Main heading present." },
-      { name: "Structured Data", status: "Moderate", recommendation: "Add JSON-LD schema for products or services." },
-      { name: "Mobile friendly", status: "Moderate", recommendation: "Optimize layout for smaller screens." },
-      { name: "HTTPS", status: "Good", recommendation: "Secure connection enabled." },
-      { name: "Alt texts", status: "Poor", recommendation: "Add descriptive alt texts for images." },
-      { name: "Favicon", status: "Moderate", recommendation: "Add or update favicon for brand consistency." },
-      { name: "404 page", status: "Good", recommendation: "Custom error page works correctly." },
+      {
+        name: "Robots.txt",
+        desc: "This file controls whether AI platforms can see your site. If misconfigured, your site may disappear from AI answers.",
+        status: "Good",
+      },
+      {
+        name: "Sitemap.xml",
+        desc: "The sitemap tells AI which pages exist and should be indexed. If it’s missing or broken, important pages remain invisible.",
+        status: "Moderate",
+      },
+      {
+        name: "X-Robots-Tag",
+        desc: "Server-side setting telling AI if your pages can appear in results. If disallowed, pages won’t show up.",
+        status: "Poor",
+      },
+      {
+        name: "Meta robots",
+        desc: "A tag inside the page that controls visibility. If misconfigured with a block, the page disappears from AI results.",
+        status: "Good",
+      },
+      {
+        name: "Canonical",
+        desc: "Tells AI which page is the main version. Without it, duplicates compete and the wrong one may show up.",
+        status: "Moderate",
+      },
+      {
+        name: "Title",
+        desc: "The page title is the first thing users see. Missing or duplicated titles reduce clarity and clicks.",
+        status: "Good",
+      },
+      {
+        name: "Meta description",
+        desc: "A short description explaining why to click. If missing or vague, AI inserts random text, reducing appeal.",
+        status: "Moderate",
+      },
+      {
+        name: "Open Graph",
+        desc: "Tags that make your site preview attractive in AI results and social media. Missing tags reduce trust.",
+        status: "Poor",
+      },
+      {
+        name: "H1",
+        desc: "The main heading shows AI and users the page topic. Missing or duplicate H1 reduces visibility.",
+        status: "Good",
+      },
+      {
+        name: "Structured Data",
+        desc: "JSON-LD markup tells AI if your site is about products, articles, or services. Missing data lowers visibility.",
+        status: "Moderate",
+      },
+      {
+        name: "Mobile friendly",
+        desc: "Most users visit on phones. If layout breaks, AI marks it as inconvenient and shows it less often.",
+        status: "Moderate",
+      },
+      {
+        name: "HTTPS",
+        desc: "Secure protocol. Sites without HTTPS are flagged unsafe and shown less often by AI.",
+        status: "Good",
+      },
+      {
+        name: "Alt texts",
+        desc: "Captions for images that help AI interpret visuals. Without them, part of your content is invisible.",
+        status: "Poor",
+      },
+      {
+        name: "Favicon",
+        desc: "A small site icon shown in browsers and AI previews. Without it, your site looks unfinished.",
+        status: "Moderate",
+      },
+      {
+        name: "404 page",
+        desc: "Custom error page tells AI a page doesn’t exist. Misconfigured 404s lower trust and visibility.",
+        status: "Good",
+      },
     ],
   };
 
