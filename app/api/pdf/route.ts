@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
+import { pdf } from "@react-pdf/renderer";
 import ReportPDF from "@/components/pdf/ReportPDF";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const testData = {
@@ -9,28 +10,20 @@ export async function GET() {
     score: 85,
     date: new Date().toISOString().split("T")[0],
     factors: [
-      {
-        name: "Robots.txt",
-        desc: "This file controls whether AI platforms can see your site.",
-        status: "Good" as const,
-      },
-      {
-        name: "Sitemap.xml",
-        desc: "The sitemap tells AI which pages exist and should be indexed.",
-        status: "Moderate" as const,
-      },
-      {
-        name: "X-Robots-Tag",
-        desc: "A server-side setting that tells AI whether your pages can appear in results.",
-        status: "Poor" as const,
-      },
+      { name: "robots.txt", desc: "Controls whether AI platforms can see your site.", status: "Good" as const },
+      { name: "sitemap.xml", desc: "Helps AI index important pages.", status: "Moderate" as const },
+      { name: "X-Robots-Tag", desc: "Server-side header controlling indexing.", status: "Poor" as const },
     ],
   };
 
-  const element = React.createElement(ReportPDF, testData);
-  const pdfBuffer = await renderToBuffer(element);
+  // ← ключевая правка: вызываем ReportPDF(), а не createElement
+  const element = ReportPDF(testData);
+
+  const instance: any = pdf(element);
+  const pdfBuffer = await instance.toBuffer();
 
   return new NextResponse(pdfBuffer, {
+    status: 200,
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": "attachment; filename=report.pdf",
