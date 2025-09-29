@@ -13,7 +13,7 @@ export async function GET() {
     ],
   };
 
-  // Создаём элемент без JSX
+  // Создаём PDF-документ
   const element = React.createElement(ReportPDF, testData);
 
   const pdfBuffer = await pdf(element).toBuffer();
@@ -21,6 +21,7 @@ export async function GET() {
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=report.pdf",
     },
   });
 }
