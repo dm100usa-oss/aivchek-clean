@@ -19,16 +19,14 @@ export async function GET() {
         desc: "Helps AI index all important pages.",
         status: "Poor" as const,
       },
-      {
-        name: "Meta robots",
-        desc: "Page-level control of visibility in AI results.",
-        status: "Moderate" as const,
-      },
     ],
   };
 
-  // Render directly to buffer
-  const pdfBuffer = await renderToBuffer(<ReportPDF {...testData} />);
+  // Create React element safely (no JSX in route.ts)
+  const element = React.createElement(ReportPDF, testData);
+
+  // Render to PDF buffer
+  const pdfBuffer = await renderToBuffer(element as any);
 
   return new NextResponse(pdfBuffer, {
     headers: {
