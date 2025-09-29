@@ -13,11 +13,13 @@ export async function GET() {
     ],
   };
 
-  // создаём PDF-документ
-  const element = <ReportPDF {...testData} />;
+  // создаём React-элемент без JSX
+  const element = React.createElement(ReportPDF, testData);
 
+  // рендерим PDF
   const pdfBuffer = await renderToBuffer(element);
 
+  // отдаём файл
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
