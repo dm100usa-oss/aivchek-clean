@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "./ReportPDF";
+import ReportPDF from "@/components/pdf/ReportPDF"; // путь до файла ReportPDF.tsx
 
 export async function GET() {
   const testData = {
@@ -13,9 +13,13 @@ export async function GET() {
     ],
   };
 
+  // создаём React-элемент из компонента ReportPDF
   const element = React.createElement(ReportPDF, testData);
+
+  // рендерим PDF в буфер
   const pdfBuffer = await renderToBuffer(element);
 
+  // возвращаем PDF как ответ API
   return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
