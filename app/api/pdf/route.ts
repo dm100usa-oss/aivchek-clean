@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
 import { pdf } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "@/components/pdf/ReportPDF";
+import ReportPDF, { ReportPDFProps } from "@/components/pdf/ReportPDF";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const testData = {
-    url: "https://example.com",
-    score: 85,
+  const testData: ReportPDFProps = {
+    logoSrc: "/aisignalmax-logo.png",
+    websiteUrl: "https://example.com",
     date: new Date().toISOString().split("T")[0],
+    score: 85,
     factors: [
       {
         title: "robots.txt",
@@ -23,16 +24,12 @@ export async function GET() {
         title: "X-Robots-Tag",
         description: "Server-side header controlling indexing."
       }
-    ]
+    ],
+    checklist:
+      "This is the full developer checklist text. Replace with your approved technical task."
   };
 
-  const element = React.createElement(ReportPDF, {
-    logoSrc: "/aisignalmax-logo.png",
-    websiteUrl: testData.url,
-    date: testData.date,
-    score: testData.score,
-    factors: testData.factors
-  });
+  const element = React.createElement(ReportPDF, testData);
 
   const instance: any = pdf(element);
   const pdfBuffer = await instance.toBuffer();
