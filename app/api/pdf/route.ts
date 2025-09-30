@@ -1,50 +1,59 @@
 import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
-import { Document, Page, Text, StyleSheet } from "@react-pdf/renderer";
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontSize: 12,
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  section: {
-    marginBottom: 10,
-  },
-});
-
-function SimpleReport({ data }: { data: any }) {
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>AI Signal Pro — Visibility Report</Text>
-        <Text style={styles.section}>Website: {data.url}</Text>
-        <Text style={styles.section}>Visibility: {data.score}%</Text>
-        <Text style={styles.section}>Summary: {data.summary}</Text>
-      </Page>
-    </Document>
-  );
-}
+import puppeteer from "puppeteer";
 
 export async function GET() {
-  const testData = {
-    url: "https://example.com",
-    score: 73,
-    summary: "Visibility is moderate. Some fixes recommended.",
-  };
+  try {
+    // Example HTML template for the PDF
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>AI Signal Pro — Visibility Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 40px; }
+          h1 { color: #2E7D32; font-size: 24px; }
+          h2 { color: #1565C0; font-size: 20px; margin-top: 20px; }
+          p  { font-size: 14px; margin: 5px 0; }
+          .section { margin-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <h1>AI Signal Pro — Website Visibility Report</h1>
+        <div class="section">
+          <h2>Summary</h2>
+          <p>Website: example.com</p>
+          <p>Visibility Score: 75%</p>
+        </div>
+        <div class="section">
+          <h2>Recommendations</h2>
+          <p>1. Ensure robots.txt is accessible.</p>
+          <p>2. Provide a valid sitemap.xml.</p>
+          <p>3. Add proper X-Robots-Tag headers.</p>
+        </div>
+      </body>
+      </html>
+    `;
 
-  const element = <SimpleReport data={testData} />;
-  const pdfBuffer = await renderToBuffer(element);
+    // Launch Puppeteer and create PDF
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+    const pdfBuffer = await page.pdf({ format: "A4" });
+    await browser.close();
 
-  return new NextResponse(pdfBuffer, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": "attachment; filename=report.pdf",
-    },
-  });
+    return new NextResponse(pdfBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=report.pdf",
+      },
+    });
+  } catch (error: any) {
+    return new NextResponse(`Error generating PDF: ${error.message}`, {
+      status: 500,
+    });
+  }
 }
