@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { pdf } from "@react-pdf/renderer";
-import React from "react";
 import ReportPDF, { ReportPDFProps } from "@/components/pdf/ReportPDF";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +28,8 @@ export async function GET() {
       "Developer checklist placeholder text. Replace this with the full technical task."
   };
 
-  const element = React.createElement(ReportPDF, testData);
+  // ✅ ВАЖНО: напрямую вызываем как JSX
+  const element = <ReportPDF {...testData} />;
 
   const instance: any = pdf(element);
   const pdfBuffer = await instance.toBuffer();
