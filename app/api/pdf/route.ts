@@ -1,59 +1,38 @@
 import { NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import { pdf, Document, Page, Text, StyleSheet } from "@react-pdf/renderer";
+
+const styles = StyleSheet.create({
+  page: { padding: 30 },
+  title: { fontSize: 18, marginBottom: 12 },
+  section: { fontSize: 12, marginBottom: 6 },
+});
 
 export async function GET() {
-  try {
-    // Example HTML template for the PDF
-    const html = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <title>AI Signal Pro — Visibility Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 40px; }
-          h1 { color: #2E7D32; font-size: 24px; }
-          h2 { color: #1565C0; font-size: 20px; margin-top: 20px; }
-          p  { font-size: 14px; margin: 5px 0; }
-          .section { margin-top: 20px; }
-        </style>
-      </head>
-      <body>
-        <h1>AI Signal Pro — Website Visibility Report</h1>
-        <div class="section">
-          <h2>Summary</h2>
-          <p>Website: example.com</p>
-          <p>Visibility Score: 75%</p>
-        </div>
-        <div class="section">
-          <h2>Recommendations</h2>
-          <p>1. Ensure robots.txt is accessible.</p>
-          <p>2. Provide a valid sitemap.xml.</p>
-          <p>3. Add proper X-Robots-Tag headers.</p>
-        </div>
-      </body>
-      </html>
-    `;
+  // Test data — replace later with real values
+  const testData = {
+    url: "https://aivcheck.com",
+    score: 73,
+  };
 
-    // Launch Puppeteer and create PDF
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
-    const pdfBuffer = await page.pdf({ format: "A4" });
-    await browser.close();
+  // Define PDF document inline
+  const MyDoc = (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.title}>AI Signal Pro — Visibility Report</Text>
+        <Text style={styles.section}>Website: {testData.url}</Text>
+        <Text style={styles.section}>Visibility: {testData.score}%</Text>
+      </Page>
+    </Document>
+  );
 
-    return new NextResponse(pdfBuffer, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "attachment; filename=report.pdf",
-      },
-    });
-  } catch (error: any) {
-    return new NextResponse(`Error generating PDF: ${error.message}`, {
-      status: 500,
-    });
-  }
+  // Render PDF to buffer
+  const buffer = await pdf(MyDoc).toBuffer();
+
+  // Return PDF as file
+  return new NextResponse(buffer, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "attachment; filename=report.pdf",
+    },
+  });
 }
