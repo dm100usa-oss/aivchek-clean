@@ -17,7 +17,7 @@ export async function GET() {
     ],
     checklist: `1. Ensure robots.txt is not blocking important pages.
 2. Verify sitemap.xml is valid.
-3. Add proper X-Robots-Tag headers.`,
+3. Add proper X-Robots-Tag headers.`,   // 👈 кавычка + запятая, без точки
   };
 
   const element = <ReportPDF {...testData} />;
