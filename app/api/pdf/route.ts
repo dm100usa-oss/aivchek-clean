@@ -1,26 +1,43 @@
 import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF from "@/components/pdf/ReportPDF";
+import React from "react";
+import { Document, Page, Text, StyleSheet } from "@react-pdf/renderer";
 
-export const dynamic = "force-dynamic";
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    fontSize: 12,
+  },
+  title: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  section: {
+    marginBottom: 10,
+  },
+});
+
+function SimpleReport({ data }: { data: any }) {
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.title}>AI Signal Pro — Visibility Report</Text>
+        <Text style={styles.section}>Website: {data.url}</Text>
+        <Text style={styles.section}>Visibility: {data.score}%</Text>
+        <Text style={styles.section}>Summary: {data.summary}</Text>
+      </Page>
+    </Document>
+  );
+}
 
 export async function GET() {
   const testData = {
-    logoSrc: "/aisignalmax-logo.png",
-    websiteUrl: "https://example.com",
-    date: new Date().toISOString().split("T")[0],
-    score: 85,
-    factors: [
-      { title: "robots.txt", description: "Controls whether AI platforms can see your site." },
-      { title: "sitemap.xml", description: "Helps AI index important pages." },
-      { title: "X-Robots-Tag", description: "Server-side header controlling indexing." }
-    ],
-    checklist: `1. Ensure robots.txt is not blocking important pages.
-2. Verify sitemap.xml is valid.
-3. Add proper X-Robots-Tag headers.`,   // 👈 кавычка + запятая, без точки
+    url: "https://example.com",
+    score: 73,
+    summary: "Visibility is moderate. Some fixes recommended.",
   };
 
-  const element = <ReportPDF {...testData} />;
+  const element = <SimpleReport data={testData} />;
   const pdfBuffer = await renderToBuffer(element);
 
   return new NextResponse(pdfBuffer, {
