@@ -13,7 +13,7 @@ export async function GET() {
     factors: [
       { title: "robots.txt", description: "Controls whether AI platforms can see your site." },
       { title: "sitemap.xml", description: "Helps AI index important pages." },
-      { title: "X-Robots-Tag", description: "Server-side header controlling indexing." },
+      { title: "X-Robots-Tag", description: "Server-side header controlling indexing." }
     ],
     checklist: `1. Ensure robots.txt is not blocking important pages.
 2. Verify sitemap.xml is valid.
