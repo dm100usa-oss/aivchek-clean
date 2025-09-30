@@ -26,7 +26,7 @@ export async function GET() {
       }
     ],
     checklist:
-      "This is the full developer checklist text. Replace with your approved technical task."
+      "Developer checklist placeholder text. Replace this with the full technical task."
   };
 
   const element = React.createElement(ReportPDF, testData);
