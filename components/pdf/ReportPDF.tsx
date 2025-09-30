@@ -10,6 +10,7 @@ import {
   Image
 } from "@react-pdf/renderer";
 
+// Styles for PDF
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   }
 });
 
-export interface Factor {
+interface Factor {
   title: string;
   description: string;
 }
@@ -81,7 +82,7 @@ export interface ReportPDFProps {
   date: string;
   score: number;
   factors: Factor[];
-  checklist: string;
+  checklist: string; // full developer checklist text
 }
 
 const ReportPDF: React.FC<ReportPDFProps> = ({
@@ -95,24 +96,25 @@ const ReportPDF: React.FC<ReportPDFProps> = ({
   let conclusionText: string[] = [];
   if (score >= 80) {
     conclusionText = [
-      "Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly.",
-      "Continue periodic checks to preserve and strengthen your results."
+      "Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly, which ensures a high probability of appearing in results from ChatGPT, Copilot, Gemini, and other tools.",
+      "However, even with high visibility, certain technical details require regular monitoring. That is why it is important to continue periodic checks to preserve and strengthen your results."
     ];
   } else if (score >= 40) {
     conclusionText = [
-      "Your website is generally visible to AI platforms, but some important parameters require improvement.",
-      "Visibility can be significantly improved by following the recommendations."
+      "Your website is generally visible to AI platforms, but some important parameters are misconfigured or require improvement.",
+      "This situation is not critical. By carefully following the recommendations, visibility can be significantly improved."
     ];
   } else {
     conclusionText = [
-      "Your website has serious visibility limitations for AI platforms.",
-      "Fixing systemic issues will unlock new opportunities to reach audiences."
+      "At present, your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing entirely.",
+      "A low visibility score indicates systemic issues. Fixing them requires a comprehensive approach, but it also unlocks new opportunities to reach audiences."
     ];
   }
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* Logo and Title */}
         <Image style={styles.logo} src={logoSrc} />
         <Text style={styles.title}>AI Signal Max</Text>
         <Text style={styles.title}>AI Website Visibility Report</Text>
@@ -122,6 +124,7 @@ const ReportPDF: React.FC<ReportPDFProps> = ({
           Visibility Score: {score}%
         </Text>
 
+        {/* Conclusion */}
         <View style={styles.section}>
           <Text style={styles.heading}>Conclusion</Text>
           {conclusionText.map((p, i) => (
@@ -131,6 +134,16 @@ const ReportPDF: React.FC<ReportPDFProps> = ({
           ))}
         </View>
 
+        {/* Introduction */}
+        <View style={styles.section}>
+          <Text style={styles.heading}>Introduction</Text>
+          <Text style={styles.text}>
+            This report shows the current condition of your site in terms of visibility across AI
+            platforms and explains which factors have the greatest impact.
+          </Text>
+        </View>
+
+        {/* Key Factors */}
         <View style={styles.section}>
           <Text style={styles.heading}>Key Factors Reviewed</Text>
           {factors.map((factor, idx) => (
@@ -143,14 +156,16 @@ const ReportPDF: React.FC<ReportPDFProps> = ({
           ))}
         </View>
 
+        {/* Developer’s Checklist */}
         <View style={styles.section}>
           <Text style={styles.heading}>Developer’s Checklist</Text>
           <Text style={styles.text}>{checklist}</Text>
         </View>
 
+        {/* Footer */}
         <Text style={styles.footer}>
-          © 2025 AI Signal Max. All rights reserved. AI Signal Max is a product
-          of Magic of Discoveries LLC.
+          © 2025 AI Signal Max. All rights reserved. AI Signal Max is a product of Magic of
+          Discoveries LLC.
         </Text>
       </Page>
     </Document>
