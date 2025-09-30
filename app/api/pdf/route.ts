@@ -1,35 +1,31 @@
+// app/api/pdf/route.ts
 import { NextResponse } from "next/server";
-import { pdf, Document, Page, Text, StyleSheet } from "@react-pdf/renderer";
-
-const styles = StyleSheet.create({
-  page: { padding: 30 },
-  title: { fontSize: 18, marginBottom: 12 },
-  section: { fontSize: 12, marginBottom: 6 },
-});
+import PDFDocument from "pdfkit";
+import getStream from "get-stream";
 
 export async function GET() {
-  // Test data — replace later with real values
+  // Test data (заменишь потом на реальные значения)
   const testData = {
-    url: "https://aivcheck.com",
-    score: 73,
+    url: "https://example.com",
+    score: 82,
+    date: new Date().toISOString().split("T")[0],
   };
 
-  // Define PDF document inline
-  const MyDoc = (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>AI Signal Pro — Visibility Report</Text>
-        <Text style={styles.section}>Website: {testData.url}</Text>
-        <Text style={styles.section}>Visibility: {testData.score}%</Text>
-      </Page>
-    </Document>
-  );
+  // Создаем PDF-документ
+  const doc = new PDFDocument();
+  const stream = doc.pipe(getStream.buffer());
 
-  // Render PDF to buffer
-  const buffer = await pdf(MyDoc).toBuffer();
+  doc.fontSize(20).text("AI Signal Pro — Visibility Report", { align: "center" });
+  doc.moveDown();
+  doc.fontSize(12).text(`Website: ${testData.url}`);
+  doc.text(`Score: ${testData.score}%`);
+  doc.text(`Date: ${testData.date}`);
 
-  // Return PDF as file
-  return new NextResponse(buffer, {
+  doc.end();
+
+  const pdfBuffer = await stream;
+
+  return new NextResponse(pdfBuffer, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": "attachment; filename=report.pdf",
