@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   }
 });
 
-interface Factor {
+export interface Factor {
   title: string;
   description: string;
 }
@@ -81,7 +81,7 @@ export interface ReportPDFProps {
   date: string;
   score: number;
   factors: Factor[];
-  checklist: string; // full developer checklist text
+  checklist: string;
 }
 
 const ReportPDF: React.FC<ReportPDFProps> = ({
@@ -95,18 +95,18 @@ const ReportPDF: React.FC<ReportPDFProps> = ({
   let conclusionText: string[] = [];
   if (score >= 80) {
     conclusionText = [
-      "Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly, which ensures a high probability of appearing in results from ChatGPT, Copilot, Gemini, and other tools.",
-      "However, even with high visibility, certain technical details require regular monitoring. Small errors or outdated settings can gradually reduce your performance."
+      "Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly.",
+      "Continue periodic checks to preserve and strengthen your results."
     ];
   } else if (score >= 40) {
     conclusionText = [
-      "Your website is generally visible to AI platforms, but some important parameters are misconfigured or require improvement.",
-      "This situation is not critical. By carefully following the recommendations, visibility can be significantly improved."
+      "Your website is generally visible to AI platforms, but some important parameters require improvement.",
+      "Visibility can be significantly improved by following the recommendations."
     ];
   } else {
     conclusionText = [
-      "At present, your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing entirely.",
-      "A low visibility score indicates systemic issues. Fixing them requires a comprehensive approach."
+      "Your website has serious visibility limitations for AI platforms.",
+      "Fixing systemic issues will unlock new opportunities to reach audiences."
     ];
   }
 
@@ -133,32 +133,19 @@ const ReportPDF: React.FC<ReportPDFProps> = ({
 
         <View style={styles.section}>
           <Text style={styles.heading}>Key Factors Reviewed</Text>
-          <Text style={styles.text}>
-            We analyzed 15 key parameters that influence how AI platforms
-            interpret your site. Below, you will find the status of each
-            parameter and recommendations for improvement.
-          </Text>
+          {factors.map((factor, idx) => (
+            <View style={styles.factorBlock} key={idx}>
+              <Text style={styles.factorTitle}>
+                {idx + 1}. {factor.title}
+              </Text>
+              <Text style={styles.text}>{factor.description}</Text>
+            </View>
+          ))}
         </View>
-
-        {factors.map((factor, idx) => (
-          <View style={styles.factorBlock} key={idx}>
-            <Text style={styles.factorTitle}>
-              {idx + 1}. {factor.title}
-            </Text>
-            <Text style={styles.text}>{factor.description}</Text>
-          </View>
-        ))}
 
         <View style={styles.section}>
           <Text style={styles.heading}>Developer’s Checklist</Text>
           <Text style={styles.text}>{checklist}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.heading}>Support</Text>
-          <Text style={styles.text}>
-            AI Signal Max Support. Contact: support@aisignalmax.com
-          </Text>
         </View>
 
         <Text style={styles.footer}>
