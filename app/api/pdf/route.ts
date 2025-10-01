@@ -1,12 +1,14 @@
 // app/api/pdf/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { renderToStream } from "@react-pdf/renderer";
+import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 export async function GET(req: NextRequest) {
   try {
-    // Render the PDF to a stream (вызываем ReportPDF как функцию)
-    const stream = await renderToStream(ReportPDF());
+    // Render the PDF to a stream (через createElement без пропсов)
+    const element = React.createElement(ReportPDF, {});
+    const stream = await renderToStream(element);
 
     // Convert stream to a Uint8Array
     const chunks: Uint8Array[] = [];
