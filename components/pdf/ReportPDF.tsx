@@ -19,7 +19,7 @@ export default function ReportPDF({ url, mode, score }: ReportPDFProps) {
       <Page size="A4" style={styles.page}>
         <View>
           <Text style={styles.title}>AI Website Visibility Report</Text>
-          <Text style={styles.text}>URL: {url}</Text>
+          <Text style={styles.text}>Website: {url}</Text>
           <Text style={styles.text}>Mode: {mode}</Text>
           <Text style={styles.text}>Score: {score}%</Text>
         </View>
