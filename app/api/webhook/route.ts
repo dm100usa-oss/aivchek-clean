@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err: any) {
-    console.error("Invalid signature", err?.message || err);
+    console.error("Invalid signature", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -40,29 +40,19 @@ export async function POST(req: Request) {
     console.log("Payment received:", session.id);
 
     const email = session.customer_details?.email || session.metadata?.email;
-    const url = (session.metadata?.url as string) || "";
-    const score = Number(session.metadata?.score) || 75; // fallback to 75 if not present
-    const date = new Date().toLocaleDateString("en-US");
+    const url = session.metadata?.url || "";
+    const mode = (session.metadata?.mode as "quick" | "pro") || "quick";
 
     if (email) {
       try {
-        // create element server-side without JSX
-        const element = React.createElement(ReportPDF, {
-          url,
-          score,
-          date,
-        });
+        const element = React.createElement(ReportPDF, { url, score: 75 });
+        const pdfBuffer = await renderToBuffer(element);
 
-        // cast to any to avoid TS incompatibility between props and DocumentProps
-        const pdfBuffer = await renderToBuffer(element as any);
-
-        await sendReportEmail({ to: email, url, pdfBuffer });
-        console.log("Email sent with PDF:", { email, url });
+        await sendReportEmail({ to: email, url, mode, pdfBuffer });
+        console.log("Email sent with PDF:", { email, url, mode });
       } catch (err) {
         console.error("PDF generation failed:", err);
       }
-    } else {
-      console.log("No email found on session:", session.id);
     }
   }
 
