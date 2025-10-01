@@ -7,7 +7,7 @@ interface SendReportEmailProps {
   to: string;
   url: string;
   mode: string;
-  pdfBuffer?: Buffer; // PDF will be passed here later
+  pdfBuffer?: Buffer;
 }
 
 export async function sendReportEmail({ to, url, mode, pdfBuffer }: SendReportEmailProps) {
@@ -39,7 +39,7 @@ AI Signal Max`;
 
   try {
     await resend.emails.send({
-      from: "AI Signal Max <support@aisignalmax.com>",
+      from: "onboarding@resend.dev", // ← вернуть sandbox-адрес
       to,
       subject,
       text: plainText,
