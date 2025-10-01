@@ -5,7 +5,7 @@ import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "@/components/pdf/ReportPDF"; // путь проверь
+import ReportPDF from "@/components/pdf/ReportPDF";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (email) {
       try {
         const pdfBuffer = await renderToBuffer(
-          React.createElement(ReportPDF, { url, mode })
+          React.createElement(ReportPDF, { url, mode, score: 75 })
         );
 
         await sendReportEmail({ to: email, url, mode, pdfBuffer });
