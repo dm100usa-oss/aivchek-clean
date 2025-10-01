@@ -1,26 +1,23 @@
 // app/api/pdf/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { renderToStream } from "@react-pdf/renderer";
-import React from "react";
+import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDFTest from "@/components/pdf/ReportPDFTest";
+import { sendReportEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   try {
-    const element = React.createElement(ReportPDFTest);
-    const stream = await renderToStream(element);
+    // Generate PDF buffer
+    const pdfBuffer = await renderToBuffer(<ReportPDFTest />);
 
-    const chunks: Uint8Array[] = [];
-    for await (const chunk of stream) {
-      chunks.push(chunk as Uint8Array);
-    }
-    const pdfBuffer = Buffer.concat(chunks);
-
-    return new NextResponse(pdfBuffer, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "attachment; filename=test-report.pdf",
-      },
+    // Send email with PDF attached
+    await sendReportEmail({
+      to: "your-email@example.com", // замени на свой email
+      url: "example.com",
+      mode: "test",
+      pdfBuffer,
     });
+
+    return new NextResponse("PDF generated and email sent", { status: 200 });
   } catch (error) {
     console.error("PDF generation error:", error);
     return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
