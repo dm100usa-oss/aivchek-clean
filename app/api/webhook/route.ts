@@ -1,10 +1,8 @@
-// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -41,15 +39,12 @@ export async function POST(req: Request) {
 
     const email = session.customer_details?.email || session.metadata?.email;
     const url = session.metadata?.url || "";
+    const score = 75; // временно фиксируем, потом подставим реальный результат
 
     if (email) {
       try {
-        const element = React.createElement(ReportPDF, {
-          url,
-          score: 75, // placeholder, later replace with actual calculated score
-        });
-
-        const pdfBuffer = await renderToBuffer(element);
+        // ключевое исправление ↓
+        const pdfBuffer = await renderToBuffer(<ReportPDF url={url} score={score} />);
 
         await sendReportEmail({ to: email, url, pdfBuffer });
         console.log("Email sent with PDF:", { email, url });
