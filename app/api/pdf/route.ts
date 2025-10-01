@@ -1,17 +1,19 @@
 // app/api/pdf/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import React from "react";
 import ReportPDFTest from "@/components/pdf/ReportPDFTest";
 import { sendReportEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   try {
-    // Generate PDF buffer
-    const pdfBuffer = await renderToBuffer(<ReportPDFTest />);
+    // Generate PDF buffer (no JSX)
+    const element = React.createElement(ReportPDFTest);
+    const pdfBuffer = await renderToBuffer(element);
 
     // Send email with PDF attached
     await sendReportEmail({
-      to: "your-email@example.com", // замени на свой email
+      to: "your-email@example.com", // replace with your email
       url: "example.com",
       mode: "test",
       pdfBuffer,
