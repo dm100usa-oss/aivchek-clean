@@ -1,8 +1,10 @@
+// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
+import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err: any) {
-    console.error("Invalid signature", err.message);
+    console.error("Invalid signature", err?.message || err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -38,19 +40,29 @@ export async function POST(req: Request) {
     console.log("Payment received:", session.id);
 
     const email = session.customer_details?.email || session.metadata?.email;
-    const url = session.metadata?.url || "";
-    const score = 75; // временно фиксируем, потом подставим реальный результат
+    const url = (session.metadata?.url as string) || "";
+    const score = Number(session.metadata?.score) || 75; // fallback to 75 if not present
+    const date = new Date().toLocaleDateString("en-US");
 
     if (email) {
       try {
-        // ключевое исправление ↓
-        const pdfBuffer = await renderToBuffer(<ReportPDF url={url} score={score} />);
+        // create element server-side without JSX
+        const element = React.createElement(ReportPDF, {
+          url,
+          score,
+          date,
+        });
+
+        // cast to any to avoid TS incompatibility between props and DocumentProps
+        const pdfBuffer = await renderToBuffer(element as any);
 
         await sendReportEmail({ to: email, url, pdfBuffer });
         console.log("Email sent with PDF:", { email, url });
       } catch (err) {
         console.error("PDF generation failed:", err);
       }
+    } else {
+      console.log("No email found on session:", session.id);
     }
   }
 
