@@ -6,7 +6,6 @@ import ReportPDFTest from "@/components/pdf/ReportPDFTest";
 
 export async function GET(req: NextRequest) {
   try {
-    // Создаём PDF из тестового компонента (без пропсов)
     const element = React.createElement(ReportPDFTest);
     const stream = await renderToStream(element);
 
