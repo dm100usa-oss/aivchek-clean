@@ -45,8 +45,14 @@ export async function POST(req: Request) {
 
     if (email) {
       try {
+        const element = React.createElement(ReportPDF, {
+          url,
+          mode,
+          score: 75,
+        });
+
         const pdfBuffer = await renderToBuffer(
-          React.createElement(ReportPDF, { url, mode, score: 75 })
+          element as unknown as React.ReactElement
         );
 
         await sendReportEmail({ to: email, url, mode, pdfBuffer });
