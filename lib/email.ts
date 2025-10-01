@@ -7,7 +7,7 @@ interface SendReportEmailProps {
   to: string;
   url: string;
   mode: string;
-  pdfBuffer?: Buffer; // PDF будет передаваться сюда позже
+  pdfBuffer?: Buffer;
 }
 
 export async function sendReportEmail({ to, url, mode, pdfBuffer }: SendReportEmailProps) {
@@ -44,9 +44,9 @@ AI Signal Max`;
       subject,
       text: plainText,
       html,
-      // attachments: pdfBuffer
-      //   ? [{ filename: "AI-Signal-Report.pdf", content: pdfBuffer.toString("base64") }]
-      //   : [],
+      attachments: pdfBuffer
+        ? [{ filename: "AI-Signal-Report.pdf", content: pdfBuffer.toString("base64") }]
+        : [],
     });
     return true;
   } catch (error: any) {
