@@ -3,6 +3,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
+import { renderToBuffer } from "@react-pdf/renderer";
+import ReportPDFTest from "@/components/pdf/ReportPDFTest";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -41,8 +43,18 @@ export async function POST(req: Request) {
     const mode = session.metadata?.mode || "";
 
     if (email) {
-      await sendReportEmail({ to: email, url, mode });
-      console.log("Email sent:", { email, url, mode });
+      try {
+        // Generate PDF buffer
+        const pdfBuffer = await renderToBuffer(
+          <ReportPDFTest url={url} mode={mode} />
+        );
+
+        // Send email with PDF attached
+        await sendReportEmail({ to: email, url, mode, pdfBuffer });
+        console.log("Email with PDF sent:", { email, url, mode });
+      } catch (err) {
+        console.error("Failed to generate or send PDF:", err);
+      }
     }
   }
 
