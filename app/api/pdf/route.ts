@@ -2,15 +2,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToStream } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "@/components/pdf/ReportPDF";
+import ReportPDFTest from "@/components/pdf/ReportPDFTest";
 
 export async function GET(req: NextRequest) {
   try {
-    // Render the PDF to a stream (через createElement без пропсов)
-    const element = React.createElement(ReportPDF, {});
+    // Создаём PDF из тестового компонента (без пропсов)
+    const element = React.createElement(ReportPDFTest);
     const stream = await renderToStream(element);
 
-    // Convert stream to a Uint8Array
     const chunks: Uint8Array[] = [];
     for await (const chunk of stream) {
       chunks.push(chunk as Uint8Array);
@@ -20,7 +19,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": "attachment; filename=report.pdf",
+        "Content-Disposition": "attachment; filename=test-report.pdf",
       },
     });
   } catch (error) {
