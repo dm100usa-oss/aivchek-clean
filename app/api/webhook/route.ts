@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
+import React from "react";
 import ReportPDFTest from "@/components/pdf/ReportPDFTest";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -44,9 +45,9 @@ export async function POST(req: Request) {
 
     if (email) {
       try {
-        // Generate PDF buffer
+        // Generate PDF buffer without JSX
         const pdfBuffer = await renderToBuffer(
-          <ReportPDFTest url={url} mode={mode} />
+          React.createElement(ReportPDFTest, { url, mode })
         );
 
         // Send email with PDF attached
