@@ -41,22 +41,18 @@ export async function POST(req: Request) {
 
     const email = session.customer_details?.email || session.metadata?.email;
     const url = session.metadata?.url || "";
-    const mode = session.metadata?.mode || "";
 
     if (email) {
       try {
         const element = React.createElement(ReportPDF, {
           url,
-          mode,
-          score: 75,
+          score: 75, // placeholder, later replace with actual calculated score
         });
 
-        const pdfBuffer = await renderToBuffer(
-          element as unknown as React.ReactElement
-        );
+        const pdfBuffer = await renderToBuffer(element);
 
-        await sendReportEmail({ to: email, url, mode, pdfBuffer });
-        console.log("Email sent with PDF:", { email, url, mode });
+        await sendReportEmail({ to: email, url, pdfBuffer });
+        console.log("Email sent with PDF:", { email, url });
       } catch (err) {
         console.error("PDF generation failed:", err);
       }
