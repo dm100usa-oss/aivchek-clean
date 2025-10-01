@@ -4,7 +4,8 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF from "@/components/pdf/ReportPDF"; // make sure this path is correct
+import React from "react";
+import ReportPDF from "@/components/pdf/ReportPDF"; // путь проверь
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -45,14 +46,13 @@ export async function POST(req: Request) {
     if (email) {
       try {
         const pdfBuffer = await renderToBuffer(
-          <ReportPDF url={url} mode={mode} />
+          React.createElement(ReportPDF, { url, mode })
         );
 
         await sendReportEmail({ to: email, url, mode, pdfBuffer });
-
-        console.log("Email with PDF sent:", { email, url, mode });
-      } catch (err: any) {
-        console.error("Failed to generate or send PDF:", err);
+        console.log("Email sent with PDF:", { email, url, mode });
+      } catch (err) {
+        console.error("PDF generation failed:", err);
       }
     }
   }
