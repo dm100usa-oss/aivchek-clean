@@ -35,10 +35,13 @@ export default function DonutPDF({ score }: { score: number }) {
           r={radius}
           cx="130"
           cy="130"
-          strokeDasharray={circumference.toString()}
-          strokeDashoffset={offset.toString()}
-          strokeLinecap="round"
-          transform="rotate(-90 130 130)"
+          // ↓ TS не знает про эти атрибуты, поэтому явно as any
+          {...({
+            strokeDasharray: circumference.toString(),
+            strokeDashoffset: offset.toString(),
+            strokeLinecap: "round",
+            transform: "rotate(-90 130 130)",
+          } as any)}
         />
       </Svg>
       <Text style={styles.score}>{score}%</Text>
