@@ -1,19 +1,30 @@
 import React from "react";
-import { Svg, Path, Text } from "@react-pdf/renderer";
+import { Svg, Path, Text, StyleSheet, View } from "@react-pdf/renderer";
 
 interface DonutPDFProps {
   score: number;
 }
 
+const styles = StyleSheet.create({
+  wrapper: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  percentText: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#111827",
+    textAlign: "center",
+    marginTop: -140, // поднять цифру в центр круга
+  },
+});
+
 export default function DonutPDF({ score }: DonutPDFProps) {
   const radius = 90;
   const stroke = 14;
-  const circumference = 2 * Math.PI * radius;
-
   const percent = Math.min(Math.max(score, 0), 100);
-  const arcLength = (percent / 100) * circumference;
 
-  // цвет как в Donut.tsx
+  // цвета как в Donut.tsx
   const getGradientColor = (value: number) => {
     if (value <= 50) {
       const ratio = value / 50;
@@ -44,7 +55,7 @@ export default function DonutPDF({ score }: DonutPDFProps) {
     };
   }
 
-  // дуга
+  // дуга (SVG Path)
   const describeArc = (x: number, y: number, r: number, percent: number) => {
     const endAngle = (percent / 100) * 360;
     const largeArc = endAngle > 180 ? 1 : 0;
@@ -55,35 +66,28 @@ export default function DonutPDF({ score }: DonutPDFProps) {
   };
 
   return (
-    <Svg width="260" height="260" viewBox="0 0 260 260">
-      {/* серый круг */}
-      <Path
-        d={describeArc(130, 130, radius, 100)}
-        stroke="#e5e7eb"
-        strokeWidth={stroke.toString()}
-        fill="none"
-      />
+    <View style={styles.wrapper}>
+      <Svg width="260" height="260" viewBox="0 0 260 260">
+        {/* серый круг (фон) */}
+        <Path
+          d={describeArc(130, 130, radius, 100)}
+          stroke="#e5e7eb"
+          strokeWidth={stroke.toString()}
+          fill="none"
+        />
 
-      {/* цветная дуга */}
-      <Path
-        d={describeArc(130, 130, radius, percent)}
-        stroke={getGradientColor(percent)}
-        strokeWidth={stroke.toString()}
-        strokeLinecap="round"
-        fill="none"
-      />
+        {/* цветная дуга */}
+        <Path
+          d={describeArc(130, 130, radius, percent)}
+          stroke={getGradientColor(percent)}
+          strokeWidth={stroke.toString()}
+          strokeLinecap="round"
+          fill="none"
+        />
+      </Svg>
 
       {/* текст в центре */}
-      <Text
-        x="130"
-        y="140"
-        textAnchor="middle"
-        fontSize={48}
-        fontWeight="700"
-        fill="#111827"
-      >
-        {percent}%
-      </Text>
-    </Svg>
+      <Text style={styles.percentText}>{percent}%</Text>
+    </View>
   );
 }
