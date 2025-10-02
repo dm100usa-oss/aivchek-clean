@@ -1,38 +1,75 @@
-// components/pdf/ReportPDF.tsx
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import React from "react";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  Font,
+} from "@react-pdf/renderer";
 
-interface ReportPDFProps {
+// ✅ Регистрируем шрифт Inter (TTF, поддерживается React PDF)
+Font.register({
+  family: "Inter",
+  src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTcviYw.ttf",
+});
+
+const styles = StyleSheet.create({
+  page: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    padding: 40,
+    lineHeight: 1.6,
+    color: "#111827",
+  },
+  title: {
+    fontSize: 20,
+    marginBottom: 20,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  section: {
+    marginBottom: 12,
+  },
+  label: {
+    fontWeight: "bold",
+  },
+});
+
+// Описываем пропсы
+export interface ReportPDFProps {
   url: string;
+  mode: string;
   score: number;
 }
 
-export default function ReportPDF({ url, score }: ReportPDFProps) {
+export default function ReportPDF({ url, mode, score }: ReportPDFProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View>
-          <Text style={styles.title}>AI Website Visibility Report</Text>
-          <Text style={styles.section}>Website: {url}</Text>
-          <Text style={styles.section}>Score: {score}%</Text>
+        <Text style={styles.title}>AI Website Visibility Report</Text>
+
+        <View style={styles.section}>
+          <Text>
+            <Text style={styles.label}>Website: </Text>
+            {url}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text>
+            <Text style={styles.label}>Mode: </Text>
+            {mode}
+          </Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text>
+            <Text style={styles.label}>Visibility Score: </Text>
+            {score}%
+          </Text>
         </View>
       </Page>
     </Document>
   );
 }
-
-const styles = StyleSheet.create({
-  page: {
-    padding: 40,
-    fontSize: 12,
-    fontFamily: "Helvetica",
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 12,
-    fontWeight: "bold",
-  },
-  section: {
-    marginBottom: 8,
-  },
-});
-
