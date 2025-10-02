@@ -20,11 +20,7 @@ export default function ReportPDF_Owner({ url, score, date }: ReportPDFProps) {
         <Text style={styles.title}>AI Website Visibility Report (Owner)</Text>
         <Text style={styles.text}>Date: {date}</Text>
         <Text style={styles.text}>URL: {url}</Text>
-        <Text style={styles.text}>Overall Score: {score}%</Text>
-        <Text style={styles.text}>
-          This report is prepared for the website owner. It summarizes visibility
-          status in AI platforms and search engines.
-        </Text>
+        <Text style={styles.text}>Score: {score}%</Text>
       </Page>
     </Document>
   );
