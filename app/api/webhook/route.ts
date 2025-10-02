@@ -8,7 +8,7 @@ import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 import { sendReportEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2023-10-16",
 });
 
 export async function POST(req: Request) {
