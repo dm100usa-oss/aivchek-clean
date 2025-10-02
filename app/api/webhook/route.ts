@@ -45,8 +45,8 @@ export async function POST(req: Request) {
 
     if (email) {
       try {
-        // temporary results for testing (15 factors)
-        const results = [
+        // Results with strict status types
+        const results: { name: string; desc: string; status: "Good" | "Moderate" | "Poor" }[] = [
           { name: "robots.txt", desc: "Controls whether AI can access your site.", status: "Good" },
           { name: "sitemap.xml", desc: "Provides AI with page structure for indexing.", status: "Moderate" },
           { name: "Meta tags", desc: "Ensures correct indexing and previews.", status: "Poor" },
