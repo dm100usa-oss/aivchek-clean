@@ -1,21 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
-import ReportPDF from "@/components/pdf/ReportPDF";
+// app/api/pdf/route.ts
+import { NextResponse } from "next/server";
+import { renderToBuffer, Document, Page, Text, StyleSheet } from "@react-pdf/renderer";
 import { sendReportEmail } from "@/lib/email";
 
-export async function GET(req: NextRequest) {
+// simple styles
+const styles = StyleSheet.create({
+  page: { padding: 40 },
+  title: { fontSize: 20, marginBottom: 20 },
+  text: { fontSize: 12, marginBottom: 10 },
+});
+
+export async function GET() {
   try {
-    const element = React.createElement(ReportPDF, {
-      url: "example.com",
-      mode: "test",
-      score: 75,
-      date: new Date().toISOString().slice(0, 10),
-      results: [],
-    });
+    // Build a minimal PDF Document
+    const element = (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <Text style={styles.title}>AI Website Visibility Report</Text>
+          <Text style={styles.text}>This is a test PDF generated on the server.</Text>
+          <Text style={styles.text}>Later we will insert the full report content here.</Text>
+        </Page>
+      </Document>
+    );
 
     const pdfBuffer = await renderToBuffer(element);
 
+    // Send email with PDF attached
     await sendReportEmail({
       to: "your-email@example.com",
       url: "example.com",
