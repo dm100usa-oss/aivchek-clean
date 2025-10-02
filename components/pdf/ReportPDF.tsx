@@ -27,115 +27,78 @@ interface ReportPDFProps {
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
-    fontSize: 12,
+    fontSize: 11,
     backgroundColor: "#FFFFFF",
     padding: 40,
     color: "#111827",
+    lineHeight: 1.5,
   },
   logo: {
-    width: 40,
-    height: 40,
-    marginBottom: 16,
+    width: 50,
+    height: 50,
+    marginBottom: 12,
     alignSelf: "center",
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
-    textAlign: "center",
     color: "#0F172A",
-    marginBottom: 8,
+    textAlign: "center",
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 13,
-    textAlign: "center",
+    fontSize: 14,
     color: "#374151",
+    textAlign: "center",
     marginBottom: 20,
   },
-  donutContainer: {
+  donutBox: {
     alignItems: "center",
     marginVertical: 16,
   },
-  summaryBox: {
-    marginTop: 10,
-    padding: 14,
-    borderRadius: 8,
-    backgroundColor: "#F9FAFB",
-    textAlign: "center",
-  },
-  summaryText: {
-    fontSize: 13,
-    color: "#111827",
-    lineHeight: 1.5,
-  },
   textSmall: {
-    fontSize: 11,
+    fontSize: 10,
     color: "#6B7280",
     textAlign: "center",
-    marginTop: 6,
+    marginBottom: 3,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     color: "#0F172A",
-    marginVertical: 14,
-    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 8,
+    textAlign: "left",
   },
   paragraph: {
-    fontSize: 12,
-    color: "#374151",
-    marginBottom: 12,
-    lineHeight: 1.5,
-    textAlign: "justify",
+    fontSize: 11,
+    marginBottom: 10,
+    color: "#111827",
+    lineHeight: 1.4,
   },
   factorBox: {
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
+    padding: 8,
+    marginBottom: 8,
+    borderRadius: 6,
     border: "1pt solid #E5E7EB",
   },
   factorName: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     color: "#111827",
     marginBottom: 2,
   },
   factorDesc: {
-    fontSize: 11,
-    color: "#6B7280",
-    lineHeight: 1.4,
-  },
-  factorStatus: {
-    fontSize: 12,
-    fontWeight: "bold",
-    marginTop: 4,
-  },
-  checklistItem: {
-    marginBottom: 10,
-  },
-  checklistTitle: {
-    fontSize: 12,
-    fontWeight: "bold",
-    marginBottom: 2,
-    color: "#111827",
-  },
-  checklistText: {
-    fontSize: 11,
-    color: "#6B7280",
-    lineHeight: 1.4,
+    fontSize: 10,
+    color: "#374151",
+    lineHeight: 1.3,
   },
   footer: {
-    marginTop: 30,
+    marginTop: 40,
     fontSize: 9,
     textAlign: "center",
-    color: "#6B7280",
-  },
-  footerSmall: {
-    marginTop: 4,
-    fontSize: 8,
-    textAlign: "center",
-    color: "#6B7280",
-    opacity: 0.6,
+    color: "#9CA3AF",
+    opacity: 0.7,
   },
 });
 
@@ -148,11 +111,20 @@ export default function ReportPDF({
 }: ReportPDFProps) {
   const getConclusion = (score: number) => {
     if (score >= 80) {
-      return "High Visibility — Your website is well-prepared for AI platforms. Most key parameters are configured correctly, which ensures a high probability of appearing in results from ChatGPT, Copilot, Gemini, and others. However, even with high visibility, regular monitoring is essential.";
+      return `High Visibility (≥80%)
+Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly, which ensures a high probability of appearing in results from ChatGPT, Copilot, Gemini, and other tools. This means that search and AI systems recognize your site as a reliable and user-friendly source of information.
+
+However, even with high visibility, certain technical details require regular monitoring. Small errors or outdated settings can gradually reduce your performance. That is why it is important to continue periodic checks—at least every few months—to preserve and strengthen your results.`;
     } else if (score >= 40) {
-      return "Moderate Visibility — Your website is partially visible to AI platforms. Some parameters are misconfigured or missing. By following recommendations, visibility can be significantly improved.";
+      return `Moderate Visibility (40–79%)
+Your website is generally visible to AI platforms, but some important parameters are misconfigured or require improvement. In its current state, the site may appear in AI results, but with limited trust and often ranked below competitors. This reduces the number of visitors and lowers your share of visibility.
+
+This situation is not critical. By carefully following the recommendations, visibility can be significantly improved. Many companies achieve their strongest growth in traffic and inquiries precisely at this stage, once corrections are made.`;
     } else {
-      return "Low Visibility — Your website has serious visibility limitations for AI platforms. Several critical parameters are missing or misconfigured. Fixing them requires a comprehensive approach, but it unlocks new opportunities to reach audiences.";
+      return `Low Visibility (<40%)
+At present, your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing entirely. This means your site remains invisible to ChatGPT, Copilot, Gemini, and other systems—potential customers simply do not find you where they are searching.
+
+A low visibility score indicates systemic issues. Fixing them requires a comprehensive approach, but it also unlocks new opportunities to reach audiences and position your business in the digital environment. Without addressing these problems, your site will continue to lose ground to competitors.`;
     }
   };
 
@@ -164,47 +136,63 @@ export default function ReportPDF({
 
   return (
     <Document>
-      {/* Cover Page */}
+      {/* Cover page */}
       <Page style={styles.page}>
         <Image style={styles.logo} src="/logo.png" />
-        <Text style={styles.title}>AI Website Visibility Report</Text>
-        <Text style={styles.subtitle}>
-          Results of website visibility audit
-        </Text>
+        <Text style={styles.title}>AI Signal Max</Text>
+        <Text style={styles.subtitle}>AI Website Visibility Report</Text>
 
-        <View style={styles.donutContainer}>
+        <View style={styles.donutBox}>
           <DonutPDF score={score} />
         </View>
 
-        <View style={styles.summaryBox}>
-          <Text style={styles.summaryText}>{getConclusion(score)}</Text>
-        </View>
+        <Text style={styles.sectionTitle}>Conclusion</Text>
+        <Text style={styles.paragraph}>{getConclusion(score)}</Text>
 
-        <Text style={styles.textSmall}>Website: {url}</Text>
-        <Text style={styles.textSmall}>Date: {date}</Text>
-        <Text style={styles.textSmall}>Mode: {mode}</Text>
+        <View style={{ marginTop: 20 }}>
+          <Text style={styles.textSmall}>Website: {url}</Text>
+          <Text style={styles.textSmall}>Date: {date}</Text>
+          <Text style={styles.textSmall}>Mode: {mode}</Text>
+        </View>
       </Page>
 
-      {/* Introduction + Factors */}
+      {/* Introduction */}
       <Page style={styles.page}>
         <Text style={styles.sectionTitle}>Introduction</Text>
         <Text style={styles.paragraph}>
-          This report shows the current condition of your site in terms of
-          visibility across AI platforms and explains which factors have the
-          greatest impact. The results are summarized first, followed by detailed
-          explanations and recommendations. The final section contains a
-          developer’s checklist for implementation.
+          This report has been prepared for the website owner. It shows the
+          current condition of your site in terms of visibility across AI
+          platforms and explains which factors have the greatest impact.
+        </Text>
+        <Text style={styles.paragraph}>
+          The results are summarized first, followed by detailed explanations
+          and recommendations. The final section of this report contains a
+          developer’s checklist that can be handed over directly for
+          implementation.
         </Text>
 
         <Text style={styles.sectionTitle}>Key Factors Reviewed</Text>
+        <Text style={styles.paragraph}>
+          To calculate your site’s visibility score, we analyzed 15 key
+          parameters that influence how AI platforms and search engines
+          interpret your site. These range from fundamental technical settings
+          to user experience details. Below, you will find the status of each
+          parameter and recommendations for improvement. Together, they form the
+          foundation of your site’s final visibility percentage.
+        </Text>
+      </Page>
+
+      {/* Results */}
+      <Page style={styles.page}>
+        <Text style={styles.sectionTitle}>Parameters Checked</Text>
         {results.map((r, i) => (
           <View key={i} style={styles.factorBox}>
             <Text style={styles.factorName}>{r.name}</Text>
             <Text style={styles.factorDesc}>{r.desc}</Text>
             <Text
               style={[
-                styles.factorStatus,
-                { color: getStatusColor(r.status) },
+                styles.factorName,
+                { color: getStatusColor(r.status), marginTop: 4 },
               ]}
             >
               {r.status}
@@ -217,40 +205,35 @@ export default function ReportPDF({
       <Page style={styles.page}>
         <Text style={styles.sectionTitle}>Developer’s Checklist</Text>
         <Text style={styles.paragraph}>
-          This checklist is based on the analysis of site parameters that affect
-          visibility across AI platforms. It outlines the factors that require
-          verification and possible correction, and serves as a roadmap for
-          improvements aimed at strengthening stability and trust.
+          This checklist has been prepared based on the analysis of site
+          parameters that affect visibility across AI platforms (ChatGPT,
+          Microsoft Copilot, Gemini, Claude, and others). It outlines the
+          factors that require verification and possible correction, and serves
+          as a roadmap for implementing improvements aimed at strengthening
+          stability and trust.
         </Text>
-
-        {results.map((r, i) => (
-          <View key={i} style={styles.checklistItem}>
-            <Text style={styles.checklistTitle}>{i + 1}. {r.name}</Text>
-            <Text style={styles.checklistText}>{r.desc}</Text>
-          </View>
-        ))}
+        <Text style={styles.paragraph}>
+          All of the parameters listed contribute to better indexing and higher
+          visibility. Proper configuration builds trust and helps unlock the
+          full potential of your website. This checklist is advisory in nature
+          and does not replace professional expertise.
+        </Text>
       </Page>
 
-      {/* Support + Footer */}
+      {/* Footer */}
       <Page style={styles.page}>
         <Text style={styles.sectionTitle}>Support and Contact</Text>
         <Text style={styles.paragraph}>
-          If you do not currently have access to a developer, our team can
-          assist in quickly improving your website’s visibility across AI
-          platforms.
+          AI Signal Max Support. If you do not currently have access to a
+          developer, our team can assist in quickly improving your website’s
+          visibility across AI platforms.
         </Text>
         <Text style={styles.paragraph}>Contact: support@aisignalmax.com</Text>
 
         <View style={styles.footer}>
           <Text>© 2025 AI Signal Max. All rights reserved.</Text>
-        </View>
-        <View style={styles.footerSmall}>
           <Text>
             AI Signal Max is a product of Magic of Discoveries LLC.
-          </Text>
-          <Text>
-            Visibility scores are estimated and based on publicly available
-            data. Not legal advice.
           </Text>
         </View>
       </Page>
