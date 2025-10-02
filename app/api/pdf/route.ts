@@ -7,16 +7,17 @@ import { sendReportEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   try {
-    // Generate PDF buffer (no JSX)
+    // Generate PDF buffer
     const element = React.createElement(ReportPDFTest);
     const pdfBuffer = await renderToBuffer(element);
 
-    // Send email with PDF attached
+    // Send email with *two* attachments (test mode: both the same buffer)
     await sendReportEmail({
-      to: "your-email@example.com", // replace with your email
+      to: "your-email@example.com", // replace with your real email
       url: "example.com",
       mode: "test",
-      pdfBuffer,
+      ownerBuffer: pdfBuffer,       // ✅ для владельца
+      developerBuffer: pdfBuffer,   // ✅ для разработчика
     });
 
     return new NextResponse("PDF generated and email sent", { status: 200 });
