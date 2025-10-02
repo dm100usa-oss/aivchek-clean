@@ -6,7 +6,7 @@ import { View, Text, StyleSheet } from "@react-pdf/renderer";
 export default function DonutPDF({ score }: { score: number }) {
   const getColor = (value: number) => {
     if (value < 40) return "#EF4444"; // red
-    if (value < 80) return "#F59E0B"; // yellow
+    if (value < 80) return "#F59E0B"; // amber
     return "#10B981"; // green
   };
 
@@ -16,14 +16,16 @@ export default function DonutPDF({ score }: { score: number }) {
   return (
     <View style={styles.container}>
       <Svg width="260" height="260" viewBox="0 0 260 260">
+        {/* Background circle */}
         <Circle
           stroke="#E5E7EB"
-          fill="transparent"
+          fill="#FFFFFF"
           strokeWidth={stroke}
           r={radius}
           cx="130"
           cy="130"
         />
+        {/* Progress circle */}
         <Circle
           stroke={getColor(score)}
           fill="transparent"
