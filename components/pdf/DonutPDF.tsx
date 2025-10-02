@@ -10,28 +10,29 @@ export default function DonutPDF({ score }: { score: number }) {
     return "#10B981"; // green
   };
 
-  const radius = 90;
-  const stroke = 14;
+  const radius = 60;  // круг чуть меньше
+  const stroke = 10;
 
   return (
     <View style={styles.container}>
-      <Svg width="260" height="260" viewBox="0 0 260 260">
-        {/* White background circle */}
+      <Svg width="160" height="160" viewBox="0 0 160 160">
+        {/* Серый фон-кольцо */}
         <Circle
-          stroke="none"
-          fill="#ffffff"
+          stroke="#E5E7EB"  // light gray
+          fill="white"
+          strokeWidth={stroke}
           r={radius}
-          cx="130"
-          cy="130"
+          cx="80"
+          cy="80"
         />
-        {/* Colored border */}
+        {/* Цветное кольцо сверху */}
         <Circle
           stroke={getColor(score)}
           fill="none"
           strokeWidth={stroke}
           r={radius}
-          cx="130"
-          cy="130"
+          cx="80"
+          cy="80"
         />
       </Svg>
       <Text style={styles.score}>{score}%</Text>
@@ -42,16 +43,16 @@ export default function DonutPDF({ score }: { score: number }) {
 const styles = StyleSheet.create({
   container: {
     position: "relative",
-    width: 260,
-    height: 260,
+    width: 160,
+    height: 160,
     justifyContent: "center",
     alignItems: "center",
   },
   score: {
     position: "absolute",
-    fontSize: 40,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#111827",
+    color: "#111827", // dark gray/black
     textAlign: "center",
   },
 });
