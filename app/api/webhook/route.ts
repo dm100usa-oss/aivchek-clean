@@ -40,13 +40,21 @@ export async function POST(req: Request) {
     if (email) {
       try {
         if (mode === "pro") {
-          const ownerBuffer = await renderToBuffer(
-            <ReportPDF_Owner url={url} score={75} date={currentDate} />
-          );
+          // Owner PDF
+          const ownerElement = React.createElement(ReportPDF_Owner, {
+            url,
+            score: 75,
+            date: currentDate,
+          });
+          const ownerBuffer = await renderToBuffer(ownerElement);
 
-          const developerBuffer = await renderToBuffer(
-            <ReportPDF_Developer url={url} score={75} date={currentDate} />
-          );
+          // Developer PDF
+          const developerElement = React.createElement(ReportPDF_Developer, {
+            url,
+            score: 75,
+            date: currentDate,
+          });
+          const developerBuffer = await renderToBuffer(developerElement);
 
           await sendReportEmail({
             to: email,
@@ -64,9 +72,13 @@ export async function POST(req: Request) {
             filename: "AI_Signal_Report_Developer.pdf",
           });
         } else {
-          const ownerBuffer = await renderToBuffer(
-            <ReportPDF_Owner url={url} score={75} date={currentDate} />
-          );
+          // Quick mode — только Owner PDF
+          const ownerElement = React.createElement(ReportPDF_Owner, {
+            url,
+            score: 75,
+            date: currentDate,
+          });
+          const ownerBuffer = await renderToBuffer(ownerElement);
 
           await sendReportEmail({
             to: email,
