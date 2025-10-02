@@ -6,8 +6,9 @@ import {
   Text,
   View,
   StyleSheet,
+  Image,
 } from "@react-pdf/renderer";
-import DonutPDF from "./DonutPDF"; // ✅ default import
+import DonutPDF from "./DonutPDF";
 
 interface ResultItem {
   name: string;
@@ -31,37 +32,41 @@ const styles = StyleSheet.create({
     padding: 40,
     color: "#111827",
   },
-  title: {
-    fontSize: 28,
+  logo: {
+    width: 60,
+    height: 60,
+    marginBottom: 12,
+    alignSelf: "center",
+  },
+  subtitle: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#0F172A",
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 24,
   },
-  subtitle: {
-    fontSize: 16,
+  textSmall: {
+    fontSize: 11,
     color: "#6B7280",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 4,
+  },
+  summaryBox: {
+    marginTop: 20,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#F9FAFB",
+    textAlign: "center",
+  },
+  summaryText: {
+    fontSize: 13,
+    color: "#111827",
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#0F172A",
     marginVertical: 12,
-    textAlign: "center",
-  },
-  text: {
-    fontSize: 12,
-    color: "#374151",
-    marginBottom: 4,
-    lineHeight: 1.5,
-  },
-  summaryBox: {
-    marginVertical: 20,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#F9FAFB",
     textAlign: "center",
   },
   factorBox: {
@@ -120,22 +125,23 @@ export default function ReportPDF({
 
   return (
     <Document>
-      {/* Title page */}
+      {/* Cover page */}
       <Page style={styles.page}>
-        <Text style={styles.title}>AI Signal Max</Text>
+        <Image style={styles.logo} src="/logo.png" />
         <Text style={styles.subtitle}>AI Website Visibility Report</Text>
-        <Text style={styles.text}>Website: {url}</Text>
-        <Text style={styles.text}>Date: {date}</Text>
-        <Text style={styles.text}>Mode: {mode}</Text>
 
         <View style={{ alignItems: "center", marginVertical: 24 }}>
           <DonutPDF score={score} />
         </View>
 
         <View style={styles.summaryBox}>
-          <Text style={{ fontSize: 14, fontWeight: "medium", color: "#111827" }}>
-            {getConclusion(score)}
-          </Text>
+          <Text style={styles.summaryText}>{getConclusion(score)}</Text>
+        </View>
+
+        <View style={{ marginTop: 20 }}>
+          <Text style={styles.textSmall}>Website: {url}</Text>
+          <Text style={styles.textSmall}>Date: {date}</Text>
+          <Text style={styles.textSmall}>Mode: {mode}</Text>
         </View>
       </Page>
 
