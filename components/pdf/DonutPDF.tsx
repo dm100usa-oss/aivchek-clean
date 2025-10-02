@@ -1,6 +1,7 @@
 // components/pdf/DonutPDF.tsx
 import React from "react";
-import { Svg, Circle, Text } from "@react-pdf/renderer";
+import { Svg, Circle } from "@react-pdf/renderer";
+import { View, Text, StyleSheet } from "@react-pdf/renderer";
 
 export default function DonutPDF({ score }: { score: number }) {
   const getColor = (value: number) => {
@@ -15,33 +16,43 @@ export default function DonutPDF({ score }: { score: number }) {
   const progressRadius = radius * (score / 100);
 
   return (
-    <Svg width="260" height="260" viewBox="0 0 260 260">
-      <Circle
-        stroke="#e5e7eb"
-        fill="transparent"
-        strokeWidth={stroke}
-        r={radius}
-        cx="130"
-        cy="130"
-      />
-      <Circle
-        stroke={getColor(score)}
-        fill="transparent"
-        strokeWidth={stroke}
-        r={progressRadius}
-        cx="130"
-        cy="130"
-      />
-      <Text
-        x="130"
-        y="140"
-        textAnchor="middle"
-        fontSize={48}
-        fontWeight="700"
-        fill="#111827"
-      >
-        {score}%
-      </Text>
-    </Svg>
+    <View style={styles.container}>
+      <Svg width="260" height="260" viewBox="0 0 260 260">
+        <Circle
+          stroke="#e5e7eb"
+          fill="transparent"
+          strokeWidth={stroke}
+          r={radius}
+          cx="130"
+          cy="130"
+        />
+        <Circle
+          stroke={getColor(score)}
+          fill="transparent"
+          strokeWidth={stroke}
+          r={progressRadius}
+          cx="130"
+          cy="130"
+        />
+      </Svg>
+      <Text style={styles.score}>{score}%</Text>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: "relative",
+    width: 260,
+    height: 260,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  score: {
+    position: "absolute",
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#111827",
+    textAlign: "center",
+  },
+});
