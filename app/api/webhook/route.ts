@@ -45,10 +45,13 @@ export async function POST(req: Request) {
 
     if (email) {
       try {
+        // Pass all required props for ReportPDF
         const element = React.createElement(ReportPDF, {
           url,
           mode,
           score: 75,
+          date: new Date().toISOString().split("T")[0], // today's date
+          results: [], // placeholder array, will be filled later
         });
 
         const pdfBuffer = await renderToBuffer(
