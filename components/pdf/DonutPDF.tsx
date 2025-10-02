@@ -1,66 +1,70 @@
 // components/pdf/DonutPDF.tsx
-import React from "react";
-import { Svg, Circle, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { View, Text, Svg, Circle } from "@react-pdf/renderer";
 
-export default function DonutPDF({ score }: { score: number }) {
-  const radius = 60;
-  const stroke = 12;
+interface DonutPDFProps {
+  score: number;
+}
+
+export default function DonutPDF({ score }: DonutPDFProps) {
+  const radius = 90; // радиус круга
+  const stroke = 14; // толщина линии
   const circumference = 2 * Math.PI * radius;
-  const progress = Math.min(Math.max(score, 0), 100);
-  const offset = circumference - (progress / 100) * circumference;
+  const clampedScore = Math.min(Math.max(score, 0), 100);
+  const offset = circumference - (clampedScore / 100) * circumference;
 
+  // Цвет линии в зависимости от результата
   const getColor = (value: number) => {
-    if (value < 40) return "#EF4444"; // red
-    if (value < 80) return "#F59E0B"; // yellow
-    return "#10B981"; // green
+    if (value < 40) return "#ef4444"; // красный
+    if (value < 80) return "#f59e0b"; // жёлтый
+    return "#10b981"; // зелёный
   };
 
   return (
-    <View style={styles.container}>
-      <Svg width="180" height="180" viewBox="0 0 180 180">
-        {/* Gray background circle */}
+    <View style={{ alignItems: "center", marginVertical: 20 }}>
+      <Svg width="220" height="220">
+        {/* серый фон круга */}
         <Circle
-          stroke="#E5E7EB"
-          fill="transparent"
+          stroke="#e5e7eb"
+          fill="white"
           strokeWidth={stroke.toString()}
           r={radius.toString()}
-          cx="90"
-          cy="90"
+          cx="110"
+          cy="110"
         />
-        {/* Colored circle */}
+        {/* цветная дуга */}
         <Circle
-          stroke={getColor(score)}
+          stroke={getColor(clampedScore)}
           fill="transparent"
           strokeWidth={stroke.toString()}
           strokeLinecap="round"
           strokeDasharray={circumference.toString()}
           strokeDashoffset={offset.toString()}
           r={radius.toString()}
-          cx="90"
-          cy="90"
-          transform="rotate(-90 90 90)"
+          cx="110"
+          cy="110"
+          transform="rotate(-90 110 110)"
         />
-        {/* Percentage text */}
-        <Text
-          x="90"
-          y="90"
-          textAnchor="middle"
-          fontSize="24"
-          fontWeight="bold"
-          fill="#111827"
-          dy="8"
-        >
-          {progress}%
-        </Text>
       </Svg>
+      {/* цифра в центре */}
+      <View
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 42, // ~1/3 от диаметра круга
+            fontWeight: 700,
+            color: "#111827",
+            textAlign: "center",
+          }}
+        >
+          {clampedScore}%
+        </Text>
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 20,
-  },
-});
