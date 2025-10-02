@@ -1,3 +1,4 @@
+// components/pdf/ReportPDF_Owner.tsx
 import React from "react";
 import {
   Document,
@@ -7,188 +8,150 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
+import DonutPDF from "./DonutPDF"; // статичный круг с процентами
 
-// Types
-interface ResultItem {
-  name: string;
-  desc: string;
-  status: "Good" | "Moderate" | "Poor";
-}
-
-interface ReportPDFProps {
-  url: string;
-  score: number;
-  date: string;
-  results: ResultItem[];
-}
-
-// Styles
+// ---- СТИЛИ ----
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
-    fontSize: 12,
+    fontSize: 11,
     padding: 40,
-    backgroundColor: "#ffffff",
+    lineHeight: 1.5,
     color: "#111827",
-  },
-  logo: {
-    width: 60,
-    height: 60,
-    marginBottom: 12,
-    alignSelf: "center",
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#0F172A",
     textAlign: "center",
-    marginBottom: 6,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#111827",
   },
   subtitle: {
-    fontSize: 14,
-    color: "#374151",
+    fontSize: 12,
     textAlign: "center",
     marginBottom: 20,
-  },
-  textSmall: {
-    fontSize: 11,
-    color: "#6B7280",
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  donutBox: {
-    marginVertical: 20,
-    alignItems: "center",
-  },
-  conclusion: {
-    fontSize: 13,
-    color: "#111827",
-    textAlign: "center",
-    marginVertical: 16,
-    lineHeight: 1.4,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#0F172A",
-    marginVertical: 12,
-    textAlign: "center",
-  },
-  factorBox: {
-    padding: 10,
-    marginBottom: 8,
-    borderRadius: 8,
-    backgroundColor: "#ffffff",
-    border: "1pt solid #E5E7EB",
-  },
-  factorName: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#111827",
-    marginBottom: 2,
-  },
-  factorDesc: {
-    fontSize: 11,
     color: "#374151",
-    lineHeight: 1.3,
   },
-  factorStatus: {
-    fontSize: 12,
+  section: {
+    marginBottom: 20,
+  },
+  heading: {
+    fontSize: 14,
     fontWeight: "bold",
-    marginTop: 4,
+    marginBottom: 6,
+    color: "#111827",
+  },
+  paragraph: {
+    marginBottom: 10,
+    textAlign: "justify",
   },
   footer: {
-    marginTop: 30,
     fontSize: 9,
     textAlign: "center",
+    marginTop: 20,
     color: "#6B7280",
+  },
+  logo: {
+    width: 120,
+    marginBottom: 20,
+    alignSelf: "center",
   },
 });
 
-// Helpers
-const getConclusion = (score: number) => {
-  if (score >= 80) {
-    return "Your website is already well-prepared for AI platforms. Most key parameters are configured correctly, ensuring a high probability of appearing in results from ChatGPT, Copilot, Gemini, and others.";
-  } else if (score >= 40) {
-    return "Your website is generally visible to AI platforms, but some important parameters are misconfigured or require improvement. Visibility can be significantly improved with adjustments.";
-  } else {
-    return "Your website currently has serious visibility limitations for AI platforms. Several critical parameters are missing or misconfigured, preventing your site from being properly represented.";
-  }
-};
-
-const getStatusColor = (status: string) => {
-  if (status === "Good") return "#10B981";
-  if (status === "Moderate") return "#F59E0B";
-  return "#EF4444";
-};
-
-// Component
+// ---- КОМПОНЕНТ ----
 export default function ReportPDF_Owner({
   url,
-  score,
   date,
-  results,
-}: ReportPDFProps) {
+  score,
+}: {
+  url: string;
+  date: string;
+  score: number;
+}) {
+  // Заключение
+  let conclusion = "";
+  if (score >= 80) {
+    conclusion =
+      "Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly...";
+  } else if (score >= 40) {
+    conclusion =
+      "Your website is generally visible to AI platforms, but some important parameters are misconfigured or require improvement...";
+  } else {
+    conclusion =
+      "At present, your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured...";
+  }
+
   return (
     <Document>
-      {/* Cover + summary */}
-      <Page style={styles.page}>
+      {/* --- Title Page --- */}
+      <Page size="A4" style={styles.page}>
         <Image style={styles.logo} src="/logo.png" />
-        <Text style={styles.title}>AI Website Visibility Report</Text>
-        <Text style={styles.subtitle}>AI Signal Max</Text>
+        <Text style={styles.title}>AI Signal Max</Text>
+        <Text style={styles.subtitle}>AI Website Visibility Report</Text>
 
-        <View style={{ marginVertical: 20 }}>
-          <Text style={styles.textSmall}>Website: {url}</Text>
-          <Text style={styles.textSmall}>Date: {date}</Text>
-          <Text style={styles.textSmall}>Visibility Score: {score}%</Text>
+        <View style={styles.section}>
+          <Text>Website: {url}</Text>
+          <Text>Date: {date}</Text>
         </View>
 
-        <View style={styles.donutBox}>
-          {/* Placeholder donut */}
-          <View
-            style={{
-              width: 120,
-              height: 120,
-              borderRadius: 60,
-              borderWidth: 8,
-              borderColor:
-                score >= 80 ? "#10B981" : score >= 40 ? "#F59E0B" : "#EF4444",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ fontSize: 22, fontWeight: "bold", color: "#111827" }}>
-              {score}%
-            </Text>
-          </View>
+        <View style={{ marginVertical: 20, alignItems: "center" }}>
+          <DonutPDF score={score} />
         </View>
 
-        <Text style={styles.conclusion}>{getConclusion(score)}</Text>
+        <Text style={styles.heading}>Conclusion</Text>
+        <Text style={styles.paragraph}>{conclusion}</Text>
+
+        <Text style={styles.footer}>
+          © 2025 AI Signal Max. All rights reserved. AI Signal Max is a product
+          of Magic of Discoveries LLC.
+        </Text>
       </Page>
 
-      {/* Results */}
-      <Page style={styles.page}>
-        <Text style={styles.sectionTitle}>Parameters checked</Text>
-        {results.map((r, i) => (
-          <View key={i} style={styles.factorBox}>
-            <Text style={styles.factorName}>{r.name}</Text>
-            <Text style={styles.factorDesc}>{r.desc}</Text>
-            <Text
-              style={[styles.factorStatus, { color: getStatusColor(r.status) }]}
-            >
-              {r.status}
-            </Text>
-          </View>
-        ))}
+      {/* --- Introduction --- */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.heading}>Introduction</Text>
+        <Text style={styles.paragraph}>
+          This report has been prepared for the website owner. It shows the
+          current condition of your site in terms of visibility across AI
+          platforms and explains which factors have the greatest impact.
+        </Text>
+        <Text style={styles.paragraph}>
+          The results are summarized first, followed by detailed explanations
+          and recommendations. The final section of this report contains a
+          developer’s checklist that can be handed over directly for
+          implementation.
+        </Text>
+      </Page>
 
-        <View style={styles.footer}>
-          <Text>© 2025 AI Signal Max. All rights reserved.</Text>
-          <Text>AI Signal Max is a product of Magic of Discoveries LLC.</Text>
-          <Text style={{ marginTop: 6, opacity: 0.6 }}>
-            Visibility scores are estimated and based on publicly available
-            data. Not legal advice.
-          </Text>
-        </View>
+      {/* --- Parameters --- */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.heading}>Key Factors Reviewed</Text>
+        <Text style={styles.paragraph}>
+          To calculate your site’s visibility score, we analyzed 15 key
+          parameters that influence how AI platforms and search engines
+          interpret your site. These range from fundamental technical settings
+          to user experience details.
+        </Text>
+        <Text style={styles.paragraph}>
+          Below, you will find the status of each parameter and recommendations
+          for improvement. Together, they form the foundation of your site’s
+          final visibility percentage.
+        </Text>
+      </Page>
+
+      {/* --- Footer Page --- */}
+      <Page size="A4" style={styles.page}>
+        <Text style={styles.heading}>Support and Contact</Text>
+        <Text style={styles.paragraph}>
+          If you do not currently have access to a developer, our team can
+          assist in quickly improving your website’s visibility across AI
+          platforms.
+        </Text>
+        <Text style={styles.paragraph}>Contact: support@aisignalmax.com</Text>
+        <Text style={styles.footer}>
+          © 2025 AI Signal Max. All rights reserved. AI Signal Max is a product
+          of Magic of Discoveries LLC.
+        </Text>
       </Page>
     </Document>
   );
