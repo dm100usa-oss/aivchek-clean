@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { sendReportEmail } from "@/lib/email";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
@@ -39,15 +40,20 @@ export async function POST(req: Request) {
     if (email) {
       try {
         if (mode === "pro") {
-          // Owner PDF
-          const ownerBuffer = await renderToBuffer(
-            <ReportPDF_Owner url={url} score={75} date={currentDate} />
-          );
+          const ownerElement = React.createElement(ReportPDF_Owner, {
+            url,
+            score: 75,
+            date: currentDate,
+          });
 
-          // Developer PDF
-          const developerBuffer = await renderToBuffer(
-            <ReportPDF_Developer url={url} score={75} date={currentDate} />
-          );
+          const developerElement = React.createElement(ReportPDF_Developer, {
+            url,
+            score: 75,
+            date: currentDate,
+          });
+
+          const ownerBuffer = await renderToBuffer(ownerElement);
+          const developerBuffer = await renderToBuffer(developerElement);
 
           await sendReportEmail({
             to: email,
@@ -65,10 +71,13 @@ export async function POST(req: Request) {
             filename: "AI_Signal_Report_Developer.pdf",
           });
         } else {
-          // Quick mode — only Owner PDF
-          const ownerBuffer = await renderToBuffer(
-            <ReportPDF_Owner url={url} score={75} date={currentDate} />
-          );
+          const ownerElement = React.createElement(ReportPDF_Owner, {
+            url,
+            score: 75,
+            date: currentDate,
+          });
+
+          const ownerBuffer = await renderToBuffer(ownerElement);
 
           await sendReportEmail({
             to: email,
