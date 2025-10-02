@@ -36,15 +36,18 @@ export async function POST(req: Request) {
     const mode = (session.metadata?.mode as string) || "";
 
     try {
-      // Только для полной проверки
       if (mode === "pro") {
+        const currentDate = new Date().toISOString().split("T")[0];
+
         const ownerElement = React.createElement(ReportPDF_Owner, {
           url,
           score: 75,
+          date: currentDate,
         });
         const developerElement = React.createElement(ReportPDF_Developer, {
           url,
           score: 75,
+          date: currentDate,
         });
 
         const ownerBuffer = await renderToBuffer(ownerElement);
