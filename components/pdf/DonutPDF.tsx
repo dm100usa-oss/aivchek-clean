@@ -1,68 +1,48 @@
 // components/pdf/DonutPDF.tsx
 import React from "react";
-import { Svg, Circle, Text } from "@react-pdf/renderer";
+import { View, Text, StyleSheet } from "@react-pdf/renderer";
 
 interface DonutPDFProps {
   score: number;
 }
 
-export function DonutPDF({ score }: DonutPDFProps) {
-  const radius = 90;
-  const stroke = 14;
-  const circumference = 2 * Math.PI * radius;
-  const clampedScore = Math.min(Math.max(score, 0), 100);
-  const offset = circumference - (clampedScore / 100) * circumference;
+const styles = StyleSheet.create({
+  wrapper: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    borderWidth: 14,
+    borderColor: "#e5e7eb", // gray background circle
+    justifyContent: "center",
+    alignItems: "center",
+    margin: "0 auto",
+  },
+  text: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#111827",
+    textAlign: "center",
+  },
+});
 
-  const getGradientColor = (value: number) => {
-    if (value <= 50) {
-      const ratio = value / 50;
-      return interpolateColor("#ef4444", "#f59e0b", ratio);
-    } else {
-      const ratio = (value - 50) / 50;
-      return interpolateColor("#f59e0b", "#10b981", ratio);
-    }
+export function DonutPDF({ score }: DonutPDFProps) {
+  const clampedScore = Math.min(Math.max(score, 0), 100);
+
+  // вычисляем цвет в зависимости от процента
+  const getColor = (value: number) => {
+    if (value <= 50) return "#ef4444"; // red
+    if (value < 80) return "#f59e0b"; // amber
+    return "#10b981"; // green
   };
 
-  function interpolateColor(color1: string, color2: string, factor: number) {
-    const c1 = hexToRgb(color1);
-    const c2 = hexToRgb(color2);
-    const r = Math.round(c1.r + (c2.r - c1.r) * factor);
-    const g = Math.round(c1.g + (c2.g - c1.g) * factor);
-    const b = Math.round(c1.b + (c2.b - c1.b) * factor);
-    return `rgb(${r},${g},${b})`;
-  }
-
-  function hexToRgb(hex: string) {
-    const parsed = parseInt(hex.slice(1), 16);
-    return {
-      r: (parsed >> 16) & 255,
-      g: (parsed >> 8) & 255,
-      b: parsed & 255,
-    };
-  }
-
   return (
-    <Svg width="260" height="260" viewBox="0 0 260 260">
-      {/* background circle */}
-      <Circle
-        stroke="#e5e7eb"
-        fill="transparent"
-        strokeWidth={String(stroke)}
-        r={String(radius)}
-        cx="130"
-        cy="130"
-      />
-      {/* progress circle */}
-      <Circle
-        stroke={getGradientColor(clampedScore)}
-        fill="transparent"
-        strokeWidth={String(stroke)}
-        strokeLinecap="round"
-        strokeDasharray={String(circumference)}
-        strokeDashoffset={String(offset)}
-        r={String(radius)}
-        cx="130"
-        cy="130"
-        transform="rotate(-90 130 130)"
-      />
-      {/* percentage text */}
+    <View
+      style={[
+        styles.wrapper,
+        { borderColor: getColor(clampedScore) },
+      ]}
+    >
+      <Text style={styles.text}>{clampedScore}%</Text>
+    </View>
+  );
+}
