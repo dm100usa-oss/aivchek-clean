@@ -1,3 +1,4 @@
+// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -45,33 +46,36 @@ export async function POST(req: Request) {
 
     if (email) {
       try {
+        // example results for testing
         const results: { name: string; desc: string; status: "Good" | "Moderate" | "Poor" }[] = [
           { name: "robots.txt", desc: "Controls whether AI can access your site.", status: "Good" },
           { name: "sitemap.xml", desc: "Provides AI with page structure for indexing.", status: "Moderate" },
           { name: "Meta tags", desc: "Ensures correct indexing and previews.", status: "Poor" },
-          { name: "Schema.org", desc: "Structured data for AI to understand content.", status: "Good" },
-          { name: "Open Graph tags", desc: "Controls previews on social and AI snippets.", status: "Moderate" },
         ];
 
         const date = new Date().toISOString().slice(0, 10);
 
-        // Generate Owner PDF
+        // generate Owner PDF
         const ownerElement = React.createElement(ReportPDF_Owner, {
           url,
+          mode,
           score: 75,
           date,
           results,
         });
         const ownerBuffer = await renderToBuffer(ownerElement as React.ReactElement);
 
-        // Generate Developer PDF
-        const devElement = React.createElement(ReportPDF_Developer, {
+        // generate Developer PDF
+        const developerElement = React.createElement(ReportPDF_Developer, {
           url,
+          mode,
+          score: 75,
           date,
+          results,
         });
-        const developerBuffer = await renderToBuffer(devElement as React.ReactElement);
+        const developerBuffer = await renderToBuffer(developerElement as React.ReactElement);
 
-        // Send both PDFs
+        // send both attachments
         await sendReportEmail({
           to: email,
           url,
@@ -80,7 +84,7 @@ export async function POST(req: Request) {
           developerBuffer,
         });
 
-        console.log("Email sent with two PDFs:", { email, url, mode });
+        console.log("Email sent with Owner + Developer PDF:", { email, url, mode });
       } catch (err) {
         console.error("PDF generation failed:", err);
       }
