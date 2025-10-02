@@ -1,30 +1,16 @@
 import React from "react";
-import { Svg, Path, Text, StyleSheet, View } from "@react-pdf/renderer";
+import { Svg, Circle, Text } from "@react-pdf/renderer";
 
 interface DonutPDFProps {
   score: number;
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  percentText: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#111827",
-    textAlign: "center",
-    marginTop: -140, // поднять цифру в центр круга
-  },
-});
-
 export default function DonutPDF({ score }: DonutPDFProps) {
   const radius = 90;
   const stroke = 14;
-  const percent = Math.min(Math.max(score, 0), 100);
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.min(Math.max(score, 0), 100) / 100) * circumference;
 
-  // цвета как в Donut.tsx
   const getGradientColor = (value: number) => {
     if (value <= 50) {
       const ratio = value / 50;
@@ -55,39 +41,40 @@ export default function DonutPDF({ score }: DonutPDFProps) {
     };
   }
 
-  // дуга (SVG Path)
-  const describeArc = (x: number, y: number, r: number, percent: number) => {
-    const endAngle = (percent / 100) * 360;
-    const largeArc = endAngle > 180 ? 1 : 0;
-    const radians = (Math.PI / 180) * endAngle;
-    const xEnd = x + r * Math.cos(radians - Math.PI / 2);
-    const yEnd = y + r * Math.sin(radians - Math.PI / 2);
-    return `M ${x} ${y - r} A ${r} ${r} 0 ${largeArc} 1 ${xEnd} ${yEnd}`;
-  };
-
   return (
-    <View style={styles.wrapper}>
-      <Svg width="260" height="260" viewBox="0 0 260 260">
-        {/* серый круг (фон) */}
-        <Path
-          d={describeArc(130, 130, radius, 100)}
-          stroke="#e5e7eb"
-          strokeWidth={stroke.toString()}
-          fill="none"
-        />
-
-        {/* цветная дуга */}
-        <Path
-          d={describeArc(130, 130, radius, percent)}
-          stroke={getGradientColor(percent)}
-          strokeWidth={stroke.toString()}
-          strokeLinecap="round"
-          fill="none"
-        />
-      </Svg>
-
-      {/* текст в центре */}
-      <Text style={styles.percentText}>{percent}%</Text>
-    </View>
+    <Svg width="260" height="260" viewBox="0 0 260 260">
+      <Circle
+        stroke="#e5e7eb"
+        fill="transparent"
+        strokeWidth={stroke}
+        r={radius}
+        cx="130"
+        cy="130"
+      />
+      <Circle
+        stroke={getGradientColor(score)}
+        fill="transparent"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference.toString()}
+        strokeDashoffset={offset.toString()}
+        r={radius}
+        cx="130"
+        cy="130"
+        transform="rotate(-90 130 130)"
+      />
+      <Text
+        x="130"
+        y="140"
+        textAnchor="middle"
+        style={{
+          fontSize: 48,
+          fontWeight: 700,
+          fill: "#111827",
+        }}
+      >
+        {score}%
+      </Text>
+    </Svg>
   );
 }
