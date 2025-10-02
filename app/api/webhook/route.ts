@@ -1,44 +1,36 @@
 // app/api/webhook/route.ts
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
+import React from "react";
+import { sendReportEmail } from "@/lib/email";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
-import React from "react";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 });
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = headers().get("stripe-signature") as string;
-
-  let event: Stripe.Event;
-
   try {
-    event = stripe.webhooks.constructEvent(
+    const sig = req.headers.get("stripe-signature") as string;
+    const body = await req.text();
+
+    const event = stripe.webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
-  } catch (err: any) {
-    console.error("Webhook signature verification failed:", err.message);
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-  }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const email = session.customer_details?.email || "";
-    const url = (session.metadata?.url as string) || "";
-    const mode = (session.metadata?.mode as string) || "";
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as any;
+      const email = session.customer_details?.email || "no-email@example.com";
+      const url = session.metadata?.url || "example.com";
+      const mode = session.metadata?.mode || "quick";
 
-    try {
+      const currentDate = new Date().toISOString().split("T")[0];
+
       if (mode === "pro") {
-        const currentDate = new Date().toISOString().split("T")[0];
-
         const ownerElement = React.createElement(ReportPDF_Owner, {
           url,
           score: 75,
@@ -50,8 +42,8 @@ export async function POST(req: Request) {
           date: currentDate,
         });
 
-        const ownerBuffer = await renderToBuffer(ownerElement);
-        const developerBuffer = await renderToBuffer(developerElement);
+        const ownerBuffer = await renderToBuffer(ownerElement as any);
+        const developerBuffer = await renderToBuffer(developerElement as any);
 
         await sendReportEmail({
           to: email,
@@ -61,14 +53,15 @@ export async function POST(req: Request) {
           developerBuffer,
         });
 
-        console.log("Email sent with PDFs:", { email, url, mode });
+        console.log("Pro email sent:", email);
       } else {
-        console.log("Quick mode: no PDF, only on-screen result.");
+        console.log("Quick check completed. No email sent.");
       }
-    } catch (err) {
-      console.error("PDF generation or email failed:", err);
     }
-  }
 
-  return NextResponse.json({ received: true }, { status: 200 });
+    return new NextResponse("Webhook processed", { status: 200 });
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return new NextResponse("Webhook error", { status: 400 });
+  }
 }
