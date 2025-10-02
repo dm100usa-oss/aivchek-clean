@@ -16,6 +16,14 @@ export default function DonutPDF({ score }: { score: number }) {
   return (
     <View style={styles.container}>
       <Svg width="260" height="260" viewBox="0 0 260 260">
+        {/* Белый фон внутри круга */}
+        <Circle
+          fill="#ffffff"
+          r={radius + stroke / 2}
+          cx="130"
+          cy="130"
+        />
+        {/* Основное кольцо */}
         <Circle
           stroke={getColor(score)}
           fill="transparent"
