@@ -18,29 +18,29 @@ export default function DonutPDF({ score }: { score: number }) {
   return (
     <View style={styles.container}>
       <Svg width="180" height="180" viewBox="0 0 180 180">
-        {/* Серое кольцо */}
+        {/* Gray background circle */}
         <Circle
           stroke="#E5E7EB"
           fill="transparent"
-          strokeWidth={stroke}
-          r={radius}
+          strokeWidth={stroke.toString()}
+          r={radius.toString()}
           cx="90"
           cy="90"
         />
-        {/* Основное цветное кольцо */}
+        {/* Colored circle */}
         <Circle
           stroke={getColor(score)}
           fill="transparent"
-          strokeWidth={stroke}
+          strokeWidth={stroke.toString()}
           strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          r={radius}
+          strokeDasharray={circumference.toString()}
+          strokeDashoffset={offset.toString()}
+          r={radius.toString()}
           cx="90"
           cy="90"
           transform="rotate(-90 90 90)"
         />
-        {/* Текст с процентом */}
+        {/* Percentage text */}
         <Text
           x="90"
           y="90"
