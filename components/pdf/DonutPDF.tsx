@@ -12,27 +12,33 @@ export default function DonutPDF({ score }: { score: number }) {
 
   const radius = 90;
   const stroke = 14;
-
-  const progressRadius = radius * (score / 100);
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
 
   return (
     <View style={styles.container}>
       <Svg width="260" height="260" viewBox="0 0 260 260">
+        {/* background circle */}
         <Circle
-          stroke="#e5e7eb"
+          stroke="#E5E7EB"
           fill="transparent"
           strokeWidth={stroke}
           r={radius}
           cx="130"
           cy="130"
         />
+        {/* progress circle */}
         <Circle
           stroke={getColor(score)}
           fill="transparent"
           strokeWidth={stroke}
-          r={progressRadius}
+          r={radius}
           cx="130"
           cy="130"
+          strokeDasharray={circumference.toString()}
+          strokeDashoffset={offset.toString()}
+          strokeLinecap="round"
+          transform="rotate(-90 130 130)"
         />
       </Svg>
       <Text style={styles.score}>{score}%</Text>
@@ -50,7 +56,7 @@ const styles = StyleSheet.create({
   },
   score: {
     position: "absolute",
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: "#111827",
     textAlign: "center",
