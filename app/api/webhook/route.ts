@@ -1,11 +1,11 @@
-// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDF from "@/components/pdf/ReportPDF";
+import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
+import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -45,39 +45,42 @@ export async function POST(req: Request) {
 
     if (email) {
       try {
-        // Results with strict status types
         const results: { name: string; desc: string; status: "Good" | "Moderate" | "Poor" }[] = [
           { name: "robots.txt", desc: "Controls whether AI can access your site.", status: "Good" },
           { name: "sitemap.xml", desc: "Provides AI with page structure for indexing.", status: "Moderate" },
           { name: "Meta tags", desc: "Ensures correct indexing and previews.", status: "Poor" },
           { name: "Schema.org", desc: "Structured data for AI to understand content.", status: "Good" },
           { name: "Open Graph tags", desc: "Controls previews on social and AI snippets.", status: "Moderate" },
-          { name: "Canonical links", desc: "Prevents duplicate indexing issues.", status: "Good" },
-          { name: "Alt text", desc: "AI uses alt text for image context.", status: "Moderate" },
-          { name: "Heading structure", desc: "Defines logical content hierarchy.", status: "Good" },
-          { name: "Content depth", desc: "Rich, unique text improves AI understanding.", status: "Poor" },
-          { name: "Internal linking", desc: "Supports AI navigation of your site.", status: "Moderate" },
-          { name: "Mobile optimization", desc: "AI prioritizes mobile-friendly sites.", status: "Good" },
-          { name: "Page speed", desc: "Faster sites are prioritized by AI.", status: "Moderate" },
-          { name: "Security (HTTPS)", desc: "Secure sites are required for visibility.", status: "Good" },
-          { name: "AI-specific tags", desc: "Meta directives for AI crawlers.", status: "Poor" },
-          { name: "Backlinks", desc: "External links influence AI trust.", status: "Moderate" },
         ];
 
-        const element = React.createElement(ReportPDF, {
+        const date = new Date().toISOString().slice(0, 10);
+
+        // Generate Owner PDF
+        const ownerElement = React.createElement(ReportPDF_Owner, {
           url,
-          mode,
           score: 75,
-          date: new Date().toISOString().slice(0, 10),
+          date,
           results,
         });
+        const ownerBuffer = await renderToBuffer(ownerElement as React.ReactElement);
 
-        const pdfBuffer = await renderToBuffer(
-          element as unknown as React.ReactElement
-        );
+        // Generate Developer PDF
+        const devElement = React.createElement(ReportPDF_Developer, {
+          url,
+          date,
+        });
+        const developerBuffer = await renderToBuffer(devElement as React.ReactElement);
 
-        await sendReportEmail({ to: email, url, mode, pdfBuffer });
-        console.log("Email sent with PDF:", { email, url, mode });
+        // Send both PDFs
+        await sendReportEmail({
+          to: email,
+          url,
+          mode,
+          ownerBuffer,
+          developerBuffer,
+        });
+
+        console.log("Email sent with two PDFs:", { email, url, mode });
       } catch (err) {
         console.error("PDF generation failed:", err);
       }
