@@ -1,73 +1,42 @@
 import React from "react";
-import {
-  Document,
-  Page,
-  Text,
-  View,
-  StyleSheet,
-  Font,
-} from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
-// ✅ Регистрируем шрифт Inter (TTF, поддерживается React PDF)
-Font.register({
-  family: "Inter",
-  src: "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTcviYw.ttf",
-});
+interface ReportPDFProps {
+  url: string;
+  mode: string;
+  score: number;
+}
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: 12,
     padding: 40,
-    lineHeight: 1.6,
     color: "#111827",
   },
   title: {
     fontSize: 20,
     marginBottom: 20,
     textAlign: "center",
-    fontWeight: "bold",
   },
   section: {
     marginBottom: 12,
   },
-  label: {
-    fontWeight: "bold",
+  text: {
+    marginBottom: 6,
+    lineHeight: 1.4,
   },
 });
-
-// Описываем пропсы
-export interface ReportPDFProps {
-  url: string;
-  mode: string;
-  score: number;
-}
 
 export default function ReportPDF({ url, mode, score }: ReportPDFProps) {
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>AI Website Visibility Report</Text>
-
-        <View style={styles.section}>
-          <Text>
-            <Text style={styles.label}>Website: </Text>
-            {url}
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text>
-            <Text style={styles.label}>Mode: </Text>
-            {mode}
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text>
-            <Text style={styles.label}>Visibility Score: </Text>
-            {score}%
-          </Text>
+      <Page style={styles.page}>
+        <View>
+          <Text style={styles.title}>AI Website Visibility Report</Text>
+          <Text style={styles.text}>Website: {url}</Text>
+          <Text style={styles.text}>Mode: {mode}</Text>
+          <Text style={styles.text}>Visibility Score: {score}%</Text>
         </View>
       </Page>
     </Document>
