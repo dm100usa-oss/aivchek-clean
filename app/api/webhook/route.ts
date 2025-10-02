@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     const customerEmail = session.customer_details?.email;
     const url = session.metadata?.url || "";
-    const score = session.metadata?.score || "0";
+    const score = Number(session.metadata?.score || 0);
     const date = new Date().toISOString().split("T")[0];
     const mode = session.metadata?.mode || "quick";
 
