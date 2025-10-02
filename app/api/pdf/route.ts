@@ -1,23 +1,26 @@
-// app/api/pdf/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
-import ReportPDFTest from "@/components/pdf/ReportPDFTest";
+import ReportPDF from "@/components/pdf/ReportPDF";
 import { sendReportEmail } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   try {
-    // Generate PDF buffer
-    const element = React.createElement(ReportPDFTest);
-    const pdfBuffer = await renderToBuffer(element);
-
-    // Send email with *two* attachments (test mode: both the same buffer)
-    await sendReportEmail({
-      to: "your-email@example.com", // replace with your real email
+    const element = React.createElement(ReportPDF, {
       url: "example.com",
       mode: "test",
-      ownerBuffer: pdfBuffer,       // ✅ для владельца
-      developerBuffer: pdfBuffer,   // ✅ для разработчика
+      score: 75,
+      date: new Date().toISOString().slice(0, 10),
+      results: [],
+    });
+
+    const pdfBuffer = await renderToBuffer(element);
+
+    await sendReportEmail({
+      to: "your-email@example.com",
+      url: "example.com",
+      mode: "test",
+      pdfBuffer,
     });
 
     return new NextResponse("PDF generated and email sent", { status: 200 });
