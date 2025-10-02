@@ -47,8 +47,8 @@ export function DonutPDF({ score }: DonutPDFProps) {
       <Circle
         stroke="#e5e7eb"
         fill="transparent"
-        strokeWidth={stroke}
-        r={radius}
+        strokeWidth={String(stroke)}
+        r={String(radius)}
         cx="130"
         cy="130"
       />
@@ -56,27 +56,13 @@ export function DonutPDF({ score }: DonutPDFProps) {
       <Circle
         stroke={getGradientColor(clampedScore)}
         fill="transparent"
-        strokeWidth={stroke}
+        strokeWidth={String(stroke)}
         strokeLinecap="round"
-        strokeDasharray={circumference}
-        strokeDashoffset={offset}
-        r={radius}
+        strokeDasharray={String(circumference)}
+        strokeDashoffset={String(offset)}
+        r={String(radius)}
         cx="130"
         cy="130"
         transform="rotate(-90 130 130)"
       />
       {/* percentage text */}
-      <Text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        fontSize="48"
-        fontWeight="bold"
-        fill="#111827"
-        dy="16"
-      >
-        {clampedScore}%
-      </Text>
-    </Svg>
-  );
-}
