@@ -6,177 +6,166 @@ import {
   Text,
   View,
   StyleSheet,
-  Svg,
-  Circle,
 } from "@react-pdf/renderer";
+import { DonutPDF } from "./DonutPDF"; // наш статичный Donut для PDF
 
 interface ResultItem {
   name: string;
-  description: string;
-  status: "Passed" | "Failed";
+  desc: string;
+  status: "Good" | "Moderate" | "Poor";
 }
 
 interface ReportPDFProps {
   url: string;
-  date: string;
-  score: number;
-  results: ResultItem[];
   mode: string;
+  score: number;
+  date: string;
+  results: ResultItem[];
 }
 
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     fontSize: 12,
-    padding: 40,
-    color: "#0F172A",
     backgroundColor: "#FFFFFF",
+    padding: 40,
+    color: "#111827",
   },
   title: {
-    fontSize: 20,
-    marginBottom: 20,
-    textAlign: "center",
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#0F172A",
+    textAlign: "center",
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    marginBottom: 12,
-    textAlign: "center",
+    fontSize: 16,
     color: "#6B7280",
+    textAlign: "center",
+    marginBottom: 20,
   },
-  section: {
-    marginBottom: 16,
-  },
-  text: {
-    marginBottom: 6,
-    lineHeight: 1.4,
-  },
-  heading: {
+  sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 10,
+    color: "#0F172A",
+    marginVertical: 12,
+    textAlign: "center",
   },
-  passed: {
-    color: "#10B981",
+  text: {
+    fontSize: 12,
+    color: "#374151",
+    marginBottom: 4,
+    lineHeight: 1.5,
   },
-  failed: {
-    color: "#EF4444",
+  summaryBox: {
+    marginVertical: 20,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#F9FAFB",
+    textAlign: "center",
+  },
+  factorBox: {
+    padding: 10,
+    marginBottom: 8,
+    borderRadius: 8,
+    backgroundColor: "#FFFFFF",
+    border: "1pt solid #E5E7EB",
+  },
+  factorName: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 2,
+  },
+  factorDesc: {
+    fontSize: 11,
+    color: "#6B7280",
+    lineHeight: 1.3,
+  },
+  factorStatus: {
+    fontSize: 12,
+    fontWeight: "bold",
+    marginTop: 4,
   },
   footer: {
+    marginTop: 30,
     fontSize: 10,
-    marginTop: 40,
     textAlign: "center",
     color: "#6B7280",
   },
 });
 
-function getConclusion(score: number): string {
-  if (score >= 80) {
-    return "High Visibility (≥80%). Your website is already well-prepared for AI platforms...";
-  } else if (score >= 40) {
-    return "Moderate Visibility (40–79%). Your website is generally visible but requires improvements...";
-  } else {
-    return "Low Visibility (<40%). Your website has serious visibility limitations for AI platforms...";
-  }
-}
-
 export default function ReportPDF({
   url,
-  date,
-  score,
-  results,
   mode,
+  score,
+  date,
+  results,
 }: ReportPDFProps) {
+  const getConclusion = (score: number) => {
+    if (score >= 80) {
+      return "Your site is well visible for AI platforms. Most parameters are configured correctly.";
+    } else if (score >= 40) {
+      return "Your site is partially visible for AI platforms. Some parameters require improvement.";
+    } else {
+      return "Your site is poorly visible for AI platforms. Most parameters are misconfigured.";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    if (status === "Good") return "#10B981";
+    if (status === "Moderate") return "#F59E0B";
+    return "#EF4444";
+  };
+
   return (
     <Document>
-      {/* Title Page */}
-      <Page size="A4" style={styles.page}>
+      {/* Title page */}
+      <Page style={styles.page}>
         <Text style={styles.title}>AI Signal Max</Text>
         <Text style={styles.subtitle}>AI Website Visibility Report</Text>
-        <View style={styles.section}>
-          <Text style={styles.text}>Website: {url}</Text>
-          <Text style={styles.text}>Date of Assessment: {date}</Text>
-          <Text style={styles.text}>Mode: {mode}</Text>
+        <Text style={styles.text}>Website: {url}</Text>
+        <Text style={styles.text}>Date: {date}</Text>
+        <Text style={styles.text}>Mode: {mode}</Text>
+
+        <View style={{ alignItems: "center", marginVertical: 24 }}>
+          <DonutPDF score={score} />
         </View>
-        <View style={styles.section}>
-          <Svg height="120" width="120">
-            <Circle
-              cx="60"
-              cy="60"
-              r="50"
-              stroke="#10B981"
-              strokeWidth="10"
-              fill="none"
-            />
-          </Svg>
-          <Text style={{ fontSize: 20, marginTop: 10, textAlign: "center" }}>
-            {score}%
+
+        <View style={styles.summaryBox}>
+          <Text style={{ fontSize: 14, fontWeight: "medium", color: "#111827" }}>
+            {getConclusion(score)}
           </Text>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.heading}>Conclusion</Text>
-          <Text style={styles.text}>{getConclusion(score)}</Text>
-        </View>
       </Page>
 
-      {/* Introduction */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.heading}>Introduction</Text>
-        <Text style={styles.text}>
-          This report shows the current condition of your site in terms of
-          visibility across AI platforms and explains which factors have the
-          greatest impact.
-        </Text>
-        <Text style={styles.text}>
-          The results are summarized first, followed by detailed explanations and
-          recommendations. The final section of this report contains a
-          developer’s checklist that can be handed over directly for
-          implementation.
-        </Text>
-      </Page>
-
-      {/* Key Factors */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.heading}>Key Factors Reviewed</Text>
-        {results.map((item, index) => (
-          <View key={index} style={styles.section}>
-            <Text style={styles.text}>
-              {index + 1}. {item.name}
-            </Text>
-            <Text style={styles.text}>{item.description}</Text>
+      {/* Results page */}
+      <Page style={styles.page}>
+        <Text style={styles.sectionTitle}>Parameters checked</Text>
+        {results.map((r, i) => (
+          <View key={i} style={styles.factorBox}>
+            <Text style={styles.factorName}>{r.name}</Text>
+            <Text style={styles.factorDesc}>{r.desc}</Text>
             <Text
               style={[
-                styles.text,
-                item.status === "Passed" ? styles.passed : styles.failed,
+                styles.factorStatus,
+                { color: getStatusColor(r.status) },
               ]}
             >
-              {item.status}
+              {r.status}
             </Text>
           </View>
         ))}
-      </Page>
 
-      {/* Developer Checklist */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.heading}>Developer’s Checklist</Text>
-        <Text style={styles.text}>
-          A full technical checklist will be included here, based on the key
-          parameters. This section can be handed over directly to developers.
-        </Text>
-      </Page>
-
-      {/* Support */}
-      <Page size="A4" style={styles.page}>
-        <Text style={styles.heading}>Support and Contact</Text>
-        <Text style={styles.text}>
-          If you do not currently have access to a developer, our team can assist
-          in quickly improving your website’s visibility across AI platforms.
-        </Text>
-        <Text style={styles.text}>Contact: support@aisignalmax.com</Text>
-        <Text style={styles.footer}>
-          © 2025 AI Signal Max. All rights reserved. AI Signal Max is a product
-          of Magic of Discoveries LLC.
-        </Text>
+        <View style={styles.footer}>
+          <Text>© 2025 AI Signal Max. All rights reserved.</Text>
+          <Text>
+            AI Signal Max is a product of Magic of Discoveries LLC.
+          </Text>
+          <Text style={{ marginTop: 6, opacity: 0.6 }}>
+            Visibility scores are estimated and based on publicly available data. Not legal advice.
+          </Text>
+        </View>
       </Page>
     </Document>
   );
