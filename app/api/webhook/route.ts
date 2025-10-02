@@ -49,7 +49,7 @@ export async function POST(req: Request) {
         React.createElement(ReportPDF_Owner, { url, score, date }) as unknown as React.ReactElement
       );
 
-      const devBuffer = await renderToBuffer(
+      const developerBuffer = await renderToBuffer(
         React.createElement(ReportPDF_Developer, { url, score, date }) as unknown as React.ReactElement
       );
 
@@ -57,10 +57,8 @@ export async function POST(req: Request) {
         to: customerEmail,
         url,
         mode,
-        pdfAttachments: [
-          { filename: "AI_Signal_Owner_Report.pdf", content: ownerBuffer },
-          { filename: "AI_Signal_Developer_Checklist.pdf", content: devBuffer },
-        ],
+        ownerBuffer,
+        developerBuffer,
       });
     }
   }
