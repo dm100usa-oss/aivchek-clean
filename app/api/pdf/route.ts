@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import { sendReportEmail } from "@/lib/email";
-import { analyzeSite } from "@/lib/analyze";
+import { analyze } from "@/lib/analyze";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 
@@ -16,14 +16,14 @@ export async function POST(req: Request) {
     }
 
     // Реальный анализ сайта
-    const analysis = await analyzeSite(url);
+    const analysis = await analyze(url, mode);
 
     // Owner PDF
     const ownerBuffer = await renderToBuffer(
       React.createElement(ReportPDF_Owner, {
         url,
         date: new Date().toISOString().split("T")[0],
-        ...analysis, // score, checks, interpretation
+        ...analysis, // включает score, items, interpretation
       })
     );
 
