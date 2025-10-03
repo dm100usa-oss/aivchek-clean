@@ -1,4 +1,3 @@
-// components/pdf/ReportPDF_Owner.tsx
 import React from "react";
 import {
   Document,
@@ -8,6 +7,7 @@ import {
   StyleSheet,
   Svg,
   Path,
+  Image,
 } from "@react-pdf/renderer";
 import DonutPDF from "./DonutPDF";
 
@@ -32,52 +32,60 @@ const styles = StyleSheet.create({
     padding: 40,
     color: "#111827",
   },
-  logo: {
-    marginBottom: 14,
+  coverLogo: {
+    marginBottom: 20,
     alignSelf: "center",
+    width: 80,
+    height: 80,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 8,
     color: "#111827",
-    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 13,
     textAlign: "center",
     color: "#6B7280",
     marginBottom: 20,
   },
+  donutWrap: {
+    alignItems: "center",
+    marginVertical: 20,
+  },
   summaryBox: {
     marginTop: 16,
-    padding: 12,
+    padding: 14,
     borderRadius: 8,
     backgroundColor: "#F9FAFB",
-    textAlign: "center",
   },
   summaryText: {
     fontSize: 13,
+    textAlign: "center",
     color: "#111827",
+    lineHeight: 1.4,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#111827",
-    marginVertical: 16,
+    marginVertical: 18,
     textAlign: "center",
+    color: "#111827",
   },
   factorBox: {
-    padding: 10,
-    marginBottom: 8,
+    padding: 12,
+    marginBottom: 10,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
     border: "1pt solid #E5E7EB",
+    backgroundColor: "#FFFFFF",
   },
   factorName: {
     fontSize: 12,
     fontWeight: "bold",
     marginBottom: 4,
+    color: "#111827",
   },
   factorDesc: {
     fontSize: 11,
@@ -94,21 +102,28 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: "center",
     color: "#6B7280",
+    lineHeight: 1.4,
   },
 });
 
-const Logo = () => (
-  <Svg style={styles.logo} width="48" height="48" viewBox="0 0 64 64">
-    <Path
-      d="M32 4C28 12 20 20 16 32c4 2 8 4 16 4s12-2 16-4c-4-12-12-20-16-28z"
-      fill="#0ea5e9"
-    />
-    <Path
-      d="M32 8c-2 6-6 12-8 20 2 1 4 2 8 2s6-1 8-2c-2-8-6-14-8-20z"
-      fill="#10b981"
-    />
-  </Svg>
-);
+const getConclusion = (score: number): string => {
+  if (score >= 80) {
+    return `High Visibility (≥80%)
+Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly, ensuring a high probability of appearing in results from ChatGPT, Copilot, Gemini, and other tools. Regular monitoring is still recommended to maintain performance.`;
+  } else if (score >= 40) {
+    return `Moderate Visibility (40–79%)
+Your website is generally visible to AI platforms, but some parameters are misconfigured or require improvement. In this state, your site may appear in AI results, but with limited trust. Fixing the issues can significantly improve visibility and traffic.`;
+  } else {
+    return `Low Visibility (<40%)
+Your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing. Without corrections, your site remains invisible in AI-driven results and loses to competitors.`;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  if (status === "Good") return "#10B981"; // green
+  if (status === "Moderate") return "#F59E0B"; // orange
+  return "#EF4444"; // red
+};
 
 export default function ReportPDF_Owner({
   url,
@@ -116,33 +131,17 @@ export default function ReportPDF_Owner({
   date,
   results,
 }: ReportPDFProps) {
-  const getConclusion = (score: number) => {
-    if (score >= 80) {
-      return "High Visibility: Your website is well-prepared for AI platforms. Most parameters are configured correctly.";
-    } else if (score >= 40) {
-      return "Moderate Visibility: Your website is partially visible for AI platforms. Some parameters require improvement.";
-    } else {
-      return "Low Visibility: Your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing.";
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    if (status === "Good") return "#10B981";
-    if (status === "Moderate") return "#F59E0B";
-    return "#EF4444";
-  };
-
   return (
     <Document>
-      {/* COVER */}
+      {/* COVER PAGE */}
       <Page style={styles.page}>
-        <Logo />
+        <Image src="/mnt/data/логотип.png" style={styles.coverLogo} />
         <Text style={styles.title}>AI Website Visibility Report</Text>
         <Text style={styles.subtitle}>
           Website: {url} {"\n"} Date: {date}
         </Text>
 
-        <View style={{ alignItems: "center", marginVertical: 20 }}>
+        <View style={styles.donutWrap}>
           <DonutPDF score={score} />
         </View>
 
@@ -151,9 +150,9 @@ export default function ReportPDF_Owner({
         </View>
       </Page>
 
-      {/* RESULTS */}
+      {/* RESULTS PAGE */}
       <Page style={styles.page}>
-        <Text style={styles.sectionTitle}>Results of website audit</Text>
+        <Text style={styles.sectionTitle}>Key Factors Reviewed</Text>
         {results.map((r, i) => (
           <View key={i} style={styles.factorBox}>
             <Text style={styles.factorName}>{r.name}</Text>
@@ -168,12 +167,13 @@ export default function ReportPDF_Owner({
 
         <View style={styles.footer}>
           <Text>© 2025 AI Signal Max. All rights reserved.</Text>
-          <Text style={{ opacity: 0.7 }}>
-            AI Signal Max is a product of Magic of Discoveries LLC.
-          </Text>
+          <Text>AI Signal Max is a product of Magic of Discoveries LLC.</Text>
           <Text style={{ marginTop: 6, opacity: 0.6 }}>
             Visibility scores are estimated and based on publicly available data.
             Not legal advice.
+          </Text>
+          <Text style={{ marginTop: 6 }}>
+            Contact: support@aisignalmax.com
           </Text>
         </View>
       </Page>
