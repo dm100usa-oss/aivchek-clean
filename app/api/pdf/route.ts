@@ -14,19 +14,22 @@ export async function POST(req: Request) {
     const analysis = await analyze(url, mode);
     const date = new Date().toISOString().split("T")[0];
 
-    const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
+    const { ownerBuffer, developerBuffer } = await generateReports({
+      url,
+      date,
+      analysis,
+    });
 
     await sendReportEmail({
       to,
       url,
       mode,
-      ownerBuffer,
-      developerBuffer,
+      pdfBuffer: ownerBuffer, // отправляем Owner PDF (как раньше)
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("PDF generation error:", error);
-    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
+  } catch (err) {
+    console.error("PDF API error:", err);
+    return NextResponse.json({ error: "Failed to generate report" }, { status: 500 });
   }
 }
