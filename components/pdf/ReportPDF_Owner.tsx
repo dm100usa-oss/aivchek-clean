@@ -8,10 +8,10 @@ import {
   StyleSheet,
   Svg,
   Path,
-  Circle,
 } from "@react-pdf/renderer";
+import DonutPDF from "./DonutPDF";
 
-export interface ResultItem {
+interface ResultItem {
   name: string;
   desc: string;
   status: "Good" | "Moderate" | "Poor";
@@ -24,7 +24,6 @@ export interface ReportPDFProps {
   results: ResultItem[];
 }
 
-// ----------------- STYLES -----------------
 const styles = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
@@ -33,31 +32,26 @@ const styles = StyleSheet.create({
     padding: 40,
     color: "#111827",
   },
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
+  logo: {
+    marginBottom: 14,
+    alignSelf: "center",
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 12,
+    color: "#111827",
     marginBottom: 6,
-    color: "#0F172A",
   },
   subtitle: {
     fontSize: 12,
     textAlign: "center",
     color: "#6B7280",
-    marginBottom: 12,
-  },
-  donutWrapper: {
-    alignItems: "center",
-    marginVertical: 24,
+    marginBottom: 20,
   },
   summaryBox: {
     marginTop: 16,
-    padding: 14,
+    padding: 12,
     borderRadius: 8,
     backgroundColor: "#F9FAFB",
     textAlign: "center",
@@ -75,16 +69,15 @@ const styles = StyleSheet.create({
   },
   factorBox: {
     padding: 10,
-    marginBottom: 10,
+    marginBottom: 8,
     borderRadius: 8,
+    backgroundColor: "#FFFFFF",
     border: "1pt solid #E5E7EB",
-    backgroundColor: "#F3F4F6",
   },
   factorName: {
     fontSize: 12,
     fontWeight: "bold",
     marginBottom: 4,
-    color: "#111827",
   },
   factorDesc: {
     fontSize: 11,
@@ -104,70 +97,19 @@ const styles = StyleSheet.create({
   },
 });
 
-// ----------------- LOGO -----------------
 const Logo = () => (
-  <Svg width="50" height="50" viewBox="0 0 64 64">
+  <Svg style={styles.logo} width="48" height="48" viewBox="0 0 64 64">
     <Path
       d="M32 4C28 12 20 20 16 32c4 2 8 4 16 4s12-2 16-4c-4-12-12-20-16-28z"
-      fill="#2563EB"
+      fill="#0ea5e9"
     />
     <Path
       d="M32 8c-2 6-6 12-8 20 2 1 4 2 8 2s6-1 8-2c-2-8-6-14-8-20z"
-      fill="#10B981"
+      fill="#10b981"
     />
   </Svg>
 );
 
-// ----------------- DONUT -----------------
-const DonutPDF = ({ score }: { score: number }) => {
-  const radius = 70; // уменьшенный на 35%
-  const stroke = 12;
-  const circumference = 2 * Math.PI * radius;
-  const progress = (score / 100) * circumference;
-
-  const getColor = (value: number) => {
-    if (value >= 80) return "#10B981";
-    if (value >= 40) return "#F59E0B";
-    return "#EF4444";
-  };
-
-  return (
-    <Svg width="180" height="180" viewBox="0 0 240 240">
-      <Circle
-        cx="120"
-        cy="120"
-        r={radius.toString()}
-        stroke="#E5E7EB"
-        strokeWidth={stroke.toString()}
-        fill="white"
-      />
-      <Circle
-        cx="120"
-        cy="120"
-        r={radius.toString()}
-        stroke={getColor(score)}
-        strokeWidth={stroke.toString()}
-        strokeLinecap="round"
-        strokeDasharray={circumference.toString()}
-        strokeDashoffset={(circumference - progress).toString()}
-        fill="none"
-        transform="rotate(-90 120 120)"
-      />
-      <Text
-        x="120"
-        y="125"
-        textAnchor="middle"
-        fontSize="36"
-        fontWeight="bold"
-        fill="#111827"
-      >
-        {score}%
-      </Text>
-    </Svg>
-  );
-};
-
-// ----------------- COMPONENT -----------------
 export default function ReportPDF_Owner({
   url,
   score,
@@ -176,11 +118,11 @@ export default function ReportPDF_Owner({
 }: ReportPDFProps) {
   const getConclusion = (score: number) => {
     if (score >= 80) {
-      return "Your site is well visible for AI platforms. Most parameters are configured correctly.";
+      return "High Visibility: Your website is well-prepared for AI platforms. Most parameters are configured correctly.";
     } else if (score >= 40) {
-      return "Your site is partially visible for AI platforms. Some parameters require improvement.";
+      return "Moderate Visibility: Your website is partially visible for AI platforms. Some parameters require improvement.";
     } else {
-      return "Your site is poorly visible for AI platforms. Most parameters are misconfigured.";
+      return "Low Visibility: Your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing.";
     }
   };
 
@@ -192,16 +134,15 @@ export default function ReportPDF_Owner({
 
   return (
     <Document>
-      {/* COVER PAGE */}
+      {/* COVER */}
       <Page style={styles.page}>
-        <View style={styles.header}>
-          <Logo />
-          <Text style={styles.title}>AI Website Visibility Report</Text>
-          <Text style={styles.subtitle}>Website: {url}</Text>
-          <Text style={styles.subtitle}>Date: {date}</Text>
-        </View>
+        <Logo />
+        <Text style={styles.title}>AI Website Visibility Report</Text>
+        <Text style={styles.subtitle}>
+          Website: {url} {"\n"} Date: {date}
+        </Text>
 
-        <View style={styles.donutWrapper}>
+        <View style={{ alignItems: "center", marginVertical: 20 }}>
           <DonutPDF score={score} />
         </View>
 
@@ -210,9 +151,9 @@ export default function ReportPDF_Owner({
         </View>
       </Page>
 
-      {/* RESULTS PAGE */}
+      {/* RESULTS */}
       <Page style={styles.page}>
-        <Text style={styles.sectionTitle}>Parameters Checked</Text>
+        <Text style={styles.sectionTitle}>Results of website audit</Text>
         {results.map((r, i) => (
           <View key={i} style={styles.factorBox}>
             <Text style={styles.factorName}>{r.name}</Text>
@@ -231,8 +172,8 @@ export default function ReportPDF_Owner({
             AI Signal Max is a product of Magic of Discoveries LLC.
           </Text>
           <Text style={{ marginTop: 6, opacity: 0.6 }}>
-            Visibility scores are estimated and based on publicly available
-            data. Not legal advice.
+            Visibility scores are estimated and based on publicly available data.
+            Not legal advice.
           </Text>
         </View>
       </Page>
