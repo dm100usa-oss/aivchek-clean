@@ -1,31 +1,15 @@
-// /lib/pdf.ts
 import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
-import { analyze } from "@/lib/analyze";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 
-export async function generateReports(url: string, mode: string) {
-  // Запускаем анализ сайта
-  const analysis = await analyze(url, mode);
-
-  // Генерация PDF Owner
+export async function generateReports(url: string, date: string, analysis: any) {
   const ownerBuffer = await renderToBuffer(
-    React.createElement(ReportPDF_Owner, {
-      url,
-      date: new Date().toISOString().split("T")[0],
-      ...analysis, // score, interpretation, items
-    }) as React.ReactElement
+    <ReportPDF_Owner url={url} date={date} {...analysis} />
   );
 
-  // Генерация PDF Developer
   const developerBuffer = await renderToBuffer(
-    React.createElement(ReportPDF_Developer, {
-      url,
-      date: new Date().toISOString().split("T")[0],
-      ...analysis,
-    }) as React.ReactElement
+    <ReportPDF_Developer url={url} date={date} {...analysis} />
   );
 
-  return { ownerBuffer, developerBuffer, analysis };
+  return { ownerBuffer, developerBuffer };
 }
