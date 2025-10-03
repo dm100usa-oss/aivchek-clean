@@ -5,6 +5,8 @@ import {
   Text,
   View,
   StyleSheet,
+  Svg,
+  Path,
 } from "@react-pdf/renderer";
 import DonutPDF from "./DonutPDF";
 
@@ -29,12 +31,16 @@ const styles = StyleSheet.create({
     padding: 40,
     color: "#111827",
   },
+  logo: {
+    marginBottom: 14,
+    alignSelf: "center",
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 8,
     color: "#111827",
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 12,
@@ -45,34 +51,32 @@ const styles = StyleSheet.create({
   summaryBox: {
     marginTop: 16,
     padding: 12,
-    borderRadius: 6,
+    borderRadius: 8,
     backgroundColor: "#F9FAFB",
+    textAlign: "center",
   },
   summaryText: {
     fontSize: 13,
-    textAlign: "center",
-    lineHeight: 1.4,
     color: "#111827",
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#111827",
     marginVertical: 16,
     textAlign: "center",
-    color: "#111827",
   },
   factorBox: {
     padding: 10,
     marginBottom: 8,
-    borderRadius: 6,
-    border: "1pt solid #E5E7EB",
+    borderRadius: 8,
     backgroundColor: "#FFFFFF",
+    border: "1pt solid #E5E7EB",
   },
   factorName: {
     fontSize: 12,
     fontWeight: "bold",
     marginBottom: 4,
-    color: "#111827",
   },
   factorDesc: {
     fontSize: 11,
@@ -89,25 +93,21 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: "center",
     color: "#6B7280",
-    lineHeight: 1.4,
   },
 });
 
-const getConclusion = (score: number) => {
-  if (score >= 80) {
-    return "High Visibility (≥80%): Your website is well-prepared for AI platforms.";
-  } else if (score >= 40) {
-    return "Moderate Visibility (40–79%): Your website is partially visible, some improvements required.";
-  } else {
-    return "Low Visibility (<40%): Your website has serious visibility limitations for AI platforms.";
-  }
-};
-
-const getStatusColor = (status: string) => {
-  if (status === "Good") return "#10B981";
-  if (status === "Moderate") return "#F59E0B";
-  return "#EF4444";
-};
+const Logo = () => (
+  <Svg style={styles.logo} width="48" height="48" viewBox="0 0 64 64">
+    <Path
+      d="M32 4C28 12 20 20 16 32c4 2 8 4 16 4s12-2 16-4c-4-12-12-20-16-28z"
+      fill="#0ea5e9"
+    />
+    <Path
+      d="M32 8c-2 6-6 12-8 20 2 1 4 2 8 2s6-1 8-2c-2-8-6-14-8-20z"
+      fill="#10b981"
+    />
+  </Svg>
+);
 
 export default function ReportPDF_Owner({
   url,
@@ -115,9 +115,26 @@ export default function ReportPDF_Owner({
   date,
   results,
 }: ReportPDFProps) {
+  const getConclusion = (score: number) => {
+    if (score >= 80) {
+      return "High Visibility: Your website is well-prepared for AI platforms. Most parameters are configured correctly.";
+    } else if (score >= 40) {
+      return "Moderate Visibility: Your website is partially visible for AI platforms. Some parameters require improvement.";
+    } else {
+      return "Low Visibility: Your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing.";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    if (status === "Good") return "#10B981";
+    if (status === "Moderate") return "#F59E0B";
+    return "#EF4444";
+  };
+
   return (
     <Document>
       <Page style={styles.page}>
+        <Logo />
         <Text style={styles.title}>AI Website Visibility Report</Text>
         <Text style={styles.subtitle}>
           Website: {url} {"\n"} Date: {date}
@@ -133,7 +150,7 @@ export default function ReportPDF_Owner({
       </Page>
 
       <Page style={styles.page}>
-        <Text style={styles.sectionTitle}>Key Factors Reviewed</Text>
+        <Text style={styles.sectionTitle}>Results of website audit</Text>
         {results.map((r, i) => (
           <View key={i} style={styles.factorBox}>
             <Text style={styles.factorName}>{r.name}</Text>
@@ -148,12 +165,13 @@ export default function ReportPDF_Owner({
 
         <View style={styles.footer}>
           <Text>© 2025 AI Signal Max. All rights reserved.</Text>
-          <Text>AI Signal Max is a product of Magic of Discoveries LLC.</Text>
+          <Text style={{ opacity: 0.7 }}>
+            AI Signal Max is a product of Magic of Discoveries LLC.
+          </Text>
           <Text style={{ marginTop: 6, opacity: 0.6 }}>
             Visibility scores are estimated and based on publicly available data.
             Not legal advice.
           </Text>
-          <Text style={{ marginTop: 6 }}>Contact: support@aisignalmax.com</Text>
         </View>
       </Page>
     </Document>
