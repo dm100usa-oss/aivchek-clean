@@ -5,9 +5,6 @@ import {
   Text,
   View,
   StyleSheet,
-  Svg,
-  Path,
-  Image,
 } from "@react-pdf/renderer";
 import DonutPDF from "./DonutPDF";
 
@@ -32,52 +29,42 @@ const styles = StyleSheet.create({
     padding: 40,
     color: "#111827",
   },
-  coverLogo: {
-    marginBottom: 20,
-    alignSelf: "center",
-    width: 80,
-    height: 80,
-  },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 8,
     color: "#111827",
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 12,
     textAlign: "center",
     color: "#6B7280",
     marginBottom: 20,
   },
-  donutWrap: {
-    alignItems: "center",
-    marginVertical: 20,
-  },
   summaryBox: {
     marginTop: 16,
-    padding: 14,
-    borderRadius: 8,
+    padding: 12,
+    borderRadius: 6,
     backgroundColor: "#F9FAFB",
   },
   summaryText: {
     fontSize: 13,
     textAlign: "center",
-    color: "#111827",
     lineHeight: 1.4,
+    color: "#111827",
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "bold",
-    marginVertical: 18,
+    marginVertical: 16,
     textAlign: "center",
     color: "#111827",
   },
   factorBox: {
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+    borderRadius: 6,
     border: "1pt solid #E5E7EB",
     backgroundColor: "#FFFFFF",
   },
@@ -106,23 +93,20 @@ const styles = StyleSheet.create({
   },
 });
 
-const getConclusion = (score: number): string => {
+const getConclusion = (score: number) => {
   if (score >= 80) {
-    return `High Visibility (≥80%)
-Your website is already well-prepared for AI platforms. Most of the key parameters are configured correctly, ensuring a high probability of appearing in results from ChatGPT, Copilot, Gemini, and other tools. Regular monitoring is still recommended to maintain performance.`;
+    return "High Visibility (≥80%): Your website is well-prepared for AI platforms.";
   } else if (score >= 40) {
-    return `Moderate Visibility (40–79%)
-Your website is generally visible to AI platforms, but some parameters are misconfigured or require improvement. In this state, your site may appear in AI results, but with limited trust. Fixing the issues can significantly improve visibility and traffic.`;
+    return "Moderate Visibility (40–79%): Your website is partially visible, some improvements required.";
   } else {
-    return `Low Visibility (<40%)
-Your website has serious visibility limitations for AI platforms. Several critical parameters are misconfigured or missing. Without corrections, your site remains invisible in AI-driven results and loses to competitors.`;
+    return "Low Visibility (<40%): Your website has serious visibility limitations for AI platforms.";
   }
 };
 
 const getStatusColor = (status: string) => {
-  if (status === "Good") return "#10B981"; // green
-  if (status === "Moderate") return "#F59E0B"; // orange
-  return "#EF4444"; // red
+  if (status === "Good") return "#10B981";
+  if (status === "Moderate") return "#F59E0B";
+  return "#EF4444";
 };
 
 export default function ReportPDF_Owner({
@@ -133,15 +117,13 @@ export default function ReportPDF_Owner({
 }: ReportPDFProps) {
   return (
     <Document>
-      {/* COVER PAGE */}
       <Page style={styles.page}>
-        <Image src="/mnt/data/логотип.png" style={styles.coverLogo} />
         <Text style={styles.title}>AI Website Visibility Report</Text>
         <Text style={styles.subtitle}>
           Website: {url} {"\n"} Date: {date}
         </Text>
 
-        <View style={styles.donutWrap}>
+        <View style={{ alignItems: "center", marginVertical: 20 }}>
           <DonutPDF score={score} />
         </View>
 
@@ -150,7 +132,6 @@ export default function ReportPDF_Owner({
         </View>
       </Page>
 
-      {/* RESULTS PAGE */}
       <Page style={styles.page}>
         <Text style={styles.sectionTitle}>Key Factors Reviewed</Text>
         {results.map((r, i) => (
@@ -172,9 +153,7 @@ export default function ReportPDF_Owner({
             Visibility scores are estimated and based on publicly available data.
             Not legal advice.
           </Text>
-          <Text style={{ marginTop: 6 }}>
-            Contact: support@aisignalmax.com
-          </Text>
+          <Text style={{ marginTop: 6 }}>Contact: support@aisignalmax.com</Text>
         </View>
       </Page>
     </Document>
