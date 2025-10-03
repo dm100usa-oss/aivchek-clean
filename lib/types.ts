@@ -1,11 +1,26 @@
-import { Mode } from "./score";
-import { CheckItem } from "./analyze";
+// lib/types.ts
+
+export type Mode = "quick" | "pro";
+
+export interface CheckResult {
+  key: string;
+  name: string;
+  passed: boolean | null; // true = passed, false = failed, null = partial
+  description: string;
+}
+
+export interface AnalyzeResult {
+  url: string;
+  mode: Mode;
+  items: CheckResult[];
+  score: number;
+  interpretation: string;
+}
 
 export interface PDFData {
   url: string;
   date: string;
-  mode: Mode;
   score: number;
   interpretation: string;
-  checks: CheckItem[];
+  checks: CheckResult[];
 }
