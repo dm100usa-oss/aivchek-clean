@@ -1,42 +1,44 @@
-// /app/api/pdf/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
+// app/api/pdf/route.ts
+import { NextResponse } from "next/server";
 import React from "react";
+import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 import { sendReportEmail } from "@/lib/email";
-import { PDFData } from "@/lib/types";
 
-export async function GET(req: NextRequest) {
+export async function POST() {
   try {
-    const testData: PDFData = {
+    const testData = {
       url: "https://example.com",
-      date: new Date().toISOString().slice(0, 10),
-      score: 75,
-      interpretation: "Moderate",
-      checks: [
-        { key: "robots_txt", name: "Robots.txt", passed: true, description: "OK" },
-        { key: "sitemap_xml", name: "Sitemap.xml", passed: false, description: "Missing" },
-      ],
+      score: 85,
     };
 
-    const ownerElement = React.createElement(ReportPDF_Owner, testData);
-    const developerElement = React.createElement(ReportPDF_Developer, testData);
+    const ownerBuffer = await renderToBuffer(
+      React.createElement(ReportPDF_Owner, {
+        url: testData.url,
+        score: testData.score,
+        date: new Date().toISOString().split("T")[0],
+      }) as unknown as React.ReactElement
+    );
 
-    const ownerBuffer = await renderToBuffer(ownerElement as React.ReactElement);
-    const developerBuffer = await renderToBuffer(developerElement as React.ReactElement);
+    const developerBuffer = await renderToBuffer(
+      React.createElement(ReportPDF_Developer, {
+        url: testData.url,
+        score: testData.score,
+        date: new Date().toISOString().split("T")[0],
+      }) as unknown as React.ReactElement
+    );
 
     await sendReportEmail({
-      to: "your-email@example.com",
       url: testData.url,
       mode: "pro",
       ownerBuffer,
       developerBuffer,
     });
 
-    return new NextResponse("PDFs generated and email sent", { status: 200 });
-  } catch (error) {
-    console.error("PDF generation error:", error);
-    return NextResponse.json({ error: "Failed to generate PDFs" }, { status: 500 });
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("PDF API Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
