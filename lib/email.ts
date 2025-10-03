@@ -46,7 +46,7 @@ AI Signal Max`;
 
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev", // sandbox address
+      from: "onboarding@resend.dev",   // оставляем sandbox адрес
       to,
       subject,
       text: plainText,
