@@ -35,13 +35,12 @@ export async function POST(req: Request) {
     const date = new Date().toISOString().split("T")[0];
     const mode = session.metadata?.mode || "quick";
 
-    // results приходят как JSON в metadata
     let results: ReportPDFProps["results"] = [];
     try {
       if (session.metadata?.results) {
         results = JSON.parse(session.metadata.results) as ReportPDFProps["results"];
       }
-    } catch (e) {
+    } catch {
       results = [];
     }
 
@@ -51,12 +50,7 @@ export async function POST(req: Request) {
 
     if (mode === "pro") {
       const ownerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Owner, {
-          url,
-          score,
-          date,
-          results,
-        } as ReportPDFProps)
+        <ReportPDF_Owner url={url} score={score} date={date} results={results} />
       );
 
       await sendReportEmail({
