@@ -2,6 +2,7 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { analyze } from "@/lib/analyze";
 import { sendReportEmail } from "@/lib/email";
 import { generateReports } from "@/lib/pdf";
 
@@ -33,25 +34,25 @@ export async function POST(req: Request) {
     const url = session.metadata?.url || "";
     const mode = session.metadata?.mode || "quick";
 
-    if (!customerEmail || !url) {
+    if (!customerEmail) {
       return NextResponse.json({ received: true });
     }
 
-    // Only for Pro mode we send PDF reports
-    if (mode === "pro") {
-      try {
-        const { ownerBuffer, developerBuffer } = await generateReports(url, mode);
+    try {
+      const analysis = await analyze(url, mode);
+      const date = new Date().toISOString().split("T")[0];
 
-        await sendReportEmail({
-          to: customerEmail,
-          url,
-          mode,
-          ownerBuffer,
-          developerBuffer,
-        });
-      } catch (err) {
-        console.error("Report generation or email send failed:", err);
-      }
+      const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
+
+      await sendReportEmail({
+        to: customerEmail,
+        url,
+        mode,
+        ownerBuffer,
+        developerBuffer,
+      });
+    } catch (err) {
+      console.error("PDF generation or email send failed:", err);
     }
   }
 
