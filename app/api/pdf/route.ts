@@ -18,7 +18,7 @@ export async function POST() {
         url: testData.url,
         score: testData.score,
         date: new Date().toISOString().split("T")[0],
-      }) as unknown as React.ReactElement
+      }) as React.ReactElement
     );
 
     const developerBuffer = await renderToBuffer(
@@ -26,7 +26,7 @@ export async function POST() {
         url: testData.url,
         score: testData.score,
         date: new Date().toISOString().split("T")[0],
-      }) as unknown as React.ReactElement
+      }) as React.ReactElement
     );
 
     await sendReportEmail({
