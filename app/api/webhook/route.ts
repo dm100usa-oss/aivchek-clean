@@ -2,12 +2,13 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { analyze } from "@/lib/analyze";
 import { sendReportEmail } from "@/lib/email";
 import { generateReports } from "@/lib/pdf";
+import { analyze } from "@/lib/analyze";
+import type { Mode } from "@/lib/types";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2024-06-20",
 });
 
 export async function POST(req: Request) {
@@ -23,38 +24,40 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
   } catch (err: any) {
-    console.error("Webhook signature verification failed:", err.message);
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+    console.error("Webhook signature verification failed.", err.message);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
 
-    const customerEmail = session.customer_details?.email;
-    const url = session.metadata?.url || "";
-    const mode = session.metadata?.mode || "quick";
-
-    if (!customerEmail) {
-      return NextResponse.json({ received: true });
-    }
-
     try {
+      const url = session.metadata?.url as string;
+      const email = session.customer_details?.email as string;
+      const mode = (session.metadata?.mode as Mode) || "quick";
+
       const analysis = await analyze(url, mode);
       const date = new Date().toISOString().split("T")[0];
 
-      const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
+      const { ownerBuffer, developerBuffer } = await generateReports(
+        url,
+        date,
+        analysis
+      );
 
+      // send both PDFs in one email
       await sendReportEmail({
-        to: customerEmail,
+        to: email,
         url,
         mode,
         ownerBuffer,
         developerBuffer,
       });
-    } catch (err) {
-      console.error("PDF generation or email send failed:", err);
+    } catch (error) {
+      console.error("Error processing checkout.session.completed:", error);
+      return NextResponse.json({ error: "Internal error" }, { status: 500 });
     }
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json({ received: true }, { status: 200 });
 }
