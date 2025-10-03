@@ -1,70 +1,45 @@
-// app/api/webhook/route.ts
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF_Owner, { ReportPDFProps } from "@/components/pdf/ReportPDF_Owner";
+import React from "react";
 import { sendReportEmail } from "@/lib/email";
+import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 });
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = headers().get("stripe-signature") as string;
-
-  let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET as string
-    );
-  } catch (err: any) {
-    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
-  }
+    const body = await req.json();
+    const { url, mode, score, results } = body;
+    const date = new Date().toISOString();
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-
-    const customerEmail = session.customer_details?.email;
-    const url = session.metadata?.url || "";
-    const score = Number(session.metadata?.score || 0);
-    const date = new Date().toISOString().split("T")[0];
-    const mode = session.metadata?.mode || "quick";
-
-    const results: ReportPDFProps["results"] = [
-      { name: "robots.txt", desc: "Check if robots.txt is accessible", status: "Good" },
-      { name: "sitemap.xml", desc: "Verify sitemap exists and valid", status: "Moderate" },
-      { name: "Meta tags", desc: "Ensure meta tags are properly configured", status: "Poor" },
-    ];
-
-    if (!customerEmail) {
-      return NextResponse.json({ received: true });
+    if (!url) {
+      return NextResponse.json({ error: "Missing URL" }, { status: 400 });
     }
 
     if (mode === "pro") {
-      const element = React.createElement(ReportPDF_Owner, {
-        url,
-        score,
-        date,
-        results,
-      } as ReportPDFProps);
-
       const ownerBuffer = await renderToBuffer(
-        element as unknown as React.ReactElement
+        React.createElement(ReportPDF_Owner, {
+          url,
+          score,
+          date,
+          results,
+        })
       );
 
       await sendReportEmail({
-        to: customerEmail,
+        to: "user@example.com",
         url,
         mode,
-        ownerBuffer,
+        pdfBuffer: ownerBuffer,
       });
     }
-  }
 
-  return NextResponse.json({ received: true });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Webhook error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
