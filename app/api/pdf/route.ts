@@ -1,11 +1,7 @@
-// app/api/pdf/route.ts
 import { NextResponse } from "next/server";
-import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
-import { sendReportEmail } from "@/lib/email";
 import { analyze } from "@/lib/analyze";
-import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
-import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
+import { sendReportEmail } from "@/lib/email";
+import { generateReports } from "@/lib/pdf";
 
 export async function POST(req: Request) {
   try {
@@ -15,28 +11,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Реальный анализ сайта
     const analysis = await analyze(url, mode);
+    const date = new Date().toISOString().split("T")[0];
 
-    // Owner PDF
-    const ownerBuffer = await renderToBuffer(
-      React.createElement(ReportPDF_Owner, {
-        url,
-        date: new Date().toISOString().split("T")[0],
-        ...analysis, // включает score, items, interpretation
-      })
-    );
+    const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
 
-    // Developer PDF
-    const developerBuffer = await renderToBuffer(
-      React.createElement(ReportPDF_Developer, {
-        url,
-        date: new Date().toISOString().split("T")[0],
-        ...analysis,
-      })
-    );
-
-    // Отправка письма
     await sendReportEmail({
       to,
       url,
