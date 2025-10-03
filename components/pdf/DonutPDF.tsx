@@ -1,53 +1,35 @@
-// components/pdf/DonutPDF.tsx
-import React from "react";
-import { Svg, Circle, Text } from "@react-pdf/renderer";
+// /components/pdf/DonutPDF.tsx
+import { View, Text, StyleSheet } from "@react-pdf/renderer";
+
+const styles = StyleSheet.create({
+  container: { alignItems: "center", marginBottom: 15 },
+  circle: {
+    width: 70, // small circle
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 14, // ~5 mm at A4 scale
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  score: { fontSize: 14, fontWeight: "bold" },
+});
 
 interface DonutPDFProps {
-  score: number; // 0 to 100
-  size?: number; // circle size
-  strokeWidth?: number; // stroke thickness
+  score: number;
 }
 
-const DonutPDF: React.FC<DonutPDFProps> = ({ score, size = 140, strokeWidth = 14 }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const progress = (score / 100) * circumference;
+function DonutPDF({ score }: DonutPDFProps) {
+  let color = "#4CAF50"; // green
+  if (score < 50) color = "#F44336"; // red
+  else if (score < 80) color = "#FF9800"; // orange
 
   return (
-    <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke="#E5E7EB"
-        strokeWidth={strokeWidth.toString()}
-        fill="white"
-      />
-      <Circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        stroke="#10B981"
-        strokeWidth={strokeWidth.toString()}
-        strokeLinecap="round"
-        strokeDasharray={circumference.toString()}
-        strokeDashoffset={(circumference - progress).toString()}
-        fill="none"
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-      <Text
-        x="50%"
-        y="50%"
-        textAnchor="middle"
-        dy="6"
-        fontSize={(size / 3).toString()}
-        fontWeight="bold"
-        fill="#111827"
-      >
-        {score}%
-      </Text>
-    </Svg>
+    <View style={styles.container}>
+      <View style={[styles.circle, { borderColor: color }]}>
+        <Text style={styles.score}>{score}%</Text>
+      </View>
+    </View>
   );
-};
+}
 
 export default DonutPDF;
