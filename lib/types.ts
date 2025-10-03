@@ -1,17 +1,11 @@
 import { Mode } from "./score";
-
-export interface CheckItem {
-  key: string;
-  name: string;
-  passed: boolean | null;
-  description: string;
-}
+import { CheckItem } from "./analyze";
 
 export interface PDFData {
   url: string;
-  mode: Mode;
   date: string;
+  mode: Mode;
   score: number;
   interpretation: string;
-  checks: CheckItem[]; // согласовано для PDF-шаблонов
+  checks: CheckItem[];
 }
