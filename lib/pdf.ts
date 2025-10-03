@@ -1,22 +1,18 @@
+// lib/pdf.ts
+
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
-import { AnalyzeResult } from "@/lib/analyze";
+import { PDFData } from "@/lib/types";
 
-interface GenerateReportsProps {
-  url: string;
-  date: string;
-  analysis: AnalyzeResult;
-}
-
-export async function generateReports({ url, date, analysis }: GenerateReportsProps) {
+export async function generateReports(pdfData: PDFData) {
   const ownerBuffer = await renderToBuffer(
-    React.createElement(ReportPDF_Owner, { url, date, ...analysis })
+    React.createElement(ReportPDF_Owner, pdfData)
   );
 
   const developerBuffer = await renderToBuffer(
-    React.createElement(ReportPDF_Developer, { url, date, ...analysis })
+    React.createElement(ReportPDF_Developer, pdfData)
   );
 
   return { ownerBuffer, developerBuffer };
