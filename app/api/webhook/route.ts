@@ -2,7 +2,6 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
@@ -13,18 +12,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 });
 
-function mapStatus(passed: boolean | null): "Good" | "Moderate" | "Poor" {
-  if (passed === true) return "Good";
-  if (passed === false) return "Poor";
-  return "Moderate";
-}
-
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = headers().get("stripe-signature") as string;
 
   let event: Stripe.Event;
-
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -40,7 +32,7 @@ export async function POST(req: Request) {
 
     const customerEmail = session.customer_details?.email;
     const url = session.metadata?.url || "";
-    const mode = (session.metadata?.mode as "quick" | "pro") || "quick";
+    const mode = session.metadata?.mode || "quick";
     const date = new Date().toISOString().split("T")[0];
 
     if (!customerEmail) {
@@ -57,25 +49,25 @@ export async function POST(req: Request) {
       const results = result.items.map((i) => ({
         name: i.name,
         desc: i.description,
-        status: mapStatus(i.passed),
+        status: i.status as "Good" | "Moderate" | "Poor",
       }));
 
       const ownerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Owner, {
-          url: result.url,
-          score: result.score,
-          date,
-          results,
-        }) as unknown as React.ReactElement
+        <ReportPDF_Owner
+          url={url}
+          score={result.score}
+          date={date}
+          results={results}
+        />
       );
 
       const developerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Developer, {
-          url: result.url,
-          score: result.score,
-          date,
-          results,
-        }) as unknown as React.ReactElement
+        <ReportPDF_Developer
+          url={url}
+          score={result.score}
+          date={date}
+          results={results}
+        />
       );
 
       await sendReportEmail({
