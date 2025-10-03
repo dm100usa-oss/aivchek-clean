@@ -1,33 +1,51 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
+import { sendReportEmail } from "@/lib/email";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import ReportPDF from "@/components/pdf/ReportPDF";
-import { sendReportEmail } from "@/lib/email";
 
-export const runtime = "nodejs";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2024-06-20",
+});
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const url = body?.url as string;
-    const mode = body?.mode as "quick" | "pro";
+    const sig = req.headers.get("stripe-signature") as string;
+    const body = await req.text();
 
-    if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 });
-
-    const pdfBuffer = await renderToBuffer(
-      React.createElement(ReportPDF, { url, mode, score: 75 })
+    const event = stripe.webhooks.constructEvent(
+      body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET as string
     );
 
-    await sendReportEmail({
-      to: body?.email ?? "test@example.com",
-      url,
-      mode,
-      pdfBuffer
-    });
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as any;
+      const email = session.customer_details.email;
+      const url = session.metadata.url || "https://example.com";
+      const mode = session.metadata.mode || "quick";
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
+      const pdfBuffer = await renderToBuffer(
+        React.createElement(ReportPDF, {
+          url,
+          score: 75,
+          date: new Date().toISOString(),
+          results: [],
+        })
+      );
+
+      await sendReportEmail({
+        to: email,
+        url,
+        mode,
+        pdfBuffer,
+      });
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (err: any) {
     console.error(err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }
