@@ -1,40 +1,53 @@
-import { NextRequest, NextResponse } from "next/server";
+// app/api/pdf/route.ts
+import { NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
+import { sendReportEmail } from "@/lib/email";
+import { analyzeSite } from "@/lib/analyze";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
-import { sendReportEmail } from "@/lib/email";
-import { PDFData } from "@/lib/types";
 
-export async function GET(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const testData: PDFData = {
-      url: "https://example.com",
-      date: new Date().toISOString().slice(0, 10),
-      score: 75,
-      interpretation: "Moderate",
-      checks: [
-        { key: "robots_txt", name: "Robots.txt", passed: true, description: "OK" },
-        { key: "sitemap_xml", name: "Sitemap.xml", passed: false, description: "Missing" },
-      ],
-    };
+    const { url, mode, to } = await req.json();
 
-    const ownerElement = React.createElement(ReportPDF_Owner, testData);
-    const developerElement = React.createElement(ReportPDF_Developer, testData);
+    if (!url || !mode || !to) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
 
-    const ownerBuffer = await renderToBuffer(ownerElement as React.ReactElement);
-    const developerBuffer = await renderToBuffer(developerElement as React.ReactElement);
+    // Реальный анализ сайта
+    const analysis = await analyzeSite(url);
 
+    // Owner PDF
+    const ownerBuffer = await renderToBuffer(
+      React.createElement(ReportPDF_Owner, {
+        url,
+        date: new Date().toISOString().split("T")[0],
+        ...analysis, // score, checks, interpretation
+      })
+    );
+
+    // Developer PDF
+    const developerBuffer = await renderToBuffer(
+      React.createElement(ReportPDF_Developer, {
+        url,
+        date: new Date().toISOString().split("T")[0],
+        ...analysis,
+      })
+    );
+
+    // Отправка письма
     await sendReportEmail({
-      url: testData.url,
-      mode: "pro",
+      to,
+      url,
+      mode,
       ownerBuffer,
       developerBuffer,
     });
 
-    return new NextResponse("PDFs generated and email sent", { status: 200 });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("PDF generation error:", error);
-    return NextResponse.json({ error: "Failed to generate PDFs" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
   }
 }
