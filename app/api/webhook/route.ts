@@ -1,11 +1,9 @@
+// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import React from "react";
-import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
-import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 import { sendReportEmail } from "@/lib/email";
+import { generateReports } from "@/lib/pdf";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -33,23 +31,16 @@ export async function POST(req: Request) {
 
     const customerEmail = session.customer_details?.email;
     const url = session.metadata?.url || "";
-    const score = Number(session.metadata?.score || 0);
-    const date = new Date().toISOString().split("T")[0];
     const mode = session.metadata?.mode || "quick";
 
-    if (!customerEmail) {
+    if (!customerEmail || !url) {
       return NextResponse.json({ received: true });
     }
 
+    // Only for Pro mode we send PDF reports
     if (mode === "pro") {
       try {
-        const ownerBuffer = await renderToBuffer(
-          React.createElement(ReportPDF_Owner, { url, score, date }) as React.ReactElement
-        );
-
-        const developerBuffer = await renderToBuffer(
-          React.createElement(ReportPDF_Developer, { url, score, date }) as React.ReactElement
-        );
+        const { ownerBuffer, developerBuffer } = await generateReports(url, mode);
 
         await sendReportEmail({
           to: customerEmail,
@@ -59,7 +50,7 @@ export async function POST(req: Request) {
           developerBuffer,
         });
       } catch (err) {
-        console.error("PDF generation or email send failed:", err);
+        console.error("Report generation or email send failed:", err);
       }
     }
   }
