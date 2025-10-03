@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { analyze } from "@/lib/analyze";
-import { PDFData, CheckResult } from "@/lib/types";
+import { PDFData } from "@/lib/types";
 import { renderToBuffer } from "@react-pdf/renderer";
 import React from "react";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       date: new Date().toISOString().split("T")[0],
       score: analysis.score,
       interpretation: analysis.interpretation,
-      checks: (analysis.checks as CheckResult[]) || (analysis.items as CheckResult[]) || [],
+      items: analysis.items,
     };
 
     // Generate PDFs
