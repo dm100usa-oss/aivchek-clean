@@ -1,4 +1,3 @@
-// lib/email.ts
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
@@ -18,35 +17,61 @@ export async function sendReportEmail({
   ownerBuffer,
   developerBuffer,
 }: SendReportEmailProps) {
-  try {
-    await resend.emails.send({
-      from: "AI Signal Max <reports@aisignalmax.com>",
-      to,
-      subject: `AI Website Visibility Report – ${url}`,
-      text: `Hello,
+  const subject = `AI Website Visibility Report – ${url}`;
 
-Attached is your AI Website Visibility Report for ${url}.
-Mode: ${mode === "pro" ? "Full (15 factors)" : "Quick (5 factors)"}.
+  const plainText = `Hello,
 
-You will find:
-– An overview for the site owner.
-– A detailed checklist for the developer.
+Attached are your AI Website Visibility Reports for ${url}.
+The package includes an overview for the site owner and a detailed checklist for the developer.
 
-All visibility scores are approximate and provided for user convenience only.
+If for any reason you are not currently in contact with a developer, AI Signal Max can help quickly improve your website’s visibility in AI platforms.
+
+Contact: support@aisignalmax.com
 
 Best regards,
-AI Signal Max Team`,
+AI Signal Max`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.5;">
+      <h2 style="margin-bottom: 16px;">AI Website Visibility Report</h2>
+      <p>Hello,</p>
+      <p>Attached are your AI Website Visibility Reports for <strong>${url}</strong>.</p>
+      <p>They include an <strong>overview for the site owner</strong> and a <strong>detailed checklist for the developer</strong>.</p>
+      <p>If you are not currently in contact with a developer, <strong>AI Signal Max</strong> can help quickly improve your website’s visibility in AI platforms.</p>
+      <p>Contact: <a href="mailto:support@aisignalmax.com">support@aisignalmax.com</a></p>
+      <p style="margin-top: 24px;">Best regards,<br/>AI Signal Max</p>
+    </div>
+  `;
+
+  try {
+    await resend.emails.send({
+      from: "ai-signal@resend.dev", // sandbox адрес
+      to,
+      subject,
+      text: plainText,
+      html,
       attachments: [
         ...(ownerBuffer
-          ? [{ filename: `AI_Report_Owner_${url}.pdf`, content: ownerBuffer }]
+          ? [
+              {
+                filename: "AI-Signal-Owner.pdf",
+                content: ownerBuffer.toString("base64"),
+              },
+            ]
           : []),
         ...(developerBuffer
-          ? [{ filename: `AI_Report_Developer_${url}.pdf`, content: developerBuffer }]
+          ? [
+              {
+                filename: "AI-Signal-Developer.pdf",
+                content: developerBuffer.toString("base64"),
+              },
+            ]
           : []),
       ],
     });
+    return true;
   } catch (error) {
-    console.error("Error sending email:", error);
-    throw error;
+    console.error("Email send failed:", error);
+    return false;
   }
 }
