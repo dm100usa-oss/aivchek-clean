@@ -1,9 +1,10 @@
+// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF_Owner, { ReportPDFProps } from "@/components/pdf/ReportPDF_Owner";
+import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import { sendReportEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
@@ -34,15 +35,9 @@ export async function POST(req: Request) {
     const score = Number(session.metadata?.score || 0);
     const date = new Date().toISOString().split("T")[0];
     const mode = session.metadata?.mode || "quick";
-
-    let results: ReportPDFProps["results"] = [];
-    try {
-      if (session.metadata?.results) {
-        results = JSON.parse(session.metadata.results) as ReportPDFProps["results"];
-      }
-    } catch {
-      results = [];
-    }
+    const results = session.metadata?.results
+      ? JSON.parse(session.metadata.results)
+      : [];
 
     if (!customerEmail) {
       return NextResponse.json({ received: true });
@@ -50,7 +45,12 @@ export async function POST(req: Request) {
 
     if (mode === "pro") {
       const ownerBuffer = await renderToBuffer(
-        <ReportPDF_Owner url={url} score={score} date={date} results={results} />
+        React.createElement(ReportPDF_Owner, {
+          url,
+          score,
+          date,
+          results,
+        })
       );
 
       await sendReportEmail({
