@@ -1,4 +1,3 @@
-// lib/email.ts
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
@@ -25,8 +24,6 @@ export async function sendReportEmail({
 Attached are your AI Website Visibility Reports for ${url}.
 The package includes an overview for the site owner and a detailed checklist for the developer.
 
-If for any reason you are not currently in contact with a developer, AI Signal Max can help quickly improve your website’s visibility in AI platforms.
-
 Contact: support@aisignalmax.com
 
 Best regards,
@@ -38,7 +35,6 @@ AI Signal Max`;
       <p>Hello,</p>
       <p>Attached are your AI Website Visibility Reports for <strong>${url}</strong>.</p>
       <p>They include an <strong>overview for the site owner</strong> and a <strong>detailed checklist for the developer</strong>.</p>
-      <p>If you are not currently in contact with a developer, <strong>AI Signal Max</strong> can help quickly improve your website’s visibility in AI platforms.</p>
       <p>Contact: <a href="mailto:support@aisignalmax.com">support@aisignalmax.com</a></p>
       <p style="margin-top: 24px;">Best regards,<br/>AI Signal Max</p>
     </div>
@@ -46,29 +42,23 @@ AI Signal Max`;
 
   try {
     await resend.emails.send({
-      from: "ai-signal@resend.dev", // правильный sandbox адрес
-      to,
+      from: "onboarding@resend.dev",   // sandbox sender
+      to: ["dm100usa@gmail.com"],      // только твой адрес в тестовом режиме
       subject,
       text: plainText,
       html,
       attachments: [
         ...(ownerBuffer
-          ? [
-              {
-                filename: "AI-Signal-Owner.pdf",
-                content: ownerBuffer.toString("base64"),
-              },
-            ]
+          ? [{ filename: "AI-Signal-Owner.pdf", content: ownerBuffer.toString("base64") }]
           : []),
         ...(developerBuffer
-          ? [
-              {
-                filename: "AI-Signal-Developer.pdf",
-                content: developerBuffer.toString("base64"),
-              },
-            ]
+          ? [{ filename: "AI-Signal-Developer.pdf", content: developerBuffer.toString("base64") }]
           : []),
       ],
     });
     return true;
-  } ca
+  } catch (error: any) {
+    console.error("Email send failed:", error);
+    return false;
+  }
+}
