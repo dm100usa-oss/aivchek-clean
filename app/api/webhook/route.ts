@@ -1,3 +1,4 @@
+// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -6,6 +7,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 import { sendReportEmail } from "@/lib/email";
+import { analyze } from "@/lib/analyze";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -32,9 +34,8 @@ export async function POST(req: Request) {
 
     const customerEmail = session.customer_details?.email;
     const url = session.metadata?.url || "";
-    const score = Number(session.metadata?.score || 0);
+    const mode = (session.metadata?.mode as "quick" | "pro") || "quick";
     const date = new Date().toISOString().split("T")[0];
-    const mode = session.metadata?.mode || "quick";
 
     if (!customerEmail) {
       return NextResponse.json({ received: true });
@@ -45,12 +46,43 @@ export async function POST(req: Request) {
     }
 
     if (mode === "pro") {
+      // Run real site analysis
+      const result = await analyze(url, mode);
+
       const ownerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Owner, { url, score, date }) as unknown as React.ReactElement
+        React.createElement(ReportPDF_Owner, {
+          url: result.url,
+          score: result.score,
+          date,
+          results: result.items.map((i) => ({
+            name: i.name,
+            desc: i.description,
+            status:
+              i.passed === true
+                ? "Good"
+                : i.passed === false
+                ? "Poor"
+                : "Moderate",
+          })),
+        }) as unknown as React.ReactElement
       );
 
       const developerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Developer, { url, score, date }) as unknown as React.ReactElement
+        React.createElement(ReportPDF_Developer, {
+          url: result.url,
+          score: result.score,
+          date,
+          results: result.items.map((i) => ({
+            name: i.name,
+            desc: i.description,
+            status:
+              i.passed === true
+                ? "Good"
+                : i.passed === false
+                ? "Poor"
+                : "Moderate",
+          })),
+        }) as unknown as React.ReactElement
       );
 
       await sendReportEmail({
