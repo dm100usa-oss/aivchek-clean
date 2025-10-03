@@ -51,7 +51,9 @@ export async function POST(req: Request) {
     const pdfData: PDFData = {
       url,
       date: new Date().toISOString().split("T")[0],
-      ...analysis,
+      score: analysis.score,
+      interpretation: analysis.interpretation,
+      checks: analysis.checks || analysis.items || [],
     };
 
     // Generate PDFs
