@@ -1,4 +1,3 @@
-// /components/pdf/DonutPDF.tsx
 import { View, Text, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
@@ -12,9 +11,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   score: { fontSize: 14, fontWeight: "bold" },
-  green: { borderColor: "#4CAF50" },
-  orange: { borderColor: "#FF9800" },
-  red: { borderColor: "#F44336" },
 });
 
 interface DonutPDFProps {
@@ -22,13 +18,13 @@ interface DonutPDFProps {
 }
 
 function DonutPDF({ score }: DonutPDFProps) {
-  let colorStyle = styles.green;
-  if (score < 50) colorStyle = styles.red;
-  else if (score < 80) colorStyle = styles.orange;
+  let color = "#4CAF50"; // green
+  if (score < 50) color = "#F44336"; // red
+  else if (score < 80) color = "#FF9800"; // orange
 
   return (
     <View style={styles.container}>
-      <View style={[styles.circle, colorStyle]}>
+      <View style={[styles.circle, { borderColor: color }]}>
         <Text style={styles.score}>{score}%</Text>
       </View>
     </View>
