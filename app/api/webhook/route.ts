@@ -1,47 +1,50 @@
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import React from "react";
-import { Document, Page, Text, StyleSheet, View, Image } from "@react-pdf/renderer";
-import logo from "@/public/логотип.png";
+import { renderToBuffer } from "@react-pdf/renderer";
+import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
+import { sendReportEmail } from "@/lib/email";
 
-const styles = StyleSheet.create({
-  page: {
-    fontFamily: "Helvetica",
-    fontSize: 12,
-    padding: 40,
-    color: "#111",
-  },
-  header: {
-    fontSize: 20,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  section: {
-    marginBottom: 12,
-  },
-  logo: {
-    width: 120,
-    marginBottom: 20,
-    alignSelf: "center",
-  },
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2023-10-16",
 });
 
-interface ReportPDFProps {
-  url: string;
-  score: number;
-  date: string;
-}
+export async function POST(req: Request) {
+  const body = await req.text();
+  const sig = headers().get("stripe-signature") as string;
 
-export default function ReportPDF_Owner({ url, score, date }: ReportPDFProps) {
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        <Image src={logo.src} style={styles.logo} />
-        <Text style={styles.header}>AI Website Visibility Report</Text>
-        <View style={styles.section}>
-          <Text>Website: {url}</Text>
-          <Text>Score: {score}%</Text>
-          <Text>Date: {date}</Text>
-        </View>
-      </Page>
-    </Document>
-  );
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET as string);
+  } catch (err: any) {
+    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+
+    const customerEmail = session.customer_details?.email;
+    const url = session.metadata?.url || "";
+    const score = Number(session.metadata?.score || 0);
+    const date = new Date().toISOString().split("T")[0];
+    const mode = session.metadata?.mode || "quick";
+
+    if (!customerEmail) return NextResponse.json({ received: true });
+
+    if (mode === "pro") {
+      const ownerBuffer = await renderToBuffer(
+        React.createElement(ReportPDF_Owner, { url, score, date })
+      );
+
+      await sendReportEmail({
+        to: customerEmail,
+        url,
+        mode,
+        ownerBuffer,
+      });
+    }
+  }
+
+  return NextResponse.json({ received: true });
 }
