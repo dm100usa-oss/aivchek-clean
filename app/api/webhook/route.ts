@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import { sendReportEmail } from "@/lib/email";
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
 
     if (mode === "pro") {
       const ownerBuffer = await renderToBuffer(
-        <ReportPDF_Owner url={url} score={score} date={date} />
+        React.createElement(ReportPDF_Owner, { url, score, date })
       );
 
       await sendReportEmail({
