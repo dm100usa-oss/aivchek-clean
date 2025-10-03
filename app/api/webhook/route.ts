@@ -1,12 +1,10 @@
-// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
-import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
-import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
+import ReportPDF_Owner, { ReportPDFProps } from "@/components/pdf/ReportPDF_Owner";
 import { sendReportEmail } from "@/lib/email";
-import { analyze } from "@/lib/analyze";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -17,6 +15,7 @@ export async function POST(req: Request) {
   const sig = headers().get("stripe-signature") as string;
 
   let event: Stripe.Event;
+
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -32,42 +31,32 @@ export async function POST(req: Request) {
 
     const customerEmail = session.customer_details?.email;
     const url = session.metadata?.url || "";
-    const mode = session.metadata?.mode || "quick";
+    const score = Number(session.metadata?.score || 0);
     const date = new Date().toISOString().split("T")[0];
+    const mode = session.metadata?.mode || "quick";
+
+    // results приходят как JSON в metadata
+    let results: ReportPDFProps["results"] = [];
+    try {
+      if (session.metadata?.results) {
+        results = JSON.parse(session.metadata.results) as ReportPDFProps["results"];
+      }
+    } catch (e) {
+      results = [];
+    }
 
     if (!customerEmail) {
       return NextResponse.json({ received: true });
     }
 
-    if (mode === "quick") {
-      return NextResponse.json({ received: true });
-    }
-
     if (mode === "pro") {
-      const result = await analyze(url, mode);
-
-      const results = result.items.map((i) => ({
-        name: i.name,
-        desc: i.description,
-        status: i.status as "Good" | "Moderate" | "Poor",
-      }));
-
       const ownerBuffer = await renderToBuffer(
-        <ReportPDF_Owner
-          url={url}
-          score={result.score}
-          date={date}
-          results={results}
-        />
-      );
-
-      const developerBuffer = await renderToBuffer(
-        <ReportPDF_Developer
-          url={url}
-          score={result.score}
-          date={date}
-          results={results}
-        />
+        React.createElement(ReportPDF_Owner, {
+          url,
+          score,
+          date,
+          results,
+        } as ReportPDFProps)
       );
 
       await sendReportEmail({
@@ -75,7 +64,6 @@ export async function POST(req: Request) {
         url,
         mode,
         ownerBuffer,
-        developerBuffer,
       });
     }
   }
