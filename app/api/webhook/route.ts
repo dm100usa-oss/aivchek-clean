@@ -1,45 +1,54 @@
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { renderToBuffer } from "@react-pdf/renderer";
-import React from "react";
-import { sendReportEmail } from "@/lib/email";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
+import { sendReportEmail } from "@/lib/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 });
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { url, mode, score, results } = body;
-    const date = new Date().toISOString();
+  const body = await req.text();
+  const sig = headers().get("stripe-signature") as string;
 
-    if (!url) {
-      return NextResponse.json({ error: "Missing URL" }, { status: 400 });
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET as string
+    );
+  } catch (err: any) {
+    return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
+  }
+
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const customerEmail = session.customer_details?.email;
+    const url = session.metadata?.url || "";
+    const score = Number(session.metadata?.score || 0);
+    const date = new Date().toISOString().split("T")[0];
+    const mode = session.metadata?.mode || "quick";
+
+    if (!customerEmail) {
+      return NextResponse.json({ received: true });
     }
 
     if (mode === "pro") {
       const ownerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Owner, {
-          url,
-          score,
-          date,
-          results,
-        })
+        <ReportPDF_Owner url={url} score={score} date={date} />
       );
 
       await sendReportEmail({
-        to: "user@example.com",
+        to: customerEmail,
         url,
         mode,
         pdfBuffer: ownerBuffer,
       });
     }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
+
+  return NextResponse.json({ received: true });
 }
