@@ -37,19 +37,13 @@ All visibility scores are approximate and provided for user convenience only.
 Best regards,
 AI Signal Max Team`,
       attachments: [
-        ownerBuffer
-          ? {
-              filename: `AI_Report_Owner_${url}.pdf`,
-              content: ownerBuffer,
-            }
-          : undefined,
-        developerBuffer
-          ? {
-              filename: `AI_Report_Developer_${url}.pdf`,
-              content: developerBuffer,
-            }
-          : undefined,
-      ].filter(Boolean) as { filename: string; content: Buffer }[],
+        ...(ownerBuffer
+          ? [{ filename: `AI_Report_Owner_${url}.pdf`, content: ownerBuffer }]
+          : []),
+        ...(developerBuffer
+          ? [{ filename: `AI_Report_Developer_${url}.pdf`, content: developerBuffer }]
+          : []),
+      ],
     });
   } catch (error) {
     console.error("Error sending email:", error);
