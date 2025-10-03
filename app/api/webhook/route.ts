@@ -13,6 +13,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
 });
 
+function mapStatus(passed: boolean | null): "Good" | "Moderate" | "Poor" {
+  if (passed === true) return "Good";
+  if (passed === false) return "Poor";
+  return "Moderate";
+}
+
 export async function POST(req: Request) {
   const body = await req.text();
   const sig = headers().get("stripe-signature") as string;
@@ -46,24 +52,20 @@ export async function POST(req: Request) {
     }
 
     if (mode === "pro") {
-      // Run real site analysis
       const result = await analyze(url, mode);
+
+      const results = result.items.map((i) => ({
+        name: i.name,
+        desc: i.description,
+        status: mapStatus(i.passed),
+      }));
 
       const ownerBuffer = await renderToBuffer(
         React.createElement(ReportPDF_Owner, {
           url: result.url,
           score: result.score,
           date,
-          results: result.items.map((i) => ({
-            name: i.name,
-            desc: i.description,
-            status:
-              i.passed === true
-                ? "Good"
-                : i.passed === false
-                ? "Poor"
-                : "Moderate",
-          })),
+          results,
         }) as unknown as React.ReactElement
       );
 
@@ -72,16 +74,7 @@ export async function POST(req: Request) {
           url: result.url,
           score: result.score,
           date,
-          results: result.items.map((i) => ({
-            name: i.name,
-            desc: i.description,
-            status:
-              i.passed === true
-                ? "Good"
-                : i.passed === false
-                ? "Poor"
-                : "Moderate",
-          })),
+          results,
         }) as unknown as React.ReactElement
       );
 
