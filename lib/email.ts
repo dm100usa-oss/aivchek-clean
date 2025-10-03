@@ -4,6 +4,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
 interface SendReportEmailProps {
+  to: string;
   url: string;
   mode: string;
   ownerBuffer?: Buffer;
@@ -11,41 +12,47 @@ interface SendReportEmailProps {
 }
 
 export async function sendReportEmail({
+  to,
   url,
   mode,
   ownerBuffer,
   developerBuffer,
 }: SendReportEmailProps) {
-  const subject = `AI Website Visibility Report – ${url}`;
-
-  const plainText = `Hello,
-
-Attached are your AI Website Visibility Reports for ${url}.
-This includes an overview for the site owner and a detailed checklist for the developer.
-
-Contact: support@aisignalmax.com
-
-Best regards,
-AI Signal Max`;
-
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev", // sandbox адрес
-      to: "dm100usa@gmail.com",      // только этот адрес будет работать в sandbox
-      subject,
-      text: plainText,
+      from: "AI Signal Max <reports@aisignalmax.com>",
+      to,
+      subject: `AI Website Visibility Report – ${url}`,
+      text: `Hello,
+
+Attached is your AI Website Visibility Report for ${url}.
+Mode: ${mode === "pro" ? "Full (15 factors)" : "Quick (5 factors)"}.
+
+You will find:
+– An overview for the site owner.
+– A detailed checklist for the developer.
+
+All visibility scores are approximate and provided for user convenience only.
+
+Best regards,
+AI Signal Max Team`,
       attachments: [
-        ...(ownerBuffer
-          ? [{ filename: "AI-Signal-Owner.pdf", content: ownerBuffer.toString("base64") }]
-          : []),
-        ...(developerBuffer
-          ? [{ filename: "AI-Signal-Developer.pdf", content: developerBuffer.toString("base64") }]
-          : []),
-      ],
+        ownerBuffer
+          ? {
+              filename: `AI_Report_Owner_${url}.pdf`,
+              content: ownerBuffer,
+            }
+          : undefined,
+        developerBuffer
+          ? {
+              filename: `AI_Report_Developer_${url}.pdf`,
+              content: developerBuffer,
+            }
+          : undefined,
+      ].filter(Boolean) as { filename: string; content: Buffer }[],
     });
-    return true;
-  } catch (error: any) {
-    console.error("Email send failed:", error);
-    return false;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error;
   }
 }
