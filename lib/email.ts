@@ -4,6 +4,7 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
 interface SendReportEmailProps {
+  to: string;
   url: string;
   mode: string;
   ownerBuffer?: Buffer;
@@ -11,6 +12,7 @@ interface SendReportEmailProps {
 }
 
 export async function sendReportEmail({
+  to,
   url,
   mode,
   ownerBuffer,
@@ -44,8 +46,8 @@ AI Signal Max`;
 
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev", // sandbox
-      to: "dm100usa@gmail.com",      // твой тестовый ящик
+      from: "ai-signal@resend.dev", // правильный sandbox адрес
+      to,
       subject,
       text: plainText,
       html,
@@ -69,8 +71,4 @@ AI Signal Max`;
       ],
     });
     return true;
-  } catch (error: any) {
-    console.error("Email send failed:", error);
-    return false;
-  }
-}
+  } ca
