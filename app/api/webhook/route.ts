@@ -1,4 +1,3 @@
-// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -7,7 +6,6 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import ReportPDF_Owner from "@/components/pdf/ReportPDF_Owner";
 import ReportPDF_Developer from "@/components/pdf/ReportPDF_Developer";
 import { sendReportEmail } from "@/lib/email";
-import { PDFData } from "@/lib/types";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2023-10-16",
@@ -18,6 +16,7 @@ export async function POST(req: Request) {
   const sig = headers().get("stripe-signature") as string;
 
   let event: Stripe.Event;
+
   try {
     event = stripe.webhooks.constructEvent(
       body,
@@ -25,6 +24,7 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
   } catch (err: any) {
+    console.error("Webhook signature verification failed:", err.message);
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
@@ -42,31 +42,25 @@ export async function POST(req: Request) {
     }
 
     if (mode === "pro") {
-      const data: PDFData = {
-        url,
-        date,
-        score,
-        interpretation: "Moderate", // можно заменить на реальный расчёт
-        checks: [
-          { key: "robots_txt", name: "Robots.txt", passed: true, description: "OK" },
-          { key: "sitemap_xml", name: "Sitemap.xml", passed: false, description: "Missing" },
-        ],
-      };
+      try {
+        const ownerBuffer = await renderToBuffer(
+          React.createElement(ReportPDF_Owner, { url, score, date }) as React.ReactElement
+        );
 
-      const ownerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Owner, data) as React.ReactElement
-      );
-      const developerBuffer = await renderToBuffer(
-        React.createElement(ReportPDF_Developer, data) as React.ReactElement
-      );
+        const developerBuffer = await renderToBuffer(
+          React.createElement(ReportPDF_Developer, { url, score, date }) as React.ReactElement
+        );
 
-      await sendReportEmail({
-        to: customerEmail,
-        url,
-        mode,
-        ownerBuffer,
-        developerBuffer,
-      });
+        await sendReportEmail({
+          to: customerEmail,
+          url,
+          mode,
+          ownerBuffer,
+          developerBuffer,
+        });
+      } catch (err) {
+        console.error("PDF generation or email send failed:", err);
+      }
     }
   }
 
