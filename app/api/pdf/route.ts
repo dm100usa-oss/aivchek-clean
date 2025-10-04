@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { analyze } from "@/lib/analyze";
 import { sendReportEmail } from "@/lib/email";
 import { generateReports } from "@/lib/pdf";
+import { PDFData } from "@/lib/types";
 
 export async function POST(req: Request) {
   try {
@@ -15,33 +16,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // Реальный анализ сайта
+    // анализ сайта
     const analysis = await analyze(url, mode);
+
     const date = new Date().toISOString().split("T")[0];
 
-    // Генерация PDF отчётов
-    const { ownerBuffer, developerBuffer } = await generateReports(
+    const pdfData: PDFData = {
       url,
       date,
-      analysis
-    );
+      analysis,
+    };
 
-    // Отправка письма с двумя PDF вложениями
+    // генерируем Owner + Developer PDF
+    const { ownerBuffer, developerBuffer } = await generateReports(pdfData);
+
+    // отправляем email с вложениями
     await sendReportEmail({
       to,
       url,
       mode,
-      attachments: [
-        { filename: "Owner_Report.pdf", content: ownerBuffer },
-        { filename: "Developer_Report.pdf", content: developerBuffer },
-      ],
+      ownerBuffer,
+      developerBuffer,
     });
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("PDF route error:", err);
+  } catch (err: any) {
+    console.error("PDF generation error:", err);
     return NextResponse.json(
-      { error: "Failed to generate and send report" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
