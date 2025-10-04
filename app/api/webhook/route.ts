@@ -26,11 +26,12 @@ export async function POST(req: Request) {
       const to = session.customer_details?.email;
 
       if (url && mode && to) {
+        // строго по типу AnalyzeResult
         const analysis = {
           url,
           mode,
           score: 75,
-          interpretation: "Test interpretation",
+          interpretation: "Good" as "Excellent" | "Good" | "Moderate" | "Poor",
           items: [],
         };
 
