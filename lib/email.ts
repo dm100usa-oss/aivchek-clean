@@ -3,35 +3,42 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
-export interface SendReportEmailProps {
+interface SendReportEmailProps {
   to: string;
   url: string;
-  mode: string;
-  pdfBuffer?: Buffer;
+  mode: "quick" | "pro";
+  ownerBuffer: Buffer;
+  developerBuffer: Buffer;
 }
 
-export async function sendReportEmail({ to, url, mode, pdfBuffer }: SendReportEmailProps) {
+export async function sendReportEmail({
+  to,
+  url,
+  mode,
+  ownerBuffer,
+  developerBuffer,
+}: SendReportEmailProps) {
   const subject = `AI Website Visibility Report – ${url}`;
   const plainText = `Hello,
 
-Attached is your AI Website Visibility Report for ${url}.
-It includes an overview for the site owner and a detailed checklist for the developer.
+Attached are your AI Website Visibility Reports for ${url}.
 
-If for any reason you are not currently in contact with a developer, AI Signal Max can help quickly improve your website’s visibility in AI platforms.
-
-Contact: support@aisignalmax.com
+- Owner Report: summary for business owner
+- Developer Report: checklist for implementation
 
 Best regards,
 AI Signal Max`;
 
   const html = `
     <div style="font-family: Arial, sans-serif; color: #111; line-height: 1.5;">
-      <h2 style="color:#111;">AI Website Visibility Report</h2>
-      <p>Hello,</p>
-      <p>Attached is your AI Website Visibility Report for <strong>${url}</strong>.</p>
-      <p>It includes an overview for the site owner and a detailed checklist for the developer.</p>
-      <p>If you are not currently in contact with a developer, 
-      <strong>AI Signal Max</strong> can help quickly improve your website’s visibility in AI platforms.</p>
+      <h2>AI Website Visibility Report</h2>
+      <p>Website: <strong>${url}</strong></p>
+      <p>Mode: <strong>${mode}</strong></p>
+      <p>Attached are two reports:</p>
+      <ul>
+        <li><strong>Owner Report</strong> – summary for business owner</li>
+        <li><strong>Developer Report</strong> – checklist for implementation</li>
+      </ul>
       <p style="margin-top:20px;">Best regards,<br/>AI Signal Max</p>
     </div>
   `;
@@ -42,15 +49,17 @@ AI Signal Max`;
     subject,
     text: plainText,
     html,
-    attachments: pdfBuffer
-      ? [
-          {
-            filename: "AI-Signal-Report.pdf",
-            content: pdfBuffer.toString("base64"),
-            type: "application/pdf",
-            disposition: "attachment",
-          },
-        ]
-      : [],
+    attachments: [
+      {
+        filename: "Owner_Report.pdf",
+        content: ownerBuffer.toString("base64"),
+        encoding: "base64",
+      },
+      {
+        filename: "Developer_Report.pdf",
+        content: developerBuffer.toString("base64"),
+        encoding: "base64",
+      },
+    ],
   });
 }
