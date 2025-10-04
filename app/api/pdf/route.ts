@@ -8,33 +8,27 @@ export async function POST(req: Request) {
     const { url, mode, to } = await req.json();
 
     if (!url || !mode || !to) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Анализ сайта
     const analysis = await analyze(url, mode);
     const date = new Date().toISOString().split("T")[0];
 
-    // Генерация PDF
+    // Генерация двух PDF
     const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
 
-    // Отправка email с Owner PDF
+    // Отправка email с обоими PDF
     await sendReportEmail({
       to,
       url,
       mode,
-      pdfBuffer: ownerBuffer,
+      ownerBuffer,
+      developerBuffer,
     });
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error("PDF Route Error:", err);
-    return NextResponse.json(
-      { error: "Failed to generate or send PDF" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("PDF route error:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
