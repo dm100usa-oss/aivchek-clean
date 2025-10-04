@@ -14,10 +14,8 @@ export async function POST(req: Request) {
     const analysis = await analyze(url, mode);
     const date = new Date().toISOString().split("T")[0];
 
-    // Генерация двух PDF
     const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
 
-    // Отправка email с обоими PDF
     await sendReportEmail({
       to,
       url,
