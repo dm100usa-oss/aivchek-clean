@@ -1,43 +1,40 @@
-// app/api/pdf/route.ts
 import { NextResponse } from "next/server";
 import { sendReportEmail } from "@/lib/email";
-import { generateReports } from "@/lib/pdf";
 import { analyze } from "@/lib/analyze";
-import { PDFData } from "@/lib/types";
+import { generateReports } from "@/lib/pdf";
 
 export async function POST(req: Request) {
   try {
     const { url, mode, to } = await req.json();
 
     if (!url || !mode || !to) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
-    // анализ сайта
+    // Анализ сайта
     const analysis = await analyze(url, mode);
+    const date = new Date().toISOString().split("T")[0];
 
-    // данные для PDF
-    const pdfData: PDFData = {
-      url,
-      date: new Date().toISOString().split("T")[0],
-      analysis,
-    };
+    // Генерация PDF
+    const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
 
-    // формируем оба PDF
-    const { ownerBuffer, developerBuffer } = await generateReports(pdfData);
-
-    // отправляем email
+    // Отправка email с Owner PDF
     await sendReportEmail({
       to,
       url,
       mode,
-      ownerBuffer,
-      developerBuffer,
+      pdfBuffer: ownerBuffer,
     });
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } catch (err: any) {
+    console.error("PDF Route Error:", err);
+    return NextResponse.json(
+      { error: "Failed to generate or send PDF" },
+      { status: 500 }
+    );
   }
 }
