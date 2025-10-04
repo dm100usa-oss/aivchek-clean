@@ -1,52 +1,49 @@
-// app/api/webhook/route.ts
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { sendReportEmail } from "@/lib/email";
 import { generateReports } from "@/lib/pdf";
-import { PDFData } from "@/lib/types";
+import { sendReportEmail } from "@/lib/email";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2023-10-16",
+});
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = headers().get("stripe-signature") as string;
-
-  let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    const body = await req.text();
+    const sig = headers().get("stripe-signature") as string;
+
+    const event = stripe.webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
-  } catch (err: any) {
-    return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 });
-  }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const url = session.metadata?.url || "";
-    const mode = (session.metadata?.mode as "quick" | "pro") || "quick";
-    const to = session.customer_details?.email || "";
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as any;
+      const url = session.metadata.url;
+      const mode = session.metadata.mode;
+      const to = session.customer_details?.email;
 
-    if (url && to) {
-      const pdfData: PDFData = {
-        url,
-        date: new Date().toISOString().split("T")[0],
-        mode,
-      };
+      if (url && mode && to) {
+        const analysis = { score: 75, checks: [] }; // заглушка
+        const date = new Date().toISOString().split("T")[0];
 
-      const { ownerBuffer, developerBuffer } = await generateReports(pdfData);
+        const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
 
-      await sendReportEmail({
-        to,
-        url,
-        mode,
-        ownerBuffer,
-        developerBuffer,
-      });
+        await sendReportEmail({
+          to,
+          url,
+          mode,
+          ownerBuffer,
+          developerBuffer,
+        });
+      }
     }
-  }
 
-  return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true });
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 400 });
+  }
 }
