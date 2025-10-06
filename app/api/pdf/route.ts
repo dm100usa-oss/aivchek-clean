@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendReportEmail } from "@/lib/email";
 import { analyze } from "@/lib/analyze";
-import { generateReports } from "@/lib/pdf";
+import { generatePDF } from "@/lib/generatePDF";
 
 export async function POST(req: Request) {
   try {
@@ -14,8 +14,22 @@ export async function POST(req: Request) {
     const analysis = await analyze(url, mode);
     const date = new Date().toISOString().split("T")[0];
 
-    const { ownerBuffer, developerBuffer } = await generateReports(url, date, analysis);
+    // Data passed into HTML templates
+    const templateData = {
+      url,
+      date,
+      mode,
+      score: analysis?.score ?? 0,
+      factors: Array.isArray(analysis?.factors) ? analysis.factors : [],
+    };
 
+    // Generate both PDFs via HTML2PDF.app
+    const [ownerBuffer, developerBuffer] = await Promise.all([
+      generatePDF({ type: "owner", data: templateData }),
+      generatePDF({ type: "developer", data: templateData }),
+    ]);
+
+    // Send email with both attachments
     await sendReportEmail({
       to,
       url,
